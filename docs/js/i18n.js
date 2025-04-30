@@ -1,298 +1,298 @@
-// i18n.js - 多語系支援功能
-// 翻譯資料結構
+// i18n.js - 多语系支援功能
+// 翻译资料结构
 const i18n = {
   "zh-TW": {
-    // 導航欄
-    "nav.pain-points": "痛點",
+    // 导航栏
+    "nav.pain-points": "痛点",
     "nav.features": "功能",
     "nav.workflow": "工作流程",
-    "nav.installation": "安裝配置",
+    "nav.installation": "安装配置",
     "nav.github": "GitHub",
-    "nav.menu-button": "菜單",
-    "nav.logo.alt": "蝦米任務管理器標誌",
-    "nav.prompt-custom": "提示詞配置",
-    // 英雄區
+    "nav.menu-button": "菜单",
+    "nav.logo.alt": "虾米任务管理器标志",
+    "nav.prompt-custom": "提示词配置",
+    // 英雄区
     "hero.title": "Shrimp Task Manager",
-    "hero.subtitle": "為AI編程助手提供結構化任務管理的智能系統",
+    "hero.subtitle": "为AI编程助手提供结构化任务管理的智能系统",
     "hero.description":
-      "讓AI助手擁有長期記憶能力，高效管理複雜任務，提供結構化的任務分解和執行追蹤，讓您的編程體驗更加流暢和高效。",
-    "hero.start": "開始使用",
+      "让AI助手拥有长期记忆能力，高效管理复杂任务，提供结构化的任务分解和执行追踪，让您的编程体验更加流畅和高效。",
+    "hero.start": "开始使用",
     "hero.learn-more": "了解更多",
-    "hero.workflow-image.alt": "智能任務管理工作流程",
-    // 痛點解決方案區
-    "pain-points.title": "痛點與解決方案",
+    "hero.workflow-image.alt": "智能任务管理工作流程",
+    // 痛点解决方案区
+    "pain-points.title": "痛点与解决方案",
     "pain-points.subtitle":
-      "Shrimp Task Manager 專為解決 AI 編程助手在任務管理中面臨的三大核心痛點而設計。",
-    "pain-points.memory-loss.title": "記憶缺失",
+      "Shrimp Task Manager 专为解决 AI 编程助手在任务管理中面临的三大核心痛点而设计。",
+    "pain-points.memory-loss.title": "记忆缺失",
     "pain-points.memory-loss.description":
-      "AI助手缺乏跨對話的任務記憶能力，導致無法追蹤長期任務進度，重複解釋相同需求，浪費時間和資源。",
-    "pain-points.memory-loss.solution.title": "任務記憶功能",
+      "AI助手缺乏跨对话的任务记忆能力，导致无法追踪长期任务进度，重复解释相同需求，浪费时间和资源。",
+    "pain-points.memory-loss.solution.title": "任务记忆功能",
     "pain-points.memory-loss.solution.description":
-      "自動保存執行歷史，提供長期記憶能力，讓AI助手能夠記住之前的任務進度，無縫繼續未完成任務。",
-    "pain-points.memory-loss.icon.alt": "記憶缺失",
-    "pain-points.structure-chaos.title": "結構混亂",
+      "自动保存执行历史，提供长期记忆能力，让AI助手能够记住之前的任务进度，无缝继续未完成任务。",
+    "pain-points.memory-loss.icon.alt": "记忆缺失",
+    "pain-points.structure-chaos.title": "结构混乱",
     "pain-points.structure-chaos.description":
-      "複雜任務缺乏系統化管理導致效率低下，缺少依賴關係管理，子任務執行混亂，難以追蹤總體進度。",
-    "pain-points.structure-chaos.solution.title": "結構化任務分解",
+      "复杂任务缺乏系统化管理导致效率低下，缺少依赖关系管理，子任务执行混乱，难以追踪总体进度。",
+    "pain-points.structure-chaos.solution.title": "结构化任务分解",
     "pain-points.structure-chaos.solution.description":
-      "自動將複雜任務分解為可管理的子任務，建立清晰的依賴關係，提供有序執行路徑，確保高效完成。",
-    "pain-points.structure-chaos.icon.alt": "結構混亂",
-    "pain-points.structure-chaos.solution.icon.alt": "結構化任務分解",
-    "pain-points.repeat-work.title": "重複工作",
+      "自动将复杂任务分解为可管理的子任务，建立清晰的依赖关系，提供有序执行路径，确保高效完成。",
+    "pain-points.structure-chaos.icon.alt": "结构混乱",
+    "pain-points.structure-chaos.solution.icon.alt": "结构化任务分解",
+    "pain-points.repeat-work.title": "重复工作",
     "pain-points.repeat-work.description":
-      "無法有效利用過往經驗與解決方案，每次對話都需從零開始，缺乏知識積累和經驗參考系統。",
-    "pain-points.repeat-work.solution.title": "知識積累與經驗參考",
+      "无法有效利用过往经验与解决方案，每次对话都需从零开始，缺乏知识积累和经验参考系统。",
+    "pain-points.repeat-work.solution.title": "知识积累与经验参考",
     "pain-points.repeat-work.solution.description":
-      "自動記錄成功解決方案，建立任務知識庫，支持相似任務快速參考，實現經驗積累和知識復用。",
-    "pain-points.repeat-work.icon.alt": "重複工作",
+      "自动记录成功解决方案，建立任务知识库，支持相似任务快速参考，实现经验积累和知识复用。",
+    "pain-points.repeat-work.icon.alt": "重复工作",
     "pain-points.repeat-work.solution.icon.alt":
       "Knowledge Accumulation and Experience Reference",
     "pain-points.explore": "探索核心功能",
-    // 功能區塊
+    // 功能区块
     "features.title": "核心功能",
     "features.subtitle":
-      "Shrimp Task Manager 提供六大核心功能，幫助您高效管理、執行和追蹤複雜任務。",
-    "features.planning.title": "智能任務規劃與分析",
+      "Shrimp Task Manager 提供六大核心功能，帮助您高效管理、执行和追踪复杂任务。",
+    "features.planning.title": "智能任务规划与分析",
     "features.planning.description":
-      "通過深入分析需求和約束條件，生成結構化任務計劃。自動評估範圍、風險和優先級，提供理性和全面的實施策略。",
-    "features.planning.icon.alt": "智能任務規劃與分析",
-    "features.decomposition.title": "自動任務分解與依賴管理",
+      "通过深入分析需求和约束条件，生成结构化任务计划。自动评估范围、风险和优先级，提供理性和全面的实施策略。",
+    "features.planning.icon.alt": "智能任务规划与分析",
+    "features.decomposition.title": "自动任务分解与依赖管理",
     "features.decomposition.description":
-      "智能將複雜任務分解為可管理的小任務，識別任務間依賴關係，建立優化執行路徑，避免資源衝突與執行瓶頸。",
-    "features.decomposition.icon.alt": "自動任務分解與依賴管理",
-    "features.tracking.title": "執行狀態追蹤",
+      "智能将复杂任务分解为可管理的小任务，识别任务间依赖关系，建立优化执行路径，避免资源冲突与执行瓶颈。",
+    "features.decomposition.icon.alt": "自动任务分解与依赖管理",
+    "features.tracking.title": "执行状态追踪",
     "features.tracking.description":
-      "實時監控每個任務的執行狀態，提供進度視覺化顯示，自動更新依賴項狀態，並在任務完成時提供詳細執行報告。",
-    "features.tracking.icon.alt": "執行狀態追蹤",
-    "features.verification.title": "任務完整性驗證",
+      "实时监控每个任务的执行状态，提供进度视觉化显示，自动更新依赖项状态，并在任务完成时提供详细执行报告。",
+    "features.tracking.icon.alt": "执行状态追踪",
+    "features.verification.title": "任务完整性验证",
     "features.verification.description":
-      "全面檢查任務完成度，確保所有需求與標準都已滿足，提供驗證報告與質量評估，確保產出符合預期要求。",
-    "features.verification.icon.alt": "任務完整性驗證",
-    "features.complexity.title": "任務複雜度評估",
+      "全面检查任务完成度，确保所有需求与标准都已满足，提供验证报告与质量评估，确保产出符合预期要求。",
+    "features.verification.icon.alt": "任务完整性验证",
+    "features.complexity.title": "任务复杂度评估",
     "features.complexity.description":
-      "基於多維度標準評估任務複雜度，提供資源需求估算，識別高風險組件，幫助合理分配資源與時間。",
-    "features.complexity.icon.alt": "任務複雜度評估",
-    "features.memory.title": "任務記憶功能",
+      "基于多维度标准评估任务复杂度，提供资源需求估算，识别高风险组件，帮助合理分配资源与时间。",
+    "features.complexity.icon.alt": "任务复杂度评估",
+    "features.memory.title": "任务记忆功能",
     "features.memory.description":
-      "提供跨會話的任務記憶能力，自動保存執行歷史與上下文，允許隨時恢復任務並繼續執行，無需重複解釋需求。",
-    "features.memory.icon.alt": "任務記憶功能",
+      "提供跨会话的任务记忆能力，自动保存执行历史与上下文，允许随时恢复任务并继续执行，无需重复解释需求。",
+    "features.memory.icon.alt": "任务记忆功能",
     "features.learn-workflow": "了解工作流程",
-    // 工作流程區塊
+    // 工作流程区块
     "workflow.title": "工作流程",
     "workflow.subtitle":
-      "Shrimp Task Manager 提供完整的工作流程，從任務規劃到任務完成的每個步驟都經過精心設計。",
-    "workflow.step1.title": "任務規劃",
-    "workflow.step1.description": "初始化並詳細規劃任務流程",
+      "Shrimp Task Manager 提供完整的工作流程，从任务规划到任务完成的每个步骤都经过精心设计。",
+    "workflow.step1.title": "任务规划",
+    "workflow.step1.description": "初始化并详细规划任务流程",
     "workflow.step2.title": "深入分析",
-    "workflow.step2.description": "深入分析需求並評估技術可行性",
+    "workflow.step2.description": "深入分析需求并评估技术可行性",
     "workflow.step3.title": "方案反思",
-    "workflow.step3.description": "批判性審查分析結果並優化方案",
-    "workflow.step4.title": "任務分解",
-    "workflow.step4.description": "將複雜任務分解為可管理的子任務",
-    "workflow.step5.title": "任務執行",
-    "workflow.step5.description": "按照預定計劃執行特定任務",
-    "workflow.step6.title": "結果驗證",
-    "workflow.step6.description": "全面驗證任務完成度和質量",
-    "workflow.step7.title": "任務完成",
-    "workflow.step7.description": "標記任務為完成狀態並生成報告",
+    "workflow.step3.description": "批判性审查分析结果并优化方案",
+    "workflow.step4.title": "任务分解",
+    "workflow.step4.description": "将复杂任务分解为可管理的子任务",
+    "workflow.step5.title": "任务执行",
+    "workflow.step5.description": "按照预定计划执行特定任务",
+    "workflow.step6.title": "结果验证",
+    "workflow.step6.description": "全面验证任务完成度和质量",
+    "workflow.step7.title": "任务完成",
+    "workflow.step7.description": "标记任务为完成状态并生成报告",
     "workflow.learn-more-link": "了解更多 →",
     "workflow.mobile.step1.full-description":
-      "初始化並詳細規劃任務流程，建立明確的目標與成功標準，可選擇參考現有任務進行延續規劃。",
+      "初始化并详细规划任务流程，建立明确的目标与成功标准，可选择参考现有任务进行延续规划。",
     "workflow.mobile.step2.full-description":
-      "深入分析任務需求並系統性檢查代碼庫，評估技術可行性與潛在風險，提供初步解決方案建議。",
+      "深入分析任务需求并系统性检查代码库，评估技术可行性与潜在风险，提供初步解决方案建议。",
     "workflow.mobile.step3.full-description":
-      "批判性審查分析結果，評估方案完整性並識別優化機會，確保解決方案符合最佳實踐。",
+      "批判性审查分析结果，评估方案完整性并识别优化机会，确保解决方案符合最佳实践。",
     "workflow.mobile.step4.full-description":
-      "將複雜任務分解為獨立且可追蹤的子任務，建立明確的依賴關係和優先順序，支援多種更新模式。",
+      "将复杂任务分解为独立且可追踪的子任务，建立明确的依赖关系和优先顺序，支援多种更新模式。",
     "workflow.mobile.step5.full-description":
-      "按照預定計劃執行特定任務，確保每個步驟的輸出符合質量標準，處理執行過程中的異常情況。",
+      "按照预定计划执行特定任务，确保每个步骤的输出符合质量标准，处理执行过程中的异常情况。",
     "workflow.mobile.step6.full-description":
-      "全面驗證任務完成度，確保所有需求與技術標準都已滿足，並無遺漏細節，提供質量評估報告。",
+      "全面验证任务完成度，确保所有需求与技术标准都已满足，并无遗漏细节，提供质量评估报告。",
     "workflow.mobile.step7.full-description":
-      "正式標記任務為完成狀態，生成詳細的完成報告，並更新關聯任務的依賴狀態，確保工作流程的連續性。",
-    // 安裝配置區塊
-    "installation.title": "安裝與配置區",
+      "正式标记任务为完成状态，生成详细的完成报告，并更新关联任务的依赖状态，确保工作流程的连续性。",
+    // 安装配置区块
+    "installation.title": "安装与配置区",
     "installation.subtitle":
-      "Shrimp Task Manager 提供多種安裝方式，無論您是想快速開始，還是需要進行高級配置，都能輕鬆上手。",
-    "installation.manual.title": "手動安裝設置",
-    "installation.step1": "克隆代碼倉庫",
-    "installation.step2": "安裝依賴",
-    "installation.step3": "編譯項目",
+      "Shrimp Task Manager 提供多种安装方式，无论您是想快速开始，还是需要进行高级配置，都能轻松上手。",
+    "installation.manual.title": "手动安装设置",
+    "installation.step1": "克隆代码仓库",
+    "installation.step2": "安装依赖",
+    "installation.step3": "编译项目",
     "installation.cursor.title": "Cursor IDE 配置",
     "installation.cursor.description":
-      "如果您使用 Cursor IDE，可以將 Shrimp Task Manager 集成到您的開發環境中。",
-    "installation.quickstart.title": "快速入門",
+      "如果您使用 Cursor IDE，可以将 Shrimp Task Manager 集成到您的开发环境中。",
+    "installation.quickstart.title": "快速入门",
     "installation.quickstart.description":
-      "完成安裝後，請查看我們的快速入門指南，了解如何使用 MCP Shrimp Task Manager。",
-    "installation.faq.title": "常見問題",
+      "完成安装后，请查看我们的快速入门指南，了解如何使用 MCP Shrimp Task Manager。",
+    "installation.faq.title": "常见问题",
     "installation.faq.description":
-      "遇到問題？查看我們的常見問題解答，或在 GitHub 上提交問題。",
-    "installation.copy-button": "複製",
+      "遇到问题？查看我们的常见问题解答，或在 GitHub 上提交问题。",
+    "installation.copy-button": "复制",
     "installation.important-note.title": "重要提示",
     "installation.important-note.description":
-      "必須使用絕對路徑： 請確保 DATA_DIR 配置使用絕對路徑而非相對路徑，否則可能無法正確載入資料",
-    "installation.prompt-config.title": "提示詞配置說明",
-    "installation.prompt-config.intro": "Shrimp Task Manager 支持兩種模式：",
+      "必须使用绝对路径： 请确保 DATA_DIR 配置使用绝对路径而非相对路径，否则可能无法正确载入资料",
+    "installation.prompt-config.title": "提示词配置说明",
+    "installation.prompt-config.intro": "Shrimp Task Manager 支持两种模式：",
     "installation.prompt-config.mode1.title": "TaskPlanner:",
     "installation.prompt-config.mode1.description":
-      "適用於初始任務規劃和複雜任務分解，AI 助手扮演任務規劃師角色。",
+      "适用于初始任务规划和复杂任务分解，AI 助手扮演任务规划师角色。",
     "installation.prompt-config.mode2.title": "TaskExecutor:",
     "installation.prompt-config.mode2.description":
-      "適用於執行預定義任務，AI 助手扮演執行專家角色。",
+      "适用于执行预定义任务，AI 助手扮演执行专家角色。",
     "installation.prompt-config.tip":
-      "您可以在Cursor設置中使用 Custom modes 配置來自定義模式，以適應不同的工作場景。",
-    // CTA區塊
-    "cta.title": "立即體驗智能任務管理",
+      "您可以在Cursor设置中使用 Custom modes 配置来自定义模式，以适应不同的工作场景。",
+    // CTA区块
+    "cta.title": "立即体验智能任务管理",
     "cta.description":
-      "提升您的AI編程體驗，告別無序任務管理，擁抱更高效的工作流程。",
-    "cta.github": "前往 GitHub 倉庫",
-    "cta.start": "開始安裝",
-    // 頁腳區塊
-    "footer.copyright": "© 2023 MCP Task Manager. 保留所有權利。",
-    "footer.developer": "由 Siage 用 ❤️ 開發",
+      "提升您的AI编程体验，告别无序任务管理，拥抱更高效的工作流程。",
+    "cta.github": "前往 GitHub 仓库",
+    "cta.start": "开始安装",
+    // 页脚区块
+    "footer.copyright": "© 2023 MCP Task Manager. 保留所有权利。",
+    "footer.developer": "由 Siage 用 ❤️ 开发",
 
     // 通用UI元素
-    "common.close": "關閉",
+    "common.close": "关闭",
     "common.back": "返回",
     "common.next": "下一步",
     "common.submit": "提交",
     "common.cancel": "取消",
-    "common.confirm": "確認",
-    "common.copy": "複製",
-    "common.copied": "已複製!",
+    "common.confirm": "确认",
+    "common.copy": "复制",
+    "common.copied": "已复制!",
     "common.yes": "是",
     "common.no": "否",
     "common.more": "更多",
     "common.less": "收起",
-    "common.loading": "載入中...",
-    "common.error": "錯誤",
+    "common.loading": "载入中...",
+    "common.error": "错误",
     "common.success": "成功",
     "common.warning": "警告",
     "common.info": "提示",
-    "common.search": "搜尋",
-    "common.filter": "篩選",
+    "common.search": "搜寻",
+    "common.filter": "筛选",
     "common.sort": "排序",
     "common.ascending": "升序",
     "common.descending": "降序",
     "common.lang.zh-tw": "中",
     "common.lang.en": "EN",
-    "modal.close-button": "關閉",
-    "modal.close-button-aria": "關閉",
+    "modal.close-button": "关闭",
+    "modal.close-button-aria": "关闭",
 
-    // 工作流程詳細內容
-    "workflow.step1.content.title": "任務規劃階段",
+    // 工作流程详细内容
+    "workflow.step1.content.title": "任务规划阶段",
     "workflow.step1.content.description":
-      "任務規劃階段是AI助手定義項目範圍、設置目標和建立成功標準的初始階段。",
-    "workflow.step1.content.activities": "主要活動：",
-    "workflow.step1.content.activity1": "明確項目需求和約束條件",
-    "workflow.step1.content.activity2": "設定清晰的目標和定義可衡量的成功標準",
-    "workflow.step1.content.activity3": "建立項目邊界並識別相關方",
-    "workflow.step1.content.activity4": "創建包含時間估算的高級計劃",
-    "workflow.step1.content.activity5": "可選擇參考現有任務進行持續規劃",
-    "workflow.step1.content.outputs": "輸出成果：",
-    "workflow.step1.content.output1": "全面的任務描述",
-    "workflow.step1.content.output2": "明確的成功標準",
-    "workflow.step1.content.output3": "技術需求和約束條件",
+      "任务规划阶段是AI助手定义项目范围、设置目标和建立成功标准的初始阶段。",
+    "workflow.step1.content.activities": "主要活动：",
+    "workflow.step1.content.activity1": "明确项目需求和约束条件",
+    "workflow.step1.content.activity2": "设定清晰的目标和定义可衡量的成功标准",
+    "workflow.step1.content.activity3": "建立项目边界并识别相关方",
+    "workflow.step1.content.activity4": "创建包含时间估算的高级计划",
+    "workflow.step1.content.activity5": "可选择参考现有任务进行持续规划",
+    "workflow.step1.content.outputs": "输出成果：",
+    "workflow.step1.content.output1": "全面的任务描述",
+    "workflow.step1.content.output2": "明确的成功标准",
+    "workflow.step1.content.output3": "技术需求和约束条件",
     "workflow.step1.content.summary":
-      "這個階段為所有後續工作奠定基礎，確保AI助手和用戶對需要完成的任務有共同理解。",
+      "这个阶段为所有后续工作奠定基础，确保AI助手和用户对需要完成的任务有共同理解。",
 
-    "workflow.step2.content.title": "深入分析階段",
+    "workflow.step2.content.title": "深入分析阶段",
     "workflow.step2.content.description":
-      "深入分析階段包括對需求和技術環境的徹底檢查，以開發可行的實施策略。",
-    "workflow.step2.content.activities": "主要活動：",
-    "workflow.step2.content.activity1": "分析需求並識別技術挑戰",
-    "workflow.step2.content.activity2": "評估技術可行性和潛在風險",
-    "workflow.step2.content.activity3": "研究最佳實踐和可用解決方案",
-    "workflow.step2.content.activity4": "系統性地審查現有代碼庫（如適用）",
-    "workflow.step2.content.activity5": "開發初步實施概念",
-    "workflow.step2.content.outputs": "輸出成果：",
-    "workflow.step2.content.output1": "技術可行性評估",
-    "workflow.step2.content.output2": "風險識別和緩解策略",
-    "workflow.step2.content.output3": "初步實施方法",
-    "workflow.step2.content.output4": "必要時提供偽代碼或架構圖",
+      "深入分析阶段包括对需求和技术环境的彻底检查，以开发可行的实施策略。",
+    "workflow.step2.content.activities": "主要活动：",
+    "workflow.step2.content.activity1": "分析需求并识别技术挑战",
+    "workflow.step2.content.activity2": "评估技术可行性和潜在风险",
+    "workflow.step2.content.activity3": "研究最佳实践和可用解决方案",
+    "workflow.step2.content.activity4": "系统性地审查现有代码库（如适用）",
+    "workflow.step2.content.activity5": "开发初步实施概念",
+    "workflow.step2.content.outputs": "输出成果：",
+    "workflow.step2.content.output1": "技术可行性评估",
+    "workflow.step2.content.output2": "风险识别和缓解策略",
+    "workflow.step2.content.output3": "初步实施方法",
+    "workflow.step2.content.output4": "必要时提供伪代码或架构图",
     "workflow.step2.content.summary":
-      "這個階段確保在進入實施之前，提出的解決方案技術上可行並解決所有需求。",
+      "这个阶段确保在进入实施之前，提出的解决方案技术上可行并解决所有需求。",
 
-    // 錯誤和警告訊息
-    "error.storage": "無法訪問本地存儲，語言偏好將不會被保存。",
-    "error.translation": "翻譯錯誤：無法加載翻譯數據。",
-    "error.network": "網絡錯誤：無法連接到服務器。",
+    // 错误和警告讯息
+    "error.storage": "无法访问本地存储，语言偏好将不会被保存。",
+    "error.translation": "翻译错误：无法加载翻译数据。",
+    "error.network": "网络错误：无法连接到服务器。",
     "warning.browser":
-      "您的瀏覽器可能不支持所有功能，建議使用最新版本的Chrome、Firefox或Safari瀏覽器。",
-    "warning.mobile": "某些功能在移動設備上可能受限。",
+      "您的浏览器可能不支持所有功能，建议使用最新版本的Chrome、Firefox或Safari浏览器。",
+    "warning.mobile": "某些功能在移动设备上可能受限。",
 
-    // 代碼示例區塊
-    "examples.planning.title": "任務規劃與分解流程",
+    // 代码示例区块
+    "examples.planning.title": "任务规划与分解流程",
     "examples.planning.intro":
-      "這個示例展示了如何使用MCP Shrimp Task Manager來規劃和分解複雜任務。整個流程包括四個主要步驟：",
-    "examples.planning.step1": "初始化並詳細規劃任務，明確目標與成功標準",
-    "examples.planning.step2": "深入了解任務，分析技術可行性和潛在挑戰",
-    "examples.planning.step3": "批判性審查分析結果，優化提案",
-    "examples.planning.step4": "將複雜任務分解為可管理的子任務",
+      "这个示例展示了如何使用MCP Shrimp Task Manager来规划和分解复杂任务。整个流程包括四个主要步骤：",
+    "examples.planning.step1": "初始化并详细规划任务，明确目标与成功标准",
+    "examples.planning.step2": "深入了解任务，分析技术可行性和潜在挑战",
+    "examples.planning.step3": "批判性审查分析结果，优化提案",
+    "examples.planning.step4": "将复杂任务分解为可管理的子任务",
     "examples.planning.conclusion":
-      "通過這種方法，您可以將複雜的大型任務轉化為結構化的、可執行的工作單元，同時保持整體視角。",
-    "examples.execution.title": "任務執行與完成流程",
+      "通过这种方法，您可以将复杂的大型任务转化为结构化的、可执行的工作单元，同时保持整体视角。",
+    "examples.execution.title": "任务执行与完成流程",
     "examples.execution.intro":
-      "這個示例展示了如何執行和完成已規劃的任務。整個流程包括四個主要步驟：",
-    "examples.execution.step1.title": "任務列表",
-    "examples.execution.step1": "查詢待處理任務列表，了解當前狀態",
-    "examples.execution.step2": "按照預定計劃執行選定的任務",
-    "examples.execution.step3": "驗證任務完成情況，確保達到質量標準",
-    "examples.execution.step4": "正式標記任務為完成狀態，生成報告",
+      "这个示例展示了如何执行和完成已规划的任务。整个流程包括四个主要步骤：",
+    "examples.execution.step1.title": "任务列表",
+    "examples.execution.step1": "查询待处理任务列表，了解当前状态",
+    "examples.execution.step2": "按照预定计划执行选定的任务",
+    "examples.execution.step3": "验证任务完成情况，确保达到质量标准",
+    "examples.execution.step4": "正式标记任务为完成状态，生成报告",
     "examples.execution.conclusion":
-      "通過這種方法，您可以系統地執行任務並確保每個步驟都達到預期的質量標準，最終完成整個工作流程。",
+      "通过这种方法，您可以系统地执行任务并确保每个步骤都达到预期的质量标准，最终完成整个工作流程。",
     "examples.tip.title": "💡 提示",
     "examples.tip.description":
-      "上面的工作流程並非固定不變的，Agent 會根據分析情況進行重複迭代不同步驟，直到達到預期效果。",
+      "上面的工作流程并非固定不变的，Agent 会根据分析情况进行重复迭代不同步骤，直到达到预期效果。",
 
-    // 快速入門和常見問題區塊
-    "quickstart.title": "快速入門",
+    // 快速入门和常见问题区块
+    "quickstart.title": "快速入门",
     "quickstart.description":
-      "完成安裝後，請查看我們的快速入門指南，了解如何使用 MCP Shrimp Task Manager。",
-    "quickstart.view-code-link": "查看代碼 →",
-    "faq.title": "常見問題",
+      "完成安装后，请查看我们的快速入门指南，了解如何使用 MCP Shrimp Task Manager。",
+    "quickstart.view-code-link": "查看代码 →",
+    "faq.title": "常见问题",
     "faq.description":
-      "遇到問題？查看我們的常見問題解答，或在 GitHub 上提交問題。",
-    "faq.view-faq-link": "查看常見問題 →",
+      "遇到问题？查看我们的常见问题解答，或在 GitHub 上提交问题。",
+    "faq.view-faq-link": "查看常见问题 →",
     "installation.cursor.mcp-servers": "to/your/project/.cursor/mcp.jsonn",
-    "task.planner.prompt": `你是一個專業的任務規劃專家，你必須與用戶進行交互，分析用戶的需求，並收集專案相關資訊，最終使用 「plan_task」 建立任務，當任務建立完成後必須總結摘要，並告知用戶使用「TaskExecutor」模式進行任務執行。
-你必須專心於任務規劃禁止使用 「execute_task」 來執行任務，
-嚴重警告你是任務規劃專家，你不能直接修改程式碼，你只能規劃任務，並且你不能直接修改程式碼，你只能規劃任務。`,
-    "task.executor.prompt": `你是一個專業的任務執行專家，當用戶有指定執行任務，則使用 「execute_task」 進行任務執行，
-沒有指定任務時則使用 「list_tasks」 尋找未執行的任務並執行，
-當執行完成後必須總結摘要告知用戶結論，
-你一次只能執行一個任務，當任務完成時除非用戶明確告知否則禁止進行下一則任務。
-用戶如果要求「連續模式」則按照順序連續執行所有任務。`,
-    // Prompt 自定義功能區塊
-    "prompt-custom.title": "Prompt 自定義功能",
+    "task.planner.prompt": `你是一个专业的任务规划专家，你必须与用户进行交互，分析用户的需求，并收集专案相关资讯，最终使用 「plan_task」 建立任务，当任务建立完成后必须总结摘要，并告知用户使用「TaskExecutor」模式进行任务执行。
+你必须专心于任务规划禁止使用 「execute_task」 来执行任务，
+严重警告你是任务规划专家，你不能直接修改程式码，你只能规划任务，并且你不能直接修改程式码，你只能规划任务。`,
+    "task.executor.prompt": `你是一个专业的任务执行专家，当用户有指定执行任务，则使用 「execute_task」 进行任务执行，
+没有指定任务时则使用 「list_tasks」 寻找未执行的任务并执行，
+当执行完成后必须总结摘要告知用户结论，
+你一次只能执行一个任务，当任务完成时除非用户明确告知否则禁止进行下一则任务。
+用户如果要求「连续模式」则按照顺序连续执行所有任务。`,
+    // Prompt 自定义功能区块
+    "prompt-custom.title": "Prompt 自定义功能",
     "prompt-custom.subtitle":
-      "透過環境變數自定義系統提示詞，無需修改代碼即可定制 AI 助手行為",
+      "透过环境变数自定义系统提示词，无需修改代码即可定制 AI 助手行为",
 
     "prompt-custom.overview.title": "功能概述",
     "prompt-custom.overview.description":
-      "Prompt 自定義允許用戶透過環境變數調整 AI 助手的行為表現，提供兩種自定義方式：完全覆蓋原始提示詞或在原有基礎上追加內容。",
+      "Prompt 自定义允许用户透过环境变数调整 AI 助手的行为表现，提供两种自定义方式：完全覆盖原始提示词或在原有基础上追加内容。",
 
-    "prompt-custom.benefits.title": "主要好處",
+    "prompt-custom.benefits.title": "主要好处",
     "prompt-custom.benefits.item1":
-      "個性化定制：根據特定項目或領域需求調整系統行為",
+      "个性化定制：根据特定项目或领域需求调整系统行为",
     "prompt-custom.benefits.item2":
-      "效率提升：針對重複任務類型進行優化，減少冗余說明",
+      "效率提升：针对重复任务类型进行优化，减少冗余说明",
     "prompt-custom.benefits.item3":
-      "品牌一致性：確保輸出內容符合組織的風格指南和標準",
+      "品牌一致性：确保输出内容符合组织的风格指南和标准",
     "prompt-custom.benefits.item4":
-      "專業適應性：為特定技術領域或行業調整專業術語和標準",
+      "专业适应性：为特定技术领域或行业调整专业术语和标准",
     "prompt-custom.benefits.item5":
-      "團隊協作：統一團隊成員使用的提示詞，保證一致的工作方式",
+      "团队协作：统一团队成员使用的提示词，保证一致的工作方式",
 
     "prompt-custom.usage.title": "使用方法",
-    "prompt-custom.usage.env.title": "環境變數配置",
+    "prompt-custom.usage.env.title": "环境变数配置",
     "prompt-custom.usage.env.description":
-      "設置環境變數來自定義各功能的提示詞，使用特定命名規則：",
-    "prompt-custom.usage.more": "查看詳細文檔了解更多配置方式和參數使用說明。",
-    "prompt-custom.view-docs": "查看完整文檔",
+      "设置环境变数来自定义各功能的提示词，使用特定命名规则：",
+    "prompt-custom.usage.more": "查看详细文档了解更多配置方式和参数使用说明。",
+    "prompt-custom.view-docs": "查看完整文档",
   },
   en: {
-    // 導航欄
+    // 导航栏
     "nav.pain-points": "Pain Points",
     "nav.features": "Features",
     "nav.workflow": "Workflow",
@@ -301,7 +301,7 @@ const i18n = {
     "nav.menu-button": "Menu",
     "nav.logo.alt": "Shrimp Task Manager Logo",
     "nav.prompt-custom": "Prompt Config",
-    // 英雄區
+    // 英雄区
     "hero.title": "Shrimp Task Manager",
     "hero.subtitle":
       "Intelligent System for Structured Task Management in AI Programming Assistants",
@@ -310,7 +310,7 @@ const i18n = {
     "hero.start": "Get Started",
     "hero.learn-more": "Learn More",
     "hero.workflow-image.alt": "Intelligent Task Management Workflow",
-    // 痛點解決方案區
+    // 痛点解决方案区
     "pain-points.title": "Pain Points & Solutions",
     "pain-points.subtitle":
       "Shrimp Task Manager is designed to solve three core pain points faced by AI programming assistants in task management.",
@@ -342,7 +342,7 @@ const i18n = {
     "pain-points.repeat-work.solution.icon.alt":
       "Knowledge Accumulation and Experience Reference",
     "pain-points.explore": "Explore Core Features",
-    // 功能區塊
+    // 功能区块
     "features.title": "Core Features",
     "features.subtitle":
       "Shrimp Task Manager provides six core features to help you efficiently manage, execute, and track complex tasks.",
@@ -373,7 +373,7 @@ const i18n = {
       "Provide cross-session task memory capabilities, automatically save execution history and context, allow task resumption and continuation at any time, without the need to re-explain requirements.",
     "features.memory.icon.alt": "Task Memory Function",
     "features.learn-workflow": "Learn about the Workflow",
-    // 工作流程區塊
+    // 工作流程区块
     "workflow.title": "Workflow",
     "workflow.subtitle":
       "Shrimp Task Manager provides a complete workflow, with each step from task planning to task completion carefully designed.",
@@ -412,7 +412,7 @@ const i18n = {
       "Comprehensively verify task completion, ensure all requirements and technical standards are met with no missing details, provide quality assessment reports.",
     "workflow.mobile.step7.full-description":
       "Formally mark tasks as completed, generate detailed completion reports, and update dependency status of related tasks to ensure workflow continuity.",
-    // 安裝配置區塊
+    // 安装配置区块
     "installation.title": "Installation & Configuration",
     "installation.subtitle":
       "Shrimp Task Manager offers multiple installation methods, whether you want to get started quickly or need advanced configuration, it's easy to set up.",
@@ -444,13 +444,13 @@ const i18n = {
       "Suitable for executing predefined tasks, where the AI assistant plays the role of an execution expert.",
     "installation.prompt-config.tip":
       "You can use Custom modes in Cursor settings to customize modes to suit different work scenarios.",
-    // CTA區塊
+    // CTA区块
     "cta.title": "Experience Intelligent Task Management Now",
     "cta.description":
       "Enhance your AI programming experience, say goodbye to disorganized task management, and embrace a more efficient workflow.",
     "cta.github": "Go to GitHub Repository",
     "cta.start": "Start Installation",
-    // 頁腳區塊
+    // 页脚区块
     "footer.copyright": "© 2023 MCP Task Manager. All Rights Reserved.",
     "footer.developer": "Made with ❤️ by Siage",
 
@@ -482,7 +482,7 @@ const i18n = {
     "modal.close-button": "Close",
     "modal.close-button-aria": "Close",
 
-    // 工作流程詳細內容
+    // 工作流程详细内容
     "workflow.step1.content.title": "Task Planning Stage",
     "workflow.step1.content.description":
       "The task planning stage is the initial phase where AI assistants define project scope, set goals, and establish success criteria.",
@@ -528,7 +528,7 @@ const i18n = {
     "workflow.step2.content.summary":
       "This stage ensures that the proposed solution is technically sound and addresses all requirements before proceeding to implementation.",
 
-    // 錯誤和警告訊息
+    // 错误和警告讯息
     "error.storage":
       "Unable to access local storage, language preferences will not be saved.",
     "error.translation": "Translation error: Unable to load translation data.",
@@ -537,7 +537,7 @@ const i18n = {
       "Your browser may not support all features, we recommend using the latest version of Chrome, Firefox, or Safari.",
     "warning.mobile": "Some features may be limited on mobile devices.",
 
-    // 代碼示例區塊
+    // 代码示例区块
     "examples.planning.title": "Task Planning and Decomposition Process",
     "examples.planning.intro":
       "This example demonstrates how to use MCP Shrimp Task Manager to plan and break down complex tasks. The entire process includes four main steps:",
@@ -568,7 +568,7 @@ const i18n = {
     "examples.tip.description":
       "The workflow above is not fixed. The Agent will iterate through different steps based on analysis until the expected effect is achieved.",
 
-    // 快速入門和常見問題區塊
+    // 快速入门和常见问题区块
     "quickstart.title": "Quick Start",
     "quickstart.description":
       "After installation, check our quick start guide to learn how to use MCP Shrimp Task Manager.",
@@ -586,7 +586,7 @@ If no task is specified, use "list_tasks" to find unexecuted tasks and execute t
 When the execution is completed, a summary must be given to inform the user of the conclusion.
 You can only perform one task at a time, and when a task is completed, you are prohibited from performing the next task unless the user explicitly tells you to.
 If the user requests "continuous mode", all tasks will be executed in sequence.`,
-    // Prompt 自定義功能區塊
+    // Prompt 自定义功能区块
     "prompt-custom.title": "Prompt Customization",
     "prompt-custom.subtitle":
       "Customize AI assistant behavior through environment variables, without modifying code",
@@ -617,25 +617,25 @@ If the user requests "continuous mode", all tasks will be executed in sequence.`
   },
 };
 
-// 翻譯應用函數
+// 翻译应用函数
 function applyTranslations(lang) {
-  // 確保選擇的語言有效
+  // 确保选择的语言有效
   if (!i18n[lang]) {
-    console.error("不支援的語言:", lang);
+    console.error("不支援的语言:", lang);
     return;
   }
 
-  // 應用翻譯到所有帶有 data-i18n 屬性的元素
+  // 应用翻译到所有带有 data-i18n 属性的元素
   document.querySelectorAll("[data-i18n]").forEach((element) => {
     const key = element.getAttribute("data-i18n");
     if (i18n[lang][key]) {
       element.textContent = i18n[lang][key];
     } else {
-      console.warn(`未找到翻譯鍵: ${key}`);
+      console.warn(`未找到翻译键: ${key}`);
     }
   });
 
-  // 處理語言特定的連結
+  // 处理语言特定的连结
   document.querySelectorAll(".lang-specific").forEach((element) => {
     if (element.hasAttribute(`data-lang-${lang}`)) {
       const langSpecificHref = element.getAttribute(`data-lang-${lang}`);
@@ -646,15 +646,15 @@ function applyTranslations(lang) {
   });
 }
 
-// 設置語言並儲存用戶偏好
+// 设置语言并储存用户偏好
 function setLanguage(lang) {
-  // 儲存用戶偏好
+  // 储存用户偏好
   localStorage.setItem("preferred-language", lang);
 
-  // 應用翻譯
+  // 应用翻译
   applyTranslations(lang);
 
-  // 更新按鈕狀態
+  // 更新按钮状态
   document.querySelectorAll(".lang-btn").forEach(function (btn) {
     if (btn.getAttribute("data-lang") === lang) {
       btn.classList.add("active");
@@ -663,27 +663,27 @@ function setLanguage(lang) {
     }
   });
 
-  // 更新 html 標籤的 lang 屬性
+  // 更新 html 标签的 lang 属性
   document.documentElement.setAttribute("lang", lang);
 }
 
-// 獲取用戶偏好語言或瀏覽器語言
+// 获取用户偏好语言或浏览器语言
 function getPreferredLanguage() {
-  // 檢查本地儲存
+  // 检查本地储存
   const savedLang = localStorage.getItem("preferred-language");
   if (savedLang && i18n[savedLang]) {
     return savedLang;
   }
 
-  // 檢查瀏覽器語言
+  // 检查浏览器语言
   const browserLang = navigator.language || navigator.userLanguage;
   if (browserLang) {
-    // 嘗試使用完整語言代碼匹配
+    // 尝试使用完整语言代码匹配
     if (i18n[browserLang]) {
       return browserLang;
     }
 
-    // 嘗試使用語言代碼前兩個字符匹配（如 "zh-TW" -> "zh"）
+    // 尝试使用语言代码前两个字符匹配（如 "zh-TW" -> "zh"）
     const langPrefix = browserLang.split("-")[0];
     for (const key in i18n) {
       if (key.startsWith(langPrefix)) {
@@ -692,22 +692,22 @@ function getPreferredLanguage() {
     }
   }
 
-  // 默認返回英文
+  // 默认返回英文
   return "en";
 }
 
-// 初始化網站語言
+// 初始化网站语言
 function initializeLanguage() {
   const preferredLang = getPreferredLanguage();
   setLanguage(preferredLang);
 }
 
-// 頁面載入完成後初始化語言和事件監聽器
+// 页面载入完成后初始化语言和事件监听器
 document.addEventListener("DOMContentLoaded", function () {
-  // 初始化語言
+  // 初始化语言
   initializeLanguage();
 
-  // 為語言按鈕添加事件監聽器
+  // 为语言按钮添加事件监听器
   document.querySelectorAll(".lang-btn").forEach(function (btn) {
     btn.addEventListener("click", function () {
       setLanguage(this.getAttribute("data-lang"));
@@ -716,24 +716,24 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // ==================================================
-// 動態內容翻譯和性能優化函數
+// 动态内容翻译和性能优化函数
 // ==================================================
 
 /**
- * 創建帶有翻譯屬性的動態元素
- * @param {string} i18nKey - 翻譯鍵
- * @param {string} defaultText - 默認文本
- * @param {string} elementType - 元素類型，默認為div
- * @returns {HTMLElement} - 創建的元素
+ * 创建带有翻译属性的动态元素
+ * @param {string} i18nKey - 翻译键
+ * @param {string} defaultText - 默认文本
+ * @param {string} elementType - 元素类型，默认为div
+ * @returns {HTMLElement} - 创建的元素
  */
 function createDynamicElement(i18nKey, defaultText, elementType = "div") {
   const element = document.createElement(elementType);
   element.setAttribute("data-i18n", i18nKey);
 
-  // 獲取當前語言
+  // 获取当前语言
   const currentLang = localStorage.getItem("preferred-language") || "zh-TW";
 
-  // 設置文本內容
+  // 设置文本内容
   element.textContent =
     i18n[currentLang] && i18n[currentLang][i18nKey]
       ? i18n[currentLang][i18nKey]
@@ -743,10 +743,10 @@ function createDynamicElement(i18nKey, defaultText, elementType = "div") {
 }
 
 /**
- * 翻譯工具函數 - 獲取翻譯文本
- * @param {string} key - 翻譯鍵
- * @param {string} defaultText - 默認文本
- * @returns {string} - 翻譯後的文本
+ * 翻译工具函数 - 获取翻译文本
+ * @param {string} key - 翻译键
+ * @param {string} defaultText - 默认文本
+ * @returns {string} - 翻译后的文本
  */
 function translateText(key, defaultText) {
   const currentLang = localStorage.getItem("preferred-language") || "zh-TW";
@@ -756,23 +756,23 @@ function translateText(key, defaultText) {
 }
 
 /**
- * 批量處理翻譯，提高性能
- * 當頁面包含大量需要翻譯的元素時使用
+ * 批量处理翻译，提高性能
+ * 当页面包含大量需要翻译的元素时使用
  */
 function batchApplyTranslations() {
-  // 延遲加載翻譯，確保不阻塞頁面渲染
+  // 延迟加载翻译，确保不阻塞页面渲染
   window.addEventListener("load", function () {
-    // 如果有大量翻譯內容，分批處理
+    // 如果有大量翻译内容，分批处理
     setTimeout(function () {
       const elements = document.querySelectorAll("[data-i18n]");
-      const batchSize = 50; // 每批處理50個元素
+      const batchSize = 50; // 每批处理50个元素
       const currentLang = localStorage.getItem("preferred-language") || "zh-TW";
 
       for (let i = 0; i < elements.length; i += batchSize) {
         setTimeout(function () {
           const batch = Array.prototype.slice.call(elements, i, i + batchSize);
           batch.forEach(function (el) {
-            // 應用未處理的翻譯
+            // 应用未处理的翻译
             const key = el.getAttribute("data-i18n");
             if (i18n[currentLang] && i18n[currentLang][key]) {
               el.textContent = i18n[currentLang][key];
@@ -785,15 +785,15 @@ function batchApplyTranslations() {
 }
 
 /**
- * 帶動畫效果的語言切換
- * @param {string} lang - 目標語言
+ * 带动画效果的语言切换
+ * @param {string} lang - 目标语言
  */
 function setLanguageWithAnimation(lang) {
   // 添加淡出效果
   document.body.classList.add("lang-transition");
 
   setTimeout(function () {
-    // 應用翻譯
+    // 应用翻译
     setLanguage(lang);
 
     // 添加淡入效果
@@ -801,10 +801,10 @@ function setLanguageWithAnimation(lang) {
   }, 300);
 }
 
-// 在頁面載入時執行性能優化的批量翻譯
+// 在页面载入时执行性能优化的批量翻译
 batchApplyTranslations();
 
-// 添加語言切換動畫的CSS樣式
+// 添加语言切换动画的CSS样式
 const styleElement = document.createElement("style");
 styleElement.textContent = `
 .lang-btn {
@@ -825,7 +825,7 @@ styleElement.textContent = `
   margin-left: 1rem;
 }
 
-/* 語言切換過渡動畫 */
+/* 语言切换过渡动画 */
 .lang-transition {
   opacity: 0.8;
   transition: opacity 0.3s ease;
@@ -834,14 +834,14 @@ styleElement.textContent = `
 document.head.appendChild(styleElement);
 
 // ==================================================
-// 防禦性編程函數，確保翻譯系統的健壯性
+// 防御性编程函数，确保翻译系统的健壮性
 // ==================================================
 
 /**
- * 安全翻譯函數 - 確保在i18n對象缺失或格式錯誤時不會崩潰
- * @param {string} key - 翻譯鍵
- * @param {string} defaultText - 默認文本
- * @returns {string} - 翻譯後的文本
+ * 安全翻译函数 - 确保在i18n对象缺失或格式错误时不会崩溃
+ * @param {string} key - 翻译键
+ * @param {string} defaultText - 默认文本
+ * @returns {string} - 翻译后的文本
  */
 function safeTranslate(key, defaultText) {
   try {
@@ -851,19 +851,19 @@ function safeTranslate(key, defaultText) {
       !i18n[currentLang] ||
       !i18n[currentLang][key]
     ) {
-      console.warn(`翻譯鍵 "${key}" 不存在，使用默認文本`);
+      console.warn(`翻译键 "${key}" 不存在，使用默认文本`);
       return defaultText;
     }
     return i18n[currentLang][key];
   } catch (e) {
-    console.error("翻譯錯誤:", e);
+    console.error("翻译错误:", e);
     return defaultText;
   }
 }
 
 /**
- * 檢測 LocalStorage 是否可用
- * @param {string} type - 存儲類型，通常是 'localStorage'
+ * 检测 LocalStorage 是否可用
+ * @param {string} type - 存储类型，通常是 'localStorage'
  * @returns {boolean} - 是否可用
  */
 function storageAvailable(type) {
@@ -876,14 +876,14 @@ function storageAvailable(type) {
   } catch (e) {
     return (
       e instanceof DOMException &&
-      // 針對 Firefox
+      // 针对 Firefox
       (e.code === 22 ||
-        // 針對 Chrome
+        // 针对 Chrome
         e.code === 1014 ||
-        // 測試名稱字段
+        // 测试名称字段
         e.name === "QuotaExceededError" ||
         e.name === "NS_ERROR_DOM_QUOTA_REACHED") &&
-      // 確認存儲不為空
+      // 确认存储不为空
       storage &&
       storage.length !== 0
     );
@@ -891,11 +891,11 @@ function storageAvailable(type) {
 }
 
 /**
- * 增強版初始化函數 - 添加防禦性功能
+ * 增强版初始化函数 - 添加防御性功能
  */
 function enhancedInitializeLanguage() {
   try {
-    // 檢查瀏覽器是否支持 LocalStorage
+    // 检查浏览器是否支持 LocalStorage
     if (storageAvailable("localStorage")) {
       let preferredLang = localStorage.getItem("preferred-language");
 
@@ -905,51 +905,51 @@ function enhancedInitializeLanguage() {
           browserLang && browserLang.startsWith("zh") ? "zh-TW" : "en";
       }
 
-      // 驗證語言代碼是否有效
+      // 验证语言代码是否有效
       if (!i18n[preferredLang]) {
-        console.warn(`不支援的語言代碼 ${preferredLang}，使用默認語言`);
+        console.warn(`不支援的语言代码 ${preferredLang}，使用默认语言`);
         preferredLang = "zh-TW";
       }
 
       setLanguage(preferredLang);
     } else {
-      // 如果不支持 LocalStorage，默認使用中文
-      console.warn("LocalStorage 不可用，語言偏好將不會被保存");
+      // 如果不支持 LocalStorage，默认使用中文
+      console.warn("LocalStorage 不可用，语言偏好将不会被保存");
       setLanguage("zh-TW");
     }
   } catch (error) {
-    console.error("初始化語言時發生錯誤:", error);
-    // 在錯誤情況下使用默認語言
+    console.error("初始化语言时发生错误:", error);
+    // 在错误情况下使用默认语言
     try {
       setLanguage("zh-TW");
     } catch (e) {
-      console.error("無法設置默認語言:", e);
+      console.error("无法设置默认语言:", e);
     }
   }
 }
 
-// 替換原始函數的增強版語言切換函數
+// 替换原始函数的增强版语言切换函数
 function enhancedSetLanguage(lang) {
   try {
-    // 確保語言代碼有效
+    // 确保语言代码有效
     if (!i18n[lang]) {
-      console.warn(`不支援的語言代碼: ${lang}，使用默認語言`);
+      console.warn(`不支援的语言代码: ${lang}，使用默认语言`);
       lang = "zh-TW";
     }
 
-    // 嘗試保存用戶偏好
+    // 尝试保存用户偏好
     try {
       if (storageAvailable("localStorage")) {
         localStorage.setItem("preferred-language", lang);
       }
     } catch (e) {
-      console.warn("無法保存語言偏好:", e);
+      console.warn("无法保存语言偏好:", e);
     }
 
-    // 應用翻譯
+    // 应用翻译
     applyTranslations(lang);
 
-    // 更新按鈕狀態
+    // 更新按钮状态
     try {
       document.querySelectorAll(".lang-btn").forEach(function (btn) {
         if (btn.getAttribute("data-lang") === lang) {
@@ -959,39 +959,39 @@ function enhancedSetLanguage(lang) {
         }
       });
     } catch (e) {
-      console.warn("無法更新語言按鈕狀態:", e);
+      console.warn("无法更新语言按钮状态:", e);
     }
 
-    // 更新 HTML 標籤的 lang 屬性
+    // 更新 HTML 标签的 lang 属性
     try {
       document.documentElement.setAttribute("lang", lang);
     } catch (e) {
-      console.warn("無法更新 HTML lang 屬性:", e);
+      console.warn("无法更新 HTML lang 属性:", e);
     }
 
-    // 觸發自定義事件通知語言變更
+    // 触发自定义事件通知语言变更
     try {
       const event = new CustomEvent("languageChanged", {
         detail: { language: lang },
       });
       document.dispatchEvent(event);
     } catch (e) {
-      console.warn("無法觸發語言變更事件:", e);
+      console.warn("无法触发语言变更事件:", e);
     }
   } catch (error) {
-    console.error("設置語言時發生錯誤:", error);
+    console.error("设置语言时发生错误:", error);
   }
 }
 
 /**
- * 兼容性測試函數 - 檢查多語系系統是否正常工作
- * 測試以下功能:
+ * 兼容性测试函数 - 检查多语系系统是否正常工作
+ * 测试以下功能:
  * 1. LocalStorage 是否可用
- * 2. 語言切換功能是否正常
- * 3. 翻譯應用是否正常
- * 4. 動態內容翻譯是否正常
+ * 2. 语言切换功能是否正常
+ * 3. 翻译应用是否正常
+ * 4. 动态内容翻译是否正常
  *
- * @returns {Object} 測試結果對象
+ * @returns {Object} 测试结果对象
  */
 function i18nCompatibilityTest() {
   const results = {
@@ -1006,62 +1006,62 @@ function i18nCompatibilityTest() {
     },
   };
 
-  // 測試 LocalStorage 是否可用
+  // 测试 LocalStorage 是否可用
   try {
     results.localStorage = storageAvailable("localStorage");
     results.details.info.push(
       "LocalStorage " + (results.localStorage ? "可用" : "不可用")
     );
   } catch (e) {
-    results.details.errors.push("測試 LocalStorage 時發生錯誤: " + e.message);
+    results.details.errors.push("测试 LocalStorage 时发生错误: " + e.message);
   }
 
-  // 測試語言切換功能
+  // 测试语言切换功能
   try {
-    // 保存當前語言
+    // 保存当前语言
     const originalLang =
       document.documentElement.lang ||
       localStorage.getItem("preferred-language") ||
       "zh-TW";
 
-    // 嘗試切換語言
+    // 尝试切换语言
     const testLang = originalLang === "en" ? "zh-TW" : "en";
 
-    // 使用安全的語言切換方式
+    // 使用安全的语言切换方式
     if (typeof enhancedSetLanguage === "function") {
       enhancedSetLanguage(testLang);
     } else if (typeof setLanguage === "function") {
       setLanguage(testLang);
     } else {
-      throw new Error("找不到語言切換函數");
+      throw new Error("找不到语言切换函数");
     }
 
-    // 檢查語言是否成功切換
+    // 检查语言是否成功切换
     const newLang =
       document.documentElement.lang ||
       localStorage.getItem("preferred-language");
 
     results.languageSwitch = newLang === testLang;
     results.details.info.push(
-      "語言切換 " + (results.languageSwitch ? "正常" : "異常")
+      "语言切换 " + (results.languageSwitch ? "正常" : "异常")
     );
 
-    // 恢復原來的語言
+    // 恢复原来的语言
     if (typeof enhancedSetLanguage === "function") {
       enhancedSetLanguage(originalLang);
     } else if (typeof setLanguage === "function") {
       setLanguage(originalLang);
     }
   } catch (e) {
-    results.details.errors.push("測試語言切換時發生錯誤: " + e.message);
+    results.details.errors.push("测试语言切换时发生错误: " + e.message);
   }
 
-  // 測試翻譯應用是否正常
+  // 测试翻译应用是否正常
   try {
-    // 查找頁面上有 data-i18n 屬性的元素
+    // 查找页面上有 data-i18n 属性的元素
     const translatedElements = document.querySelectorAll("[data-i18n]");
     if (translatedElements.length > 0) {
-      // 檢查是否有內容
+      // 检查是否有内容
       let hasContent = false;
       translatedElements.forEach((el) => {
         if (el.textContent && el.textContent.trim() !== "") {
@@ -1073,28 +1073,28 @@ function i18nCompatibilityTest() {
       results.details.info.push(
         "找到 " +
           translatedElements.length +
-          " 個翻譯元素，內容" +
-          (hasContent ? "正常" : "異常")
+          " 个翻译元素，内容" +
+          (hasContent ? "正常" : "异常")
       );
     } else {
-      results.details.warnings.push("頁面上找不到帶有 data-i18n 屬性的元素");
+      results.details.warnings.push("页面上找不到带有 data-i18n 属性的元素");
     }
   } catch (e) {
-    results.details.errors.push("測試翻譯應用時發生錯誤: " + e.message);
+    results.details.errors.push("测试翻译应用时发生错误: " + e.message);
   }
 
-  // 測試動態內容翻譯
+  // 测试动态内容翻译
   try {
     if (
       typeof createDynamicElement === "function" &&
       typeof translateText === "function"
     ) {
-      // 創建測試元素
+      // 创建测试元素
       const testKey = "test.dynamic";
-      const testDefault = "測試動態內容";
+      const testDefault = "测试动态内容";
       const testElement = createDynamicElement(testKey, testDefault);
 
-      // 檢查元素是否正確創建
+      // 检查元素是否正确创建
       if (
         testElement &&
         testElement.getAttribute("data-i18n") === testKey &&
@@ -1104,31 +1104,31 @@ function i18nCompatibilityTest() {
       }
 
       results.details.info.push(
-        "動態內容翻譯 " + (results.dynamicContent ? "正常" : "異常")
+        "动态内容翻译 " + (results.dynamicContent ? "正常" : "异常")
       );
     } else {
-      results.details.warnings.push("動態內容翻譯功能不可用");
+      results.details.warnings.push("动态内容翻译功能不可用");
     }
   } catch (e) {
-    results.details.errors.push("測試動態內容翻譯時發生錯誤: " + e.message);
+    results.details.errors.push("测试动态内容翻译时发生错误: " + e.message);
   }
 
-  // 輸出測試結果摘要
+  // 输出测试结果摘要
   console.log(
-    "多語系兼容性測試結果:",
+    "多语系兼容性测试结果:",
     results.localStorage && results.languageSwitch && results.translations
-      ? "通過 ✅"
-      : "部分功能異常 ⚠️"
+      ? "通过 ✅"
+      : "部分功能异常 ⚠️"
   );
   console.table({
     LocalStorage可用: results.localStorage ? "✅" : "❌",
-    語言切換功能: results.languageSwitch ? "✅" : "❌",
-    翻譯應用: results.translations ? "✅" : "❌",
-    動態內容翻譯: results.dynamicContent ? "✅" : "❌",
+    语言切换功能: results.languageSwitch ? "✅" : "❌",
+    翻译应用: results.translations ? "✅" : "❌",
+    动态内容翻译: results.dynamicContent ? "✅" : "❌",
   });
 
   if (results.details.errors.length > 0) {
-    console.error("錯誤:", results.details.errors);
+    console.error("错误:", results.details.errors);
   }
 
   if (results.details.warnings.length > 0) {
@@ -1138,14 +1138,14 @@ function i18nCompatibilityTest() {
   return results;
 }
 
-// 自動運行兼容性測試並將結果保存到全局變量
+// 自动运行兼容性测试并将结果保存到全局变量
 window.addEventListener("load", function () {
-  // 延遲執行測試，確保頁面完全載入
+  // 延迟执行测试，确保页面完全载入
   setTimeout(function () {
     try {
       window.i18nTestResults = i18nCompatibilityTest();
     } catch (e) {
-      console.error("執行多語系兼容性測試時發生錯誤:", e);
+      console.error("执行多语系兼容性测试时发生错误:", e);
     }
   }, 1000);
 });

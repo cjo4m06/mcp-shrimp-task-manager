@@ -56,3 +56,5 @@ data/*
 
 # Cursor AI 生成的暫存檔案
 .cursor/tmp/ 
+# SpecStory explanation file
+.specstory/.what-is-this.md

@@ -1,3 +1,3 @@
-**驗證標準:**
+**验证标准:**
 
 {verificationCriteria}

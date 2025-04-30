@@ -1,6 +1,6 @@
 /**
  * clearAllTasks prompt 生成器
- * 負責將模板和參數組合成最終的 prompt
+ * 负责将模板和参数组合成最终的 prompt
  */
 
 import {
@@ -10,7 +10,7 @@ import {
 } from "../loader.js";
 
 /**
- * clearAllTasks prompt 參數介面
+ * clearAllTasks prompt 参数接口
  */
 export interface ClearAllTasksPromptParams {
   confirm?: boolean;
@@ -21,8 +21,8 @@ export interface ClearAllTasksPromptParams {
 }
 
 /**
- * 獲取 clearAllTasks 的完整 prompt
- * @param params prompt 參數
+ * 获取 clearAllTasks 的完整 prompt
+ * @param params prompt 参数
  * @returns 生成的 prompt
  */
 export function getClearAllTasksPrompt(
@@ -30,19 +30,19 @@ export function getClearAllTasksPrompt(
 ): string {
   const { confirm, success, message, backupFile, isEmpty } = params;
 
-  // 處理未確認的情況
+  // 处理未确认的情况
   if (confirm === false) {
     const cancelTemplate = loadPromptFromTemplate("clearAllTasks/cancel.md");
     return generatePrompt(cancelTemplate, {});
   }
 
-  // 處理無任務需要清除的情況
+  // 处理无任务需要清除的情况
   if (isEmpty) {
     const emptyTemplate = loadPromptFromTemplate("clearAllTasks/empty.md");
     return generatePrompt(emptyTemplate, {});
   }
 
-  // 處理清除成功或失敗的情況
+  // 处理清除成功或失败的情况
   const responseTitle = success ? "Success" : "Failure";
 
   // 使用模板生成 backupInfo
@@ -59,6 +59,6 @@ export function getClearAllTasksPrompt(
     backupInfo,
   });
 
-  // 載入可能的自定義 prompt
+  // 加载可能的自定义 prompt
   return loadPrompt(prompt, "CLEAR_ALL_TASKS");
 }

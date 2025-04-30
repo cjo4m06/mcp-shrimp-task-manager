@@ -1,15 +1,15 @@
-## 任務複雜度評估
+## 任务复杂度评估
 
-- **複雜度級別:** {level}
+- **复杂度级别:** {level}
 
 {complexityStyle}
 
-### 評估指標
+### 评估指标
 
-- 描述長度: {descriptionLength} 字符
+- 描述长度: {descriptionLength} 字符
 
-- 依賴任務數: {dependenciesCount} 個
+- 依赖任务数: {dependenciesCount} 个
 
-### 處理建議
+### 处理建议
 
 {recommendation}

@@ -1,163 +1,171 @@
-// 任務狀態枚舉：定義任務在工作流程中的當前階段
+// 任务状态枚举：定义任务在工作流程中的当前阶段
 export enum TaskStatus {
-  PENDING = "待處理", // 已創建但尚未開始執行的任務
-  IN_PROGRESS = "進行中", // 當前正在執行的任務
-  COMPLETED = "已完成", // 已成功完成並通過驗證的任務
-  BLOCKED = "被阻擋", // 由於依賴關係而暫時無法執行的任務
+  PENDING = "待处理", // 已创建但尚未开始执行的任务
+  IN_PROGRESS = "进行中", // 当前正在执行的任务
+  COMPLETED = "已完成", // 已成功完成并通过验证的任务
+  BLOCKED = "被阻挡", // 由于依赖关系而暂时无法执行的任务
 }
 
-// 任務依賴關係：定義任務之間的前置條件關係
+// 任务依赖关系：定义任务之间的前置条件关系
 export interface TaskDependency {
-  taskId: string; // 前置任務的唯一標識符，當前任務執行前必須完成此依賴任務
+  taskId: string; // 前置任务的唯一标识符，当前任务执行前必须完成此依赖任务
 }
 
-// 相關文件類型：定義文件與任務的關係類型
+// 相关文件类型：定义文件与任务的关系类型
 export enum RelatedFileType {
-  TO_MODIFY = "TO_MODIFY", // 需要在任務中修改的文件
-  REFERENCE = "REFERENCE", // 任務的參考資料或相關文檔
-  CREATE = "CREATE", // 需要在任務中建立的文件
-  DEPENDENCY = "DEPENDENCY", // 任務依賴的組件或庫文件
-  OTHER = "OTHER", // 其他類型的相關文件
+  TO_MODIFY = "TO_MODIFY", // 需要在任务中修改的文件
+  REFERENCE = "REFERENCE", // 任务的参考资料或相关文档
+  CREATE = "CREATE", // 需要在任务中建立的文件
+  DEPENDENCY = "DEPENDENCY", // 任务依赖的组件或库文件
+  OTHER = "OTHER", // 其他类型的相关文件
 }
 
-// 相關文件：定義任務相關的文件信息
+// 相关文件：定义任务相关的文件信息
 export interface RelatedFile {
-  path: string; // 文件路徑，可以是相對於項目根目錄的路徑或絕對路徑
-  type: RelatedFileType; // 文件與任務的關係類型
-  description?: string; // 文件的補充描述，說明其與任務的具體關係或用途
-  lineStart?: number; // 相關代碼區塊的起始行（選填）
-  lineEnd?: number; // 相關代碼區塊的結束行（選填）
+  path: string; // 文件路径，可以是相对于项目根目录的路径或绝对路径
+  type: RelatedFileType; // 文件与任务的关系类型
+  description?: string; // 文件的补充描述，说明其与任务的具体关系或用途
+  lineStart?: number; // 相关代码区块的起始行（选填）
+  lineEnd?: number; // 相关代码区块的结束行（选填）
 }
 
-// 任務介面：定義任務的完整數據結構
+// 任务介面：定义任务的完整数据结构
 export interface Task {
-  id: string; // 任務的唯一標識符
-  name: string; // 簡潔明確的任務名稱
-  description: string; // 詳細的任務描述，包含實施要點和驗收標準
-  notes?: string; // 補充說明、特殊處理要求或實施建議（選填）
-  status: TaskStatus; // 任務當前的執行狀態
-  dependencies: TaskDependency[]; // 任務的前置依賴關係列表
-  createdAt: Date; // 任務創建的時間戳
-  updatedAt: Date; // 任務最後更新的時間戳
-  completedAt?: Date; // 任務完成的時間戳（僅適用於已完成的任務）
-  summary?: string; // 任務完成摘要，簡潔描述實施結果和重要決策（僅適用於已完成的任務）
-  relatedFiles?: RelatedFile[]; // 與任務相關的文件列表（選填）
+  id: string; // 任务的唯一标识符
+  name: string; // 简洁明确的任务名称
+  description: string; // 详细的任务描述，包含实施要点和验收标准
+  notes?: string; // 补充说明、特殊处理要求或实施建议（选填）
+  status: TaskStatus; // 任务当前的执行状态
+  dependencies: TaskDependency[]; // 任务的前置依赖关系列表
+  createdAt: Date; // 任务创建的时间戳
+  updatedAt: Date; // 任务最后更新的时间戳
+  completedAt?: Date; // 任务完成的时间戳（仅适用于已完成的任务）
+  summary?: string; // 任务完成摘要，简洁描述实施结果和重要决策（仅适用于已完成的任务）
+  relatedFiles?: RelatedFile[]; // 与任务相关的文件列表（选填）
 
-  // 新增欄位：保存完整的技術分析結果
-  analysisResult?: string; // 來自 analyze_task 和 reflect_task 階段的完整分析結果
+  // 新增栏位：保存完整的技术分析结果
+  analysisResult?: string; // 来自 analyze_task 和 reflect_task 阶段的完整分析结果
 
-  // 新增欄位：保存具體的實現指南
-  implementationGuide?: string; // 具體的實現方法、步驟和建議
+  // 新增栏位：保存具体的实现指南
+  implementationGuide?: string; // 具体的实现方法、步骤和建议
 
-  // 新增欄位：保存驗證標準和檢驗方法
-  verificationCriteria?: string; // 明確的驗證標準、測試要點和驗收條件
+  // 新增栏位：保存验证标准和检验方法
+  verificationCriteria?: string; // 明确的验证标准、测试要点和验收条件
 }
 
-// 規劃任務的參數：用於初始化任務規劃階段
+// 规划任务的参数：用于初始化任务规划阶段
 export interface PlanTaskArgs {
-  description: string; // 完整詳細的任務問題描述，應包含任務目標、背景及預期成果
-  requirements?: string; // 任務的特定技術要求、業務約束條件或品質標準（選填）
+  description: string; // 完整详细的任务问题描述，应包含任务目标、背景及预期成果
+  requirements?: string; // 任务的特定技术要求、业务约束条件或品质标准（选填）
 }
 
-// 分析問題的參數：用於深入分析任務並提出技術方案
+// 分析问题的参数：用于深入分析任务并提出技术方案
 export interface AnalyzeTaskArgs {
-  summary: string; // 結構化的任務摘要，包含任務目標、範圍與關鍵技術挑戰
-  initialConcept: string; // 初步解答構想，包含技術方案、架構設計和實施策略
-  previousAnalysis?: string; // 前次迭代的分析結果，用於持續改進方案（僅在重新分析時需提供）
+  summary: string; // 结构化的任务摘要，包含任务目标、范围与关键技术挑战
+  initialConcept: string; // 初步解答构想，包含技术方案、架构设计和实施策略
+  previousAnalysis?: string; // 前次迭代的分析结果，用于持续改进方案（仅在重新分析时需提供）
 }
 
-// 反思構想的參數：用於對分析結果進行批判性評估
+// 反思构想的参数：用于对分析结果进行批判性评估
 export interface ReflectTaskArgs {
-  summary: string; // 結構化的任務摘要，保持與分析階段一致以確保連續性
-  analysis: string; // 完整詳盡的技術分析結果，包括所有技術細節、依賴組件和實施方案
+  summary: string; // 结构化的任务摘要，保持与分析阶段一致以确保连续性
+  analysis: string; // 完整详尽的技术分析结果，包括所有技术细节、依赖组件和实施方案
 }
 
-// 拆分任務的參數：用於將大型任務分解為可管理的小型任務
+// 拆分任务的参数：用于将大型任务分解为可管理的小型任务
 export interface SplitTasksArgs {
   /**
-   * 任務更新模式（必填）：
-   * - "append"：保留所有現有任務，新增提供的任務
-   * - "overwrite"：保留已完成的任務，但刪除所有未完成的任務，然後新增提供的任務
-   * - "selective"：保留所有未提供名稱的現有任務，更新名稱匹配的任務
-   * - "clearAllTasks"：清除所有任務並創建備份
+   * 任务更新模式（必填）：
+   * - "append"：保留所有现有任务，新增提供的任务
+   * - "overwrite"：保留已完成的任务，但删除所有未完成的任务，然后新增提供的任务
+   * - "selective"：保留所有未提供名称的现有任务，更新名称匹配的任务
+   * - "clearAllTasks"：清除所有任务并创建备份
    */
   updateMode: "append" | "overwrite" | "selective" | "clearAllTasks";
 
-  // 全局分析結果：用於所有任務的共享分析數據
-  globalAnalysisResult?: string; // 來自 reflect_task 的完整分析結果，適用於所有任務的通用部分
+  // 全局分析结果：用于所有任务的共享分析数据
+  globalAnalysisResult?: string; // 来自 reflect_task 的完整分析结果，适用于所有任务的通用部分
 
   tasks: Array<{
-    name: string; // 簡潔明確的任務名稱，應能清晰表達任務目的
-    description: string; // 詳細的任務描述，包含實施要點、技術細節和驗收標準
-    notes?: string; // 補充說明、特殊處理要求或實施建議（選填）
-    dependencies?: string[]; // 此任務依賴的前置任務ID列表，形成任務的有向無環依賴圖
-    relatedFiles?: RelatedFile[]; // 與任務相關的文件列表（選填）
+    name: string; // 简洁明确的任务名称，应能清晰表达任务目的
+    description: string; // 详细的任务描述，包含实施要点、技术细节和验收标准
+    notes?: string; // 补充说明、特殊处理要求或实施建议（选填）
+    dependencies?: string[]; // 此任务依赖的前置任务ID列表，形成任务的有向无环依赖图
+    relatedFiles?: RelatedFile[]; // 与任务相关的文件列表（选填）
 
-    // 新增欄位：任務專屬的實現指南
-    implementationGuide?: string; // 此特定任務的具體實現方法和步驟
+    // 新增栏位：任务专属的实现指南
+    implementationGuide?: string; // 此特定任务的具体实现方法和步骤
 
-    // 新增欄位：任務專屬的驗證標準
-    verificationCriteria?: string; // 此特定任務的驗證標準和檢驗方法
+    // 新增栏位：任务专属的验证标准
+    verificationCriteria?: string; // 此特定任务的验证标准和检验方法
   }>;
 }
 
-// 列出任務的參數（無）
+// 列出任务的参数（无）
 
-// 執行任務的參數：用於開始執行特定任務
+// 执行任务的参数：用于开始执行特定任务
 export interface ExecuteTaskArgs {
-  taskId: string; // 待執行任務的唯一標識符，必須是系統中存在的有效任務ID
+  taskId: string; // 待执行任务的唯一标识符，必须是系统中存在的有效任务ID
 }
 
-// 檢驗任務的參數：用於評估任務的完成質量
+// 检验任务的参数：用于评估任务的完成质量
 export interface VerifyTaskArgs {
-  taskId: string; // 待驗證任務的唯一標識符，必須是狀態為「進行中」的有效任務ID
+  taskId: string; // 待验证任务的唯一标识符，必须是状态为「进行中」的有效任务ID
 }
 
-// 完成任務的參數：用於標記任務為已完成狀態
+// 完成任务的参数：用于标记任务为已完成状态
 export interface CompleteTaskArgs {
-  taskId: string; // 待標記為完成的任務唯一標識符，必須是狀態為「進行中」的有效任務ID
-  summary?: string; // 任務完成摘要，簡潔描述實施結果和重要決策（選填，如未提供將自動生成）
+  taskId: string; // 待标记为完成的任务唯一标识符，必须是状态为「进行中」的有效任务ID
+  summary?: string; // 任务完成摘要，简洁描述实施结果和重要决策（选填，如未提供将自动生成）
 }
 
-// 任務複雜度級別：定義任務的複雜程度分類
+// 任务复杂度级别：定义任务的复杂程度分类
 export enum TaskComplexityLevel {
-  LOW = "低複雜度", // 簡單且直接的任務，通常不需要特殊處理
-  MEDIUM = "中等複雜度", // 具有一定複雜性但仍可管理的任務
-  HIGH = "高複雜度", // 複雜且耗時的任務，需要特別關注
-  VERY_HIGH = "極高複雜度", // 極其複雜的任務，建議拆分處理
+  LOW = "低复杂度", // 简单且直接的任务，通常不需要特殊处理
+  MEDIUM = "中等复杂度", // 具有一定复杂性但仍可管理的任务
+  HIGH = "高复杂度", // 复杂且耗时的任务，需要特别关注
+  VERY_HIGH = "极高复杂度", // 极其复杂的任务，建议拆分处理
 }
 
-// 任務複雜度閾值：定義任務複雜度評估的參考標準
+// 任务复杂度阈值：定义任务复杂度评估的参考标准
 export const TaskComplexityThresholds = {
   DESCRIPTION_LENGTH: {
-    MEDIUM: 500, // 超過此字數判定為中等複雜度
-    HIGH: 1000, // 超過此字數判定為高複雜度
-    VERY_HIGH: 2000, // 超過此字數判定為極高複雜度
+    MEDIUM: 500, // 超过此字数判定为中等复杂度
+    HIGH: 1000, // 超过此字数判定为高复杂度
+    VERY_HIGH: 2000, // 超过此字数判定为极高复杂度
   },
   DEPENDENCIES_COUNT: {
-    MEDIUM: 2, // 超過此依賴數量判定為中等複雜度
-    HIGH: 5, // 超過此依賴數量判定為高複雜度
-    VERY_HIGH: 10, // 超過此依賴數量判定為極高複雜度
+    MEDIUM: 2, // 超过此依赖数量判定为中等复杂度
+    HIGH: 5, // 超过此依赖数量判定为高复杂度
+    VERY_HIGH: 10, // 超过此依赖数量判定为极高复杂度
   },
   NOTES_LENGTH: {
-    MEDIUM: 200, // 超過此字數判定為中等複雜度
-    HIGH: 500, // 超過此字數判定為高複雜度
-    VERY_HIGH: 1000, // 超過此字數判定為極高複雜度
+    MEDIUM: 200, // 超过此字数判定为中等复杂度
+    HIGH: 500, // 超过此字数判定为高复杂度
+    VERY_HIGH: 1000, // 超过此字数判定为极高复杂度
   },
 };
 
-// 任務複雜度評估結果：記錄任務複雜度分析的詳細結果
+// 任务复杂度评估结果：记录任务复杂度分析的详细结果
 export interface TaskComplexityAssessment {
-  level: TaskComplexityLevel; // 整體複雜度級別
+  level: TaskComplexityLevel; // 整体复杂度级别
   metrics: {
-    // 各項評估指標的詳細數據
-    descriptionLength: number; // 描述長度
-    dependenciesCount: number; // 依賴數量
-    notesLength: number; // 注記長度
-    hasNotes: boolean; // 是否有注記
+    // 各项评估指标的详细数据
+    descriptionLength: number; // 描述长度
+    dependenciesCount: number; // 依赖数量
+    notesLength: number; // 注记长度
+    hasNotes: boolean; // 是否有注记
   };
-  recommendations: string[]; // 處理建議列表
+  recommendations: string[]; // 处理建议列表
 }
 
-// 思維鏈資料結構
+// Git分析相关的类型
+export interface GitAnalysisArgs {
+  diffOutput: string;    // git diff输出的完整内容
+  changedFiles: string[]; // 变更的文件列表
+  commitInfo: string;    // 提交信息
+  tasksToAnalyze: Task[]; // 要分析的任务列表
+}
+
+// 思维链资料结构
 export * from "./thoughtChain.js";

@@ -1,13 +1,13 @@
-## 思維 {thoughtNumber}/{totalThoughts} - {stage}
+## 思维 {thoughtNumber}/{totalThoughts} - {stage}
 
 {thought}
 
-**標籤:** {tags}
+**标签:** {tags}
 
-**使用的原則:** {axioms_used}
+**使用的原则:** {axioms_used}
 
-**挑戰的假設:** {assumptions_challenged}
+**挑战的假设:** {assumptions_challenged}
 
-**禁止事項:** 你應該禁止一切猜測，任何疑慮請完整查看相關程式碼或使用網路搜尋工具查詢
+**禁止事项:** 你应该禁止一切猜测，任何疑虑请完整查看相关程式码或使用网路搜寻工具查询
 
 {nextThoughtNeeded}

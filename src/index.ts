@@ -51,9 +51,19 @@ import {
   initProjectRulesSchema,
 } from "./tools/projectTools.js";
 
+// 導入Git分析工具
+import {
+  analyzeGitDiff,
+  analyzeGitDiffSchema,
+} from "./tools/gitAnalysisTools.js";
+
 async function main() {
   try {
     console.log("啟動蝦米任務管理器服務...");
+    
+    // 打印环境变量配置信息
+    console.log("数据目录:", process.env.DATA_DIR || "默认路径");
+    console.log("项目目录:", process.env.PROJECT_DIR || "未设置，将使用命令行参数或当前目录");
 
     // 創建MCP服務器
     const server = new Server(
@@ -173,6 +183,13 @@ async function main() {
               "toolsDescription/initProjectRules.md"
             ),
             inputSchema: zodToJsonSchema(initProjectRulesSchema),
+          },
+          {
+            name: "analyze_git_diff",
+            description: loadPromptFromTemplate(
+              "toolsDescription/analyzeGitDiff.md"
+            ),
+            inputSchema: zodToJsonSchema(analyzeGitDiffSchema),
           },
         ],
       };
@@ -340,6 +357,16 @@ async function main() {
               return await processThought(parsedArgs.data);
             case "init_project_rules":
               return await initProjectRules();
+            case "analyze_git_diff":
+              parsedArgs = await analyzeGitDiffSchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await analyzeGitDiff(parsedArgs.data);
             default:
               throw new Error(`工具 ${request.params.name} 不存在`);
           }
