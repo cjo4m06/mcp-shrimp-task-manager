@@ -62,6 +62,9 @@ Choose subsequent actions based on the evaluation results:
 - **Consolidate when necessary**: If the modifications are minor or not complex, integrate them appropriately with other tasks to avoid excessive tasks due to over-simplification
 - **Repeated Calls**: If too many tasks or long content prevents "split_tasks" from working correctly, use the tool multiple times, submitting only a small portion of tasks each time
 - **Simplify Tasks**: If adding only one task at a time still doesn't work, consider further splitting or simplifying the task while retaining core content
+- **JSON Format Note**:
+  - **No Comments**: JSON format itself does not support comments (e.g., `#` or `//`). Adding comments within JSON content will lead to parsing failures.
+  - **Escape Characters**: Special characters within JSON content, such as double quotes (`\"`) and backslashes (`\\\\`), must be properly escaped. Otherwise, they will be treated as illegal characters, causing parsing failures.
 
 **Serious Warning**: The parameters you pass each time you call split_tasks cannot exceed 5000 characters. If it exceeds 5000 characters, please call the tool multiple times to complete.
 

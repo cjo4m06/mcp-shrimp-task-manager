@@ -36,6 +36,5 @@ export async function ensureRulesFileExists(): Promise<void> {
       "# 開發守則\n\n請在此文件中定義專案規範。",
       "utf-8"
     );
-    console.log(`已在 ${dataRulesPath} 創建空規則文件`);
   }
 }

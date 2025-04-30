@@ -45,35 +45,6 @@ import {
   getUpdateTaskContentPrompt,
 } from "../prompts/index.js";
 
-/**
- * 將任務狀態轉換為更友好的顯示文字
- */
-function getTaskStatusDisplay(status: TaskStatus): string {
-  switch (status) {
-    case TaskStatus.PENDING:
-      return "待處理";
-    case TaskStatus.IN_PROGRESS:
-      return "進行中";
-    case TaskStatus.COMPLETED:
-      return "已完成";
-    default:
-      return status;
-  }
-}
-
-/**
- * 格式化日期為更友好的顯示格式
- */
-function formatDate(date: Date): string {
-  return date.toLocaleString("zh-TW", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
 // 開始規劃工具
 export const planTaskSchema = z.object({
   description: z
@@ -121,9 +92,7 @@ export async function planTask({
       pendingTasks = allTasks.filter(
         (task) => task.status !== TaskStatus.COMPLETED
       );
-    } catch (error) {
-      console.error("載入現有任務時發生錯誤:", error);
-    }
+    } catch (error) {}
   }
 
   // 使用prompt生成器獲取最終prompt
@@ -431,7 +400,6 @@ export async function splitTasks({
     try {
       allTasks = await getAllTasks();
     } catch (error) {
-      console.error("獲取所有任務時發生錯誤:", error);
       allTasks = [...createdTasks]; // 如果獲取失敗，至少使用剛創建的任務
     }
 
@@ -458,8 +426,6 @@ export async function splitTasks({
       },
     };
   } catch (error) {
-    console.error("執行任務拆分時發生錯誤:", error);
-
     return {
       content: [
         {
@@ -469,14 +435,6 @@ export async function splitTasks({
             (error instanceof Error ? error.message : String(error)),
         },
       ],
-      ephemeral: {
-        taskCreationResult: {
-          success: false,
-          message: `任務創建失敗：${
-            error instanceof Error ? error.message : String(error)
-          }`,
-        },
-      },
     };
   }
 }
@@ -659,8 +617,8 @@ export async function executeTask({
             ? relatedFilesResult
             : relatedFilesResult.summary || "";
       } catch (error) {
-        console.error("載入相關文件時發生錯誤:", error);
-        relatedFilesSummary = "載入相關文件時發生錯誤，請手動查看文件。";
+        relatedFilesSummary =
+          "Error loading related files, please check the files manually.";
       }
     }
 
@@ -681,7 +639,6 @@ export async function executeTask({
       ],
     };
   } catch (error) {
-    console.error("執行任務時發生錯誤:", error);
     return {
       content: [
         {
@@ -1158,7 +1115,6 @@ export async function queryTask({
       ],
     };
   } catch (error) {
-    console.error("查詢任務時發生錯誤:", error);
     return {
       content: [
         {
@@ -1223,8 +1179,6 @@ export async function getTaskDetail({
       ],
     };
   } catch (error) {
-    console.error("取得任務詳情時發生錯誤:", error);
-
     // 使用prompt生成器獲取錯誤訊息
     const errorPrompt = getGetTaskDetailPrompt({
       taskId,

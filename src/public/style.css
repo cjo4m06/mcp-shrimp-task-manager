@@ -1,0 +1,461 @@
+:root {
+  --primary-color: #3498db;
+  --secondary-color: #2ecc71;
+  --background-color: #1a1a2e;
+  --panel-color: #16213e;
+  --text-color: #f0f0f0;
+  --accent-color: #4cd137;
+  --danger-color: #e74c3c;
+  --border-radius: 8px;
+  --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--accent-color);
+  box-shadow: 0 0 8px var(--accent-color);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+main {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "dependency"
+    "bottom";
+  gap: 20px;
+  flex-grow: 1;
+}
+
+.task-panel,
+.task-details {
+  background-color: var(--panel-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dependency-view {
+  grid-area: dependency;
+  background-color: var(--panel-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.bottom-panels {
+  grid-area: bottom;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+h2 {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+select {
+  background-color: rgba(0, 0, 0, 0.3);
+  color: var(--text-color);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 5px 10px;
+  border-radius: 4px;
+  outline: none;
+}
+
+.task-list,
+.dependency-graph,
+#task-details-content {
+  padding: 15px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.dependency-graph {
+  min-height: 300px;
+}
+
+.task-item {
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.task-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background-color: transparent;
+  transition: background-color 0.3s;
+}
+
+.task-item.status-pending::before {
+  background-color: #f1c40f;
+}
+
+.task-item.status-in-progress::before {
+  background-color: var(--primary-color);
+}
+
+.task-item.status-completed::before {
+  background-color: var(--secondary-color);
+}
+
+.task-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.task-item.selected {
+  background-color: rgba(52, 152, 219, 0.15);
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.task-item h3 {
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.task-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.task-status {
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.status-pending {
+  background-color: rgba(241, 196, 15, 0.2);
+  color: #f1c40f;
+}
+
+.status-in-progress {
+  background-color: rgba(52, 152, 219, 0.2);
+  color: #3498db;
+}
+
+.status-completed {
+  background-color: rgba(46, 204, 113, 0.2);
+  color: #2ecc71;
+}
+
+.placeholder {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 50px 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: rgba(255, 255, 255, 0.7);
+  animation: fadeInOut 1.5s infinite;
+}
+
+@keyframes fadeInOut {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.task-details-header {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.task-details-header h3 {
+  font-size: 1.3rem;
+  margin-bottom: 5px;
+}
+
+.task-details-section {
+  margin-bottom: 20px;
+}
+
+.task-details-section h4 {
+  font-size: 1rem;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.dependencies,
+.related-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.dependency-tag,
+.file-tag {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+}
+
+pre {
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 15px;
+  border-radius: var(--border-radius);
+  overflow-x: auto;
+  margin: 10px 0;
+  font-family: "Consolas", "Monaco", monospace;
+  font-size: 0.9rem;
+}
+
+footer {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 10px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 進度指示器樣式 */
+.progress-indicator {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: var(--panel-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.progress-bar-container {
+  display: flex;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.progress-segment {
+  height: 100%;
+  transition: width 0.5s ease-in-out;
+}
+
+.progress-completed {
+  background-color: var(--secondary-color);
+}
+
+.progress-in-progress {
+  background-color: var(--primary-color);
+}
+
+.progress-pending {
+  background-color: #f1c40f; /* 與status-pending一致 */
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.progress-labels span {
+  padding: 2px 5px;
+}
+
+.label-completed {
+  color: var(--secondary-color);
+}
+
+.label-in-progress {
+  color: var(--primary-color);
+}
+
+.label-pending {
+  color: #f1c40f;
+}
+
+/* 依賴關係圖樣式 */
+.dependency-graph svg {
+  display: block; /* 避免底部多餘空間 */
+  width: 100%;
+  height: 100%;
+}
+
+.nodes g.node-item circle {
+  transition: r 0.2s, stroke 0.2s;
+  /* 根據類型設置基礎顏色 */
+}
+.nodes g.type-current circle {
+  fill: var(--primary-color); /* 當前選中任務 */
+}
+.nodes g.type-dependency circle {
+  fill: var(--danger-color); /* 前置依賴任務 */
+}
+.nodes g.type-dependent circle {
+  fill: var(--secondary-color); /* 後置依賴任務 */
+}
+.nodes g.type-unknown circle {
+  fill: #7f8c8d; /* 未知任務 */
+}
+
+/* 根據狀態調整節點透明度或邊框 */
+.nodes g.status-completed circle {
+  opacity: 0.6;
+}
+.nodes g.status-in-progress circle {
+  /* 可以添加特殊效果，如描邊動畫 */
+  stroke: var(--accent-color);
+  stroke-width: 2px;
+}
+
+.nodes g.node-item:hover circle {
+  r: 14; /* 懸停時放大 */
+  stroke: #fff;
+  stroke-width: 2.5px;
+}
+
+.nodes g.node-item text {
+  fill: var(--text-color);
+  font-size: 10px;
+  pointer-events: none; /* 避免文本干擾點擊 */
+}
+
+/* 新增：高亮節點樣式 */
+g.node-item.highlighted circle {
+  stroke: var(--accent-color) !important; /* 使用重要標誌確保覆蓋 */
+  stroke-width: 3px !important;
+}
+
+@media (max-width: 768px) {
+  main {
+    grid-template-rows: auto auto; /* Stack dependency and bottom panels */
+    grid-template-areas:
+      "dependency"
+      "bottom";
+  }
+
+  .bottom-panels {
+    grid-template-columns: 1fr; /* Stack task list and details */
+    grid-template-rows: auto auto; /* Or let them take natural height */
+  }
+
+  .task-panel,
+  .dependency-view,
+  .task-details {
+    /* grid-column: 1 / -1; No longer needed */
+    min-height: 300px; /* Ensure panels have some height */
+  }
+}
+
+/* 過濾器區域樣式 */
+.filters {
+  display: flex;
+  gap: 10px;
+}
+
+.filters input[type="text"],
+.filters select {
+  background-color: rgba(0, 0, 0, 0.3);
+  color: var(--text-color);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 5px 10px;
+  border-radius: 4px;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.filters input[type="text"] {
+  flex-grow: 1; /* 讓搜索框佔據更多空間 */
+  min-width: 150px;
+}

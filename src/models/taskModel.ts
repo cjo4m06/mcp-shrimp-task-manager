@@ -128,9 +128,6 @@ export async function updateTask(
     );
 
     if (disallowedFields.length > 0) {
-      console.warn(
-        `警告：嘗試更新已完成任務的非法欄位: ${disallowedFields.join(", ")}`
-      );
       return null;
     }
   }
@@ -381,20 +378,6 @@ export async function batchCreateOrUpdateTasks(
 
         // 從tasksToKeep中移除此任務，因為它已經被更新並添加到newTasks中了
         tasksToKeep = tasksToKeep.filter((task) => task.id !== existingTaskId);
-      } else {
-        // 如果任務已完成或找不到，則跳過更新，可能在控制台輸出警告
-        if (
-          existingTaskIndex !== -1 &&
-          existingTasks[existingTaskIndex].status === TaskStatus.COMPLETED
-        ) {
-          console.warn(
-            `警告：嘗試更新已完成的任務 "${taskData.name}"，操作被忽略`
-          );
-        } else {
-          console.warn(
-            `警告：嘗試更新不存在的任務 "${taskData.name}"，操作被忽略`
-          );
-        }
       }
     } else {
       // 創建新任務
@@ -448,9 +431,6 @@ export async function batchCreateOrUpdateTasks(
           if (taskNameToIdMap.has(dependencyName)) {
             dependencyTaskId = taskNameToIdMap.get(dependencyName)!;
           } else {
-            console.warn(
-              `警告：任務 "${taskData.name}" 引用了未知的依賴任務 "${dependencyName}"，此依賴將被忽略`
-            );
             continue; // 跳過此依賴
           }
         } else {
@@ -459,9 +439,6 @@ export async function batchCreateOrUpdateTasks(
             (task) => task.id === dependencyTaskId
           );
           if (!idExists) {
-            console.warn(
-              `警告：任務 "${taskData.name}" 引用了未知的依賴任務ID "${dependencyTaskId}"，此依賴將被忽略`
-            );
             continue; // 跳過此依賴
           }
         }
@@ -745,7 +722,6 @@ export async function clearAllTasks(): Promise<{
       backupFile: backupFileName,
     };
   } catch (error) {
-    console.error("清除所有任務時發生錯誤:", error);
     return {
       success: false,
       message: `清除任務時發生錯誤: ${
@@ -787,7 +763,6 @@ export async function searchTasksWithCommand(
     // 如果有搜尋命令，執行它
     if (cmd) {
       try {
-        console.log(`Executing command: ${cmd}`);
         const { stdout } = await execPromise(cmd, {
           maxBuffer: 1024 * 1024 * 10,
         });
@@ -860,23 +835,12 @@ export async function searchTasksWithCommand(
                   });
 
               memoryTasks.push(...filteredTasks);
-            } catch (error: unknown) {
-              console.error(`讀取檔案 ${filePath} 時發生錯誤:`, error);
-            }
+            } catch (error: unknown) {}
           }
         }
-      } catch (error: unknown) {
-        // grep沒有找到匹配項時會返回錯誤，但這不是真正的錯誤
-        // 只有當錯誤代碼不是1(沒有匹配)時才記錄錯誤
-        const err = error as { code?: number };
-        if (err.code !== 1) {
-          console.error("執行搜尋指令時發生錯誤:", error);
-        }
-      }
+      } catch (error: unknown) {}
     }
-  } catch (error: unknown) {
-    console.error("搜尋記憶資料夾時發生錯誤:", error);
-  }
+  } catch (error: unknown) {}
 
   // 從當前任務中過濾符合條件的任務
   const filteredCurrentTasks = filterCurrentTasks(currentTasks, query, isId);

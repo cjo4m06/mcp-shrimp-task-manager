@@ -14,8 +14,12 @@
 - [🛠️ 可用工具一览](#可用工具一览)
 - [📄 许可协议](#许可协议)
 - [🤖 推荐模型](#推荐模型)
+- - [🌐 網頁圖形介面](#網頁圖形介面)
+
 
 # MCP 虾米任务管理器
+
+[![Shrimp Task Manager Demo](/docs/yt.png)](https://www.youtube.com/watch?v=Arzu0lV09so)
 
 [![smithery badge](https://smithery.ai/badge/@cjo4m06/mcp-shrimp-task-manager)](https://smithery.ai/server/@cjo4m06/mcp-shrimp-task-manager)
 
@@ -174,7 +178,10 @@ npm run build
       "command": "node",
       "args": ["/mcp-shrimp-task-manager/dist/index.js"],
       "env": {
-        "DATA_DIR": "/mcp-shrimp-task-manager/data"
+        "DATA_DIR": "/mcp-shrimp-task-manager/data",
+        "ENABLE_THOUGHT_CHAIN": "true",
+        "TEMPLATES_USE": "en",
+        "ENABLE_GUI": "false"
       }
     }
   }
@@ -188,7 +195,10 @@ or
       "command": "npx",
       "args": ["-y", "mcp-shrimp-task-manager"],
       "env": {
-        "DATA_DIR": "/mcp-shrimp-task-manager/data"
+        "DATA_DIR": "/mcp-shrimp-task-manager/data",
+        "ENABLE_THOUGHT_CHAIN": "true",
+        "TEMPLATES_USE": "en",
+        "ENABLE_GUI": "false"
       }
     }
   }
@@ -212,6 +222,9 @@ or
       "args": ["/path/to/mcp-shrimp-task-manager/dist/index.js"],
       "env": {
         "DATA_DIR": "/path/to/project/data" // 必须使用绝对路径
+        "ENABLE_THOUGHT_CHAIN": "true",
+        "TEMPLATES_USE": "en",
+        "ENABLE_GUI": "false"
       }
     }
   }
@@ -226,6 +239,9 @@ or
       "args": ["-y", "mcp-shrimp-task-manager"],
       "env": {
         "DATA_DIR": "/path/to/project/data" // 必须使用绝对路径
+        "ENABLE_THOUGHT_CHAIN": "true",
+        "TEMPLATES_USE": "en",
+        "ENABLE_GUI": "false"
       }
     }
   }
@@ -258,7 +274,8 @@ or
         "MCP_PROMPT_PLAN_TASK": "自定义规划指导...",
         "MCP_PROMPT_EXECUTE_TASK_APPEND": "附加执行说明...",
         "ENABLE_THOUGHT_CHAIN": "true",
-        "TEMPLATES_USE": "en"
+        "TEMPLATES_USE": "en",
+        "ENABLE_GUI": "false"
       }
     }
   }

@@ -7,6 +7,7 @@
 - [🧠 Task Memory Function](#task-memory-function)
 - [🤔 Thought Chain Process](#thought-chain)
 - [📋 Project Rules Initialization](#project-rules)
+- [🌐 Web GUI](#web-gui)
 - [📚 Documentation Resources](#documentation)
 - [🔧 Installation and Usage](#installation)
 - [🔌 Using with MCP-Compatible Clients](#clients)
@@ -16,6 +17,8 @@
 - [🤖 Recommended Models](#recommended)
 
 # MCP Shrimp Task Manager
+
+[![Shrimp Task Manager Demo](/docs/yt.png)](https://www.youtube.com/watch?v=Arzu0lV09so)
 
 [![smithery badge](https://smithery.ai/badge/@cjo4m06/mcp-shrimp-task-manager)](https://smithery.ai/server/@cjo4m06/mcp-shrimp-task-manager)
 
@@ -39,6 +42,7 @@ Shrimp Task Manager guides Agents through structured workflows for systematic pr
 - **Task Memory Function**: Automatically backup task history, providing long-term memory and reference capabilities
 - **Thought Chain Process**: Step-by-step reasoning to analyze complex problems systematically
 - **Project Rules Initialization**: Define project standards and rules to maintain consistency across large projects
+- **<a id="web-gui"></a>Web GUI**: Provides an optional web-based graphical user interface for task management. Enable by setting `ENABLE_GUI=true` in your `.env` file. When enabled, a `WebGUI.md` file containing the access address will be created in your `DATA_DIR`.
 
 ## 🧭 <a id="usage-guide"></a>Usage Guide
 
@@ -178,7 +182,10 @@ Shrimp Task Manager offers two configuration methods: global configuration and p
       "command": "node",
       "args": ["/mcp-shrimp-task-manager/dist/index.js"],
       "env": {
-        "DATA_DIR": "/path/to/project/data" // 必須使用絕對路徑
+        "DATA_DIR": "/path/to/project/data", // 必須使用絕對路徑
+        "ENABLE_THOUGHT_CHAIN": "true",
+        "TEMPLATES_USE": "en",
+        "ENABLE_GUI": "false"
       }
     }
   }
@@ -193,7 +200,10 @@ or
       "command": "npx",
       "args": ["-y", "mcp-shrimp-task-manager"],
       "env": {
-        "DATA_DIR": "/mcp-shrimp-task-manager/data"
+        "DATA_DIR": "/mcp-shrimp-task-manager/data",
+        "ENABLE_THOUGHT_CHAIN": "true",
+        "TEMPLATES_USE": "en",
+        "ENABLE_GUI": "false"
       }
     }
   }
@@ -216,7 +226,10 @@ You can also set up dedicated configurations for each project to use independent
       "command": "node",
       "args": ["/path/to/mcp-shrimp-task-manager/dist/index.js"],
       "env": {
-        "DATA_DIR": "/path/to/project/data" // Must use absolute path
+        "DATA_DIR": "/path/to/project/data", // Must use absolute path
+        "ENABLE_THOUGHT_CHAIN": "true",
+        "TEMPLATES_USE": "en",
+        "ENABLE_GUI": "false"
       }
     }
   }
@@ -231,7 +244,10 @@ or
       "command": "npx",
       "args": ["-y", "mcp-shrimp-task-manager"],
       "env": {
-        "DATA_DIR": "/path/to/project/data" // 必須使用絕對路徑
+        "DATA_DIR": "/path/to/project/data", // 必須使用絕對路徑
+        "ENABLE_THOUGHT_CHAIN": "true",
+        "TEMPLATES_USE": "en",
+        "ENABLE_GUI": "false"
       }
     }
   }
@@ -264,7 +280,8 @@ Shrimp Task Manager supports customizing prompt behavior through environment var
         "MCP_PROMPT_PLAN_TASK": "Custom planning guidance...",
         "MCP_PROMPT_EXECUTE_TASK_APPEND": "Additional execution instructions...",
         "ENABLE_THOUGHT_CHAIN": "true",
-        "TEMPLATES_USE": "en"
+        "TEMPLATES_USE": "en",
+        "ENABLE_GUI": "false"
       }
     }
   }

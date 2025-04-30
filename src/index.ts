@@ -8,6 +8,12 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
+import express, { Request, Response, NextFunction } from "express";
+import getPort from "get-port";
+import path from "path";
+import fs from "fs";
+import fsPromises from "fs/promises";
+import { fileURLToPath } from "url";
 
 // 導入工具函數
 import {
@@ -60,15 +66,132 @@ import {
 async function main() {
   try {
     console.log("啟動蝦米任務管理器服務...");
-    
+
     // 打印环境变量配置信息
     console.log("数据目录:", process.env.DATA_DIR || "默认路径");
     console.log("项目目录:", process.env.PROJECT_DIR || "未设置，将使用命令行参数或当前目录");
+    console.log("Starting Shrimp Task Manager service...");
+    const ENABLE_GUI = process.env.ENABLE_GUI === "true";
+
+    if (ENABLE_GUI) {
+      // 創建 Express 應用
+      const app = express();
+
+      // 儲存 SSE 客戶端的列表
+      let sseClients: Response[] = [];
+
+      // 發送 SSE 事件的輔助函數
+      function sendSseUpdate() {
+        sseClients.forEach((client) => {
+          // 檢查客戶端是否仍然連接
+          if (!client.writableEnded) {
+            client.write(
+              `event: update\ndata: ${JSON.stringify({
+                timestamp: Date.now(),
+              })}\n\n`
+            );
+          }
+        });
+        // 清理已斷開的客戶端 (可選，但建議)
+        sseClients = sseClients.filter((client) => !client.writableEnded);
+      }
+
+      // 設置靜態文件目錄
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const publicPath = path.join(__dirname, "public");
+      const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
+      const TASKS_FILE_PATH = path.join(DATA_DIR, "tasks.json"); // 提取檔案路徑
+
+      app.use(express.static(publicPath));
+
+      // 設置 API 路由
+      app.get("/api/tasks", async (req: Request, res: Response) => {
+        try {
+          // 使用 fsPromises 保持異步讀取
+          const tasksData = await fsPromises.readFile(TASKS_FILE_PATH, "utf-8");
+          res.json(JSON.parse(tasksData));
+        } catch (error) {
+          // 確保檔案不存在時返回空任務列表
+          if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+            res.json({ tasks: [] });
+          } else {
+            res.status(500).json({ error: "Failed to read tasks data" });
+          }
+        }
+      });
+
+      // 新增：SSE 端點
+      app.get("/api/tasks/stream", (req: Request, res: Response) => {
+        res.writeHead(200, {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+          // 可選: CORS 頭，如果前端和後端不在同一個 origin
+          // "Access-Control-Allow-Origin": "*",
+        });
+
+        // 發送一個初始事件或保持連接
+        res.write("data: connected\n\n");
+
+        // 將客戶端添加到列表
+        sseClients.push(res);
+
+        // 當客戶端斷開連接時，將其從列表中移除
+        req.on("close", () => {
+          sseClients = sseClients.filter((client) => client !== res);
+        });
+      });
+
+      // 獲取可用埠
+      const port = await getPort();
+
+      // 啟動 HTTP 伺服器
+      const httpServer = app.listen(port, () => {
+        // 在伺服器啟動後開始監聽檔案變化
+        try {
+          // 檢查檔案是否存在，如果不存在則不監聽 (避免 watch 報錯)
+          if (fs.existsSync(TASKS_FILE_PATH)) {
+            fs.watch(TASKS_FILE_PATH, (eventType, filename) => {
+              if (
+                filename &&
+                (eventType === "change" || eventType === "rename")
+              ) {
+                // 稍微延遲發送，以防短時間內多次觸發 (例如編輯器保存)
+                // debounce sendSseUpdate if needed
+                sendSseUpdate();
+              }
+            });
+          }
+        } catch (watchError) {}
+      });
+
+      // 將 URL 寫入 ebGUI.md
+      try {
+        const websiteUrl = `[Task Manager UI](http://localhost:${port})`;
+        const websiteFilePath = path.join(DATA_DIR, "WebGUI.md");
+        await fsPromises.writeFile(websiteFilePath, websiteUrl, "utf-8");
+      } catch (error) {}
+
+      // 設置進程終止事件處理 (確保移除 watcher)
+      const shutdownHandler = async () => {
+        // 關閉所有 SSE 連接
+        sseClients.forEach((client) => client.end());
+        sseClients = [];
+
+        // 關閉 HTTP 伺服器
+        await new Promise<void>((resolve) => httpServer.close(() => resolve()));
+        process.exit(0);
+      };
+
+      process.on("SIGINT", shutdownHandler);
+      process.on("SIGTERM", shutdownHandler);
+    }
 
     // 創建MCP服務器
     const server = new Server(
       {
-        name: "蝦米任務管理器",
+        name: "Shrimp Task Manager",
         version: "1.0.0",
       },
       {
@@ -315,16 +438,6 @@ async function main() {
                 );
               }
               return await updateTaskContent(parsedArgs.data);
-            // case "update_task_files":
-            //   parsedArgs = await updateTaskRelatedFilesSchema.safeParseAsync(
-            //     request.params.arguments
-            //   );
-            //   if (!parsedArgs.success) {
-            //     throw new Error(
-            //       `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
-            //     );
-            //   }
-            //   return await updateTaskRelatedFiles(parsedArgs.data);
             case "query_task":
               parsedArgs = await queryTaskSchema.safeParseAsync(
                 request.params.arguments
@@ -368,7 +481,7 @@ async function main() {
               }
               return await analyzeGitDiff(parsedArgs.data);
             default:
-              throw new Error(`工具 ${request.params.name} 不存在`);
+              throw new Error(`Tool ${request.params.name} does not exist`);
           }
         } catch (error) {
           console.error("Error executing tool:", error);
@@ -378,7 +491,7 @@ async function main() {
             content: [
               {
                 type: "text",
-                text: `發生錯誤: ${errorMsg} \n 請嘗試修正錯誤並重新嘗試呼叫工具`,
+                text: `Error occurred: ${errorMsg} \n Please try correcting the error and calling the tool again`,
               },
             ],
           };
@@ -390,9 +503,8 @@ async function main() {
     const transport = new StdioServerTransport();
     await server.connect(transport);
 
-    console.log("蝦米任務管理器服務已啟動");
+    console.log("Shrimp Task Manager service started");
   } catch (error) {
-    console.error("啟動服務失敗:", error);
     process.exit(1);
   }
 }
