@@ -43,6 +43,8 @@ import {
   queryTaskSchema,
   getTaskDetail,
   getTaskDetailSchema,
+  taskReport,
+  taskReportSchema,
 } from "./tools/taskTools.js";
 
 // 導入思維鏈工具
@@ -65,12 +67,12 @@ import {
 
 async function main() {
   try {
-    console.log("啟動蝦米任務管理器服務...");
+    console.info("啟動蝦米任務管理器服務...");
 
     // 打印环境变量配置信息
-    console.log("数据目录:", process.env.DATA_DIR || "默认路径");
-    console.log("项目目录:", process.env.PROJECT_DIR || "未设置，将使用命令行参数或当前目录");
-    console.log("Starting Shrimp Task Manager service...");
+    console.error("数据目录:", process.env.DATA_DIR || "默认路径");
+    console.error("项目目录:", process.env.PROJECT_DIR || "未设置，将使用命令行参数或当前目录");
+    console.error("Starting Shrimp Task Manager service...");
     const ENABLE_GUI = process.env.ENABLE_GUI === "true";
 
     if (ENABLE_GUI) {
@@ -314,6 +316,13 @@ async function main() {
             ),
             inputSchema: zodToJsonSchema(analyzeGitDiffSchema),
           },
+          {
+            name: "task_report",
+            description: loadPromptFromTemplate(
+              "toolsDescription/taskReport.md"
+            ),
+            inputSchema: zodToJsonSchema(taskReportSchema),
+          },
         ],
       };
     });
@@ -480,6 +489,16 @@ async function main() {
                 );
               }
               return await analyzeGitDiff(parsedArgs.data);
+            case "task_report":
+              parsedArgs = await taskReportSchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await taskReport(parsedArgs.data);
             default:
               throw new Error(`Tool ${request.params.name} does not exist`);
           }
@@ -503,7 +522,7 @@ async function main() {
     const transport = new StdioServerTransport();
     await server.connect(transport);
 
-    console.log("Shrimp Task Manager service started");
+    console.info("Shrimp Task Manager service started");
   } catch (error) {
     process.exit(1);
   }

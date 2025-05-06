@@ -29,6 +29,13 @@ export interface RelatedFile {
   lineEnd?: number; // 相关代码区块的结束行（选填）
 }
 
+// 任务进度更新：记录任务执行过程中的进度和状态变化
+export interface TaskProgressUpdate {
+  timestamp: string; // 更新的时间戳
+  content: string;   // 更新的内容，包括发现、解决方案或结果
+  status: 'SUCCESSFUL' | 'UNSUCCESSFUL'; // 更新的状态
+}
+
 // 任务介面：定义任务的完整数据结构
 export interface Task {
   id: string; // 任务的唯一标识符
@@ -51,6 +58,9 @@ export interface Task {
 
   // 新增栏位：保存验证标准和检验方法
   verificationCriteria?: string; // 明确的验证标准、测试要点和验收条件
+  
+  // 新增栏位：任务进度更新历史记录
+  progressUpdates?: TaskProgressUpdate[]; // 记录任务执行过程中的进度和状态变化
 }
 
 // 规划任务的参数：用于初始化任务规划阶段

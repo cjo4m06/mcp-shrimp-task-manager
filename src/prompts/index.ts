@@ -23,3 +23,4 @@ export { getDeleteTaskPrompt } from "./generators/deleteTask.js";
 export { getClearAllTasksPrompt } from "./generators/clearAllTasks.js";
 export { getUpdateTaskContentPrompt } from "./generators/updateTaskContent.js";
 export { getGitAnalysisPrompt } from "./generators/gitAnalysis.js";
+export { getTaskReportPrompt } from "./generators/taskReport.js";

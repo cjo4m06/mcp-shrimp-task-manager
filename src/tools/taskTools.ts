@@ -43,6 +43,7 @@ import {
   getDeleteTaskPrompt,
   getClearAllTasksPrompt,
   getUpdateTaskContentPrompt,
+  getTaskReportPrompt,
 } from "../prompts/index.js";
 
 // 開始規劃工具
@@ -1194,4 +1195,134 @@ export async function getTaskDetail({
       ],
     };
   }
+}
+
+// 任务报告工具
+export const taskReportSchema = z.object({
+  taskId: z
+    .string()
+    .optional()
+    .describe("要生成报告的任务ID（可选，如果不提供则使用issue查找）"),
+  issue: z
+    .string()
+    .describe("任务关联的问题编号，如JIRA-123或其他项目管理系统的问题标识"),
+  template: z
+    .enum(["default", "simple", "detailed"])
+    .optional()
+    .default("default")
+    .describe("报告模板类型：默认(default)、简单(simple)或详细(detailed)"),
+  includeHistory: z
+    .boolean()
+    .optional()
+    .default(true)
+    .describe("是否包含完整的任务历史记录"),
+  outputFormat: z
+    .enum(["markdown", "html"])
+    .optional()
+    .default("markdown")
+    .describe("输出格式：markdown或html"),
+  gitCommitHash: z
+    .string()
+    .optional()
+    .describe("Git提交的哈希值，用于获取提交时间信息"),
+  gitCommitDate: z
+    .string()
+    .optional()
+    .describe("Git提交的日期，格式为YYYY-MM-DD"),
+  gitCommitTime: z
+    .string()
+    .optional()
+    .describe("Git提交的时间，格式为HH:MM:SS"),
+});
+
+export async function taskReport({
+  taskId,
+  issue,
+  template = "default",
+  includeHistory = true,
+  outputFormat = "markdown",
+  gitCommitHash,
+  gitCommitDate,
+  gitCommitTime,
+}: z.infer<typeof taskReportSchema>) {
+  // 获取用户名
+  let username = "unknown";
+  
+  try {
+    // 尝试从环境变量获取用户名
+    if (process.env.USER_NAME) {
+      username = process.env.USER_NAME;
+    } else if (process.env.USERNAME) {
+      username = process.env.USERNAME;
+    } else {
+      // 使用系统命令获取用户名
+      const { execSync } = require("child_process");
+      try {
+        // 尝试Windows命令
+        username = execSync("whoami").toString().trim();
+      } catch (error) {
+        try {
+          // 尝试UNIX/Linux命令
+          username = execSync("id -un").toString().trim();
+        } catch (innerError) {
+          // 保持默认值
+        }
+      }
+    }
+  } catch (error) {
+    // 如果出错，使用默认值
+    console.error("获取用户名出错:", error);
+  }
+
+  // 查找任务
+  let task: Task | null = null;
+  
+  if (taskId) {
+    // 如果提供了taskId，直接获取任务
+    task = await getTaskById(taskId);
+  } else {
+    // 如果没有提供taskId，根据issue查找任务
+    const allTasks = await getAllTasks();
+    task = allTasks.find(t => 
+      t.notes && t.notes.toLowerCase().includes(issue.toLowerCase())
+    ) || null;
+  }
+
+  if (!task) {
+    return {
+      content: [
+        {
+          type: "text" as const,
+          text: `未找到任务。请提供有效的任务ID或与issue "${issue}" 相关的任务。`,
+        },
+      ],
+    };
+  }
+
+  // 准备git信息参数
+  const gitInfo = (gitCommitHash || gitCommitDate || gitCommitTime) ? {
+    commitHash: gitCommitHash,
+    commitDate: gitCommitDate,
+    commitTime: gitCommitTime,
+  } : undefined;
+
+  // 使用prompt生成器获取最终prompt
+  const prompt = getTaskReportPrompt({
+    task,
+    issue,
+    username,
+    template,
+    includeHistory,
+    outputFormat,
+    gitInfo,
+  });
+
+  return {
+    content: [
+      {
+        type: "text" as const,
+        text: prompt,
+      },
+    ],
+  };
 }
