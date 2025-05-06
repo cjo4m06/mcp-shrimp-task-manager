@@ -2,7 +2,7 @@ import { z } from "zod";
 import {
   getProcessThoughtPrompt,
   ProcessThoughtPromptParams,
-} from "../prompts/generators/processThought.js";
+} from "../../prompts/generators/processThought.js";
 
 /**
  * processThought工具的參數結構

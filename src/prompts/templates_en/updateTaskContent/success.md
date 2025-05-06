@@ -4,6 +4,6 @@
 - **Description:** {taskDescription}
   {taskNotes}
 - **Status:** {taskStatus}
-- **Updated At:** {taskUpdatedAt}
+- **Update Time:** {taskUpdatedAt}
 
 {filesContent}

@@ -1,51 +1,57 @@
-**Please strictly follow the guidelines below**
-
 ## Codebase Analysis
 
-### Task Summary
+After receiving the initial solution, complete the following checks and optimizations in sequence, and call the `reflect_task` tool at the end:
 
-{summary}
+1. **Structural Integrity Check**
 
-### Solution Concept
+   - Does it cover all requirements and constraints?
+   - Are module boundaries and interface definitions clear?
+   - Is the dependency graph reasonable and maintainable?
+   - Does the design conform to the project's core architectural patterns?
+   - Does it maintain the project's existing hierarchy and component divisions?
 
-{initialConcept}
+2. **Duplicate Functionality Detection and Sharing Assessment**
 
-## Technical Review Points
+   - Use precise search strategies:
+     - Use `codebase_search`, `read_file` or similar tools to search for similar functionality implementations
+     - Analyze the purpose and responsibilities of key components and utility classes
+   - Check if functionalities in the solution overlap with existing code or other modules
+   - If overlapping, determine:
+     - Whether to directly **reuse** existing components (evaluate applicability, extensibility)
+     - Or need to **refactor/abstract** into shared components (consider reuse costs and benefits)
+   - Clearly indicate the reasons for reuse decisions and their scope of impact
 
-Pay attention to opportunities for code reuse, avoid reimplementing existing functionality, and mitigate technical debt risks.
+3. **Performance and Scalability Assessment**
 
-### 1. Codebase Analysis
+   - Are there potential performance bottlenecks?
+   - How scalable is the design for future requirements?
+   - Have resource usage and system load been considered?
+   - Does the expansion strategy conform to existing project patterns?
 
-- Look for reusable components and similar implementations
-- Determine the appropriate location for the new functionality
-- Evaluate integration methods with existing modules
+4. **Consistency and Style Validation**
 
-### 2. Technical Strategy Evaluation
+   - Does it conform to the project's existing code style, naming, and architectural conventions
+     - Check naming convention consistency (camelCase, snake_case, etc.)
+     - Confirm method/function parameter and return value styles
+     - Check comment and documentation formats
+   - Does it follow project-specific design patterns and architectural decisions
+   - Are there violations of team best practices
+   - Does the UI/UX design match the current screen style
 
-- Consider modularity and scalability in the design
-- Assess the future compatibility of the proposal
-- Plan testing strategies and coverage
+5. **Architectural Integration Assessment**
 
-### 3. Risk and Quality Analysis
+   - How new features seamlessly integrate with the existing architecture
+   - Evaluate impact on existing modules and services
+   - Confirm backward compatibility is maintained
+   - Check if system boundaries and module encapsulation are protected
 
-- Identify technical debt and performance bottlenecks
-- Evaluate security and data integrity
-- Check error handling mechanisms
+6. **Optimization Suggestions**
+   - Based on the above checks, organize optimized answers
+   - Ensure suggestions are consistent with the existing architecture
+   - Provide specific code organization and integration strategies
+   - Call tool:
+     ```
+     reflect_task({ summary: 'Analysis Summary', analysis: <Analysis Results> })
+     ```
 
-### 4. Implementation Recommendations
-
-- Follow project architectural style
-- Recommend implementation methods and technology choices
-- Propose clear development steps
-
-{previousAnalysis}
-
-## Next Actions
-
-After completing the analysis, use the "reflect_task" tool to submit the final analysis, including:
-
-1. **Original Task Summary** - Keep consistent with the first stage
-2. **Complete Analysis Results** - Technical details, interface dependencies, implementation strategy, acceptance criteria
-
-Your analysis will determine the quality of the solution. Please comprehensively consider various technical factors and business constraints.
-**Using tools is strictly required.**
+**Now call `reflect_task`, strictly forbidden not to call the tool**

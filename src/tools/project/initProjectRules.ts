@@ -1,6 +1,9 @@
 import { z } from "zod";
-import { getInitProjectRulesPrompt } from "../prompts/index.js";
-import { getRulesFilePath, ensureRulesFileExists } from "../utils/pathUtils.js";
+import { getInitProjectRulesPrompt } from "../../prompts/index.js";
+import {
+  getRulesFilePath,
+  ensureRulesFileExists,
+} from "../../utils/pathUtils.js";
 
 // 定義schema
 export const initProjectRulesSchema = z.object({});

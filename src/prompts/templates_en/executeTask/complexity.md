@@ -10,6 +10,6 @@
 
 - Number of Dependencies: {dependenciesCount}
 
-### Handling Recommendations
+### Processing Recommendations
 
 {recommendation}

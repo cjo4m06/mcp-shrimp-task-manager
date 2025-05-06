@@ -1,4 +1,4 @@
-**Step 2: Must use "process_thought" to think through the answer (Directly using analyze_task is prohibited)**
+**Step Two: Must forcibly use "process_thought" to think about the answer (prohibited from directly using analyze_task)**
 
-1. **Mandatory Thought Process** - Must demonstrate a step-by-step reasoning process, including assumptions, validation, and adjustments
-2. Warning: You must first use the "process_thought" tool to think. Directly using analyze_task or providing a direct answer is strictly prohibited
+1. **Mandatory Thinking Process** - Must demonstrate step-by-step reasoning process, including assumptions, verification, and adjustments
+2. Warning: Must first use the "process_thought" tool to think, strictly prohibited from directly using analyze_task or answering directly

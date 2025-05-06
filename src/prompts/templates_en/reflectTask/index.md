@@ -1,72 +1,48 @@
-**Please strictly follow the guidelines below**
+## Reflection Results
 
-## Solution Evaluation
+After receiving the solution and suggestions, conduct self-reflection and final confirmation, and submit the final results:
 
-### Task Summary
+1. **Requirements Alignment Check**
 
-{summary}
+   - Does the final solution fully satisfy user requirements and constraints?
+   - Are there any omissions or deviations from the original goals?
 
-### Analysis Results
+2. **Architectural Consistency Check**
 
-{analysis}
+   - Does the design follow the project's existing architectural patterns and design principles?
+   - Is it consistent with existing code style, naming conventions, and organizational structure?
+   - Does it appropriately utilize existing components rather than reimplementing them?
+   - Are new features properly integrated into the existing architecture?
+   - Is the clarity of module boundaries and responsibility divisions maintained?
 
-## Evaluation Points
+3. **Over-design Review**
 
-### 1. Technical Integrity
+   - Is unnecessary complexity introduced?
+   - Is there excessive feature splitting or abstraction?
 
-- Check for technical flaws and logical loopholes in the solution
-- Validate edge case and exception handling
-- Confirm data flow and control flow integrity
-- Assess the reasonableness of technology choices
+4. **Simplicity and Implementability**
 
-### 2. Performance and Scalability
+   - Is the design concise and practically implementable?
+   - Is there sufficient space for future iterations?
 
-- Analyze resource usage efficiency and optimization potential
-- Evaluate system load scalability
-- Identify potential optimization points
-- Consider future functional expansion possibilities
+5. **Feedback and Confirmation**
 
-### 3. Requirement Compliance
+   - If there are deficiencies or over-design, list "Items Needing Adjustment" and explain the reasons
+   - If everything is satisfactory, generate a "Completion Confirmation Report"
 
-- Verify the implementation status of functional requirements
-- Check compliance with non-functional requirements
-- Confirm the accuracy of requirement understanding
-- Evaluate user experience and business process integration
+6. **Task Splitting Architectural Considerations**
 
-## Decision Points
+   - Task splitting should consider existing architectural module boundaries and responsibility divisions
+   - Each subtask should clearly specify its integration points and dependencies with existing code
+   - Clearly mark which subtasks involve reusing existing code and which require new implementation
+   - Maintain task granularity consistency, avoid excessive splitting or uneven granularity
+   - Ensure that the task group after splitting still maintains overall architectural consistency
 
-Choose subsequent actions based on the evaluation results:
+7. **Submit Final Results**
+   - Adjusted final solution + reflection report
+   - Call tool:
+   ```
+   split_tasks( ... )
+   ```
 
-- **Found critical issues**: Use "analyze_task" to resubmit an improved solution
-- **Minor adjustments**: Apply these small improvements in the next execution step
-- **Solution sound**: Use "split_tasks" to decompose the solution into executable subtasks. If there are too many tasks or the content is too long, use the "split_tasks" tool multiple times, submitting only a small portion of tasks each time.
-
-## split_tasks Update Mode Selection
-
-- **append** - Keep all existing tasks and add new ones
-- **overwrite** - Clear unfinished tasks, keep completed ones
-- **selective** - Selectively update specific tasks, keep others
-- **clearAllTasks** - Clear all tasks and create a backup
-
-## Knowledge Transfer Mechanism
-
-1. **Global Analysis Result** - Link the complete analysis document
-2. **Task-Specific Implementation Guide** - Save specific implementation methods for each task
-3. **Task-Specific Verification Criteria** - Set clear verification requirements
-
-## Task Splitting Guide (Please strictly follow these rules)
-
-- **Atomicity**: Each subtask should be independently operable or testable
-- **Dependency**: If a task depends on others, mark the "dependencies" field
-- **Moderate Splitting**: Avoid over-granularity (too small) or over-consolidation (too large)
-- **Consolidate when necessary**: If the modifications are minor or not complex, integrate them appropriately with other tasks to avoid excessive tasks due to over-simplification
-- **Repeated Calls**: If too many tasks or long content prevents "split_tasks" from working correctly, use the tool multiple times, submitting only a small portion of tasks each time
-- **Simplify Tasks**: If adding only one task at a time still doesn't work, consider further splitting or simplifying the task while retaining core content
-- **JSON Format Note**:
-  - **No Comments**: JSON format itself does not support comments (e.g., `#` or `//`). Adding comments within JSON content will lead to parsing failures.
-  - **Escape Characters**: Special characters within JSON content, such as double quotes (`\"`) and backslashes (`\\\\`), must be properly escaped. Otherwise, they will be treated as illegal characters, causing parsing failures.
-
-**Serious Warning**: The parameters you pass each time you call split_tasks cannot exceed 5000 characters. If it exceeds 5000 characters, please call the tool multiple times to complete.
-
-**Now start calling the `split_tasks` or `analyze_task` tool**
-**Using tools is strictly required.**
+**Now start calling `split_tasks`, strictly forbidden not to call the tool**

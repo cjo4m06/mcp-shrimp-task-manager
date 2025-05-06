@@ -1,5 +1,5 @@
 # Task Deletion Result
 
-## Operation Rejected
+## Operation Denied
 
-Task "{taskName}" (ID: `{taskId}`) is completed and cannot be deleted. Deleting completed tasks is not allowed.
+Task "{taskName}" (ID: `{taskId}`) has been completed. Deleting completed tasks is not allowed.

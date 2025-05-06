@@ -1,1 +1,1 @@
-Search tasks by keyword or ID, displaying abbreviated task information
+Search for tasks based on keywords or ID, display abbreviated task information

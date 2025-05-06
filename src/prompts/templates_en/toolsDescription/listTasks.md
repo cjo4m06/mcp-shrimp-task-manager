@@ -1,1 +1,1 @@
-Generate a structured task list, including complete status tracking, priority, and dependencies
+Generate structured task lists, including complete status tracking, priorities, and dependencies

@@ -1,1 +1,1 @@
-Critically review analysis results, evaluate solution completeness and identify optimization opportunities, ensuring the solution aligns with best practices. If code is needed, use pseudocode format providing only high-level logic flow and key steps, avoiding complete code.
+Critically review analysis results, assess solution completeness and identify optimization opportunities, ensure solutions conform to best practices, if code needs to be provided use pseudocode format and only provide high-level logic flow and key steps avoiding complete code

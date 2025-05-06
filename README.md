@@ -5,7 +5,6 @@
 - [✨ Features](#features1)
 - [🧭 Usage Guide](#usage-guide)
 - [🧠 Task Memory Function](#task-memory-function)
-- [🤔 Thought Chain Process](#thought-chain)
 - [📋 Project Rules Initialization](#project-rules)
 - [🌐 Web GUI](#web-gui)
 - [📚 Documentation Resources](#documentation)
@@ -40,7 +39,6 @@ Shrimp Task Manager guides Agents through structured workflows for systematic pr
 - **Task Complexity Assessment**: Automatically evaluate task complexity and provide optimal handling suggestions
 - **Automatic Task Summary Updates**: Automatically generate summaries upon task completion, optimizing memory performance
 - **Task Memory Function**: Automatically backup task history, providing long-term memory and reference capabilities
-- **Thought Chain Process**: Step-by-step reasoning to analyze complex problems systematically
 - **Project Rules Initialization**: Define project standards and rules to maintain consistency across large projects
 - **<a id="web-gui"></a>Web GUI**: Provides an optional web-based graphical user interface for task management. Enable by setting `ENABLE_GUI=true` in your `.env` file. When enabled, a `WebGUI.md` file containing the access address will be created in your `DATA_DIR`.
 
@@ -99,17 +97,6 @@ Shrimp Task Manager has long-term memory capabilities, automatically saving task
 
 Through effective use of the task memory function, the system can continuously accumulate experience, with intelligence level and work efficiency continuously improving.
 
-## 🤔 <a id="thought-chain"></a>Thought Chain Process
-
-The Thought Chain feature enhances problem-solving through structured thinking:
-
-- **Systematic Reasoning**: Break down complex problems into logical steps
-- **Assumption Testing**: Challenge assumptions to validate solution approaches
-- **Critical Analysis**: Evaluate solution options with rigorous criteria
-- **Improved Decision Making**: Reach more reliable conclusions through deliberate thinking
-
-When enabled (default setting), the system guides the Agent through step-by-step reasoning using the `process_thought` tool, ensuring thorough problem analysis before implementation.
-
 ## 📋 <a id="project-rules"></a>Project Rules Initialization
 
 The Project Rules feature helps maintain consistency across your codebase:
@@ -138,7 +125,6 @@ This tool is particularly valuable when your codebase expands or undergoes signi
 
 ## 📚 <a id="documentation"></a>Documentation Resources
 
-- [System Architecture](docs/en/architecture.md): Detailed system design and data flow explanation
 - [Prompt Customization Guide](docs/en/prompt-customization.md): Instructions for customizing tool prompts via environment variables
 - [Changelog](CHANGELOG.md): Record of all notable changes to this project
 
@@ -183,7 +169,6 @@ Shrimp Task Manager offers two configuration methods: global configuration and p
       "args": ["/mcp-shrimp-task-manager/dist/index.js"],
       "env": {
         "DATA_DIR": "/path/to/project/data", // 必須使用絕對路徑
-        "ENABLE_THOUGHT_CHAIN": "true",
         "TEMPLATES_USE": "en",
         "ENABLE_GUI": "false"
       }
@@ -201,7 +186,6 @@ or
       "args": ["-y", "mcp-shrimp-task-manager"],
       "env": {
         "DATA_DIR": "/mcp-shrimp-task-manager/data",
-        "ENABLE_THOUGHT_CHAIN": "true",
         "TEMPLATES_USE": "en",
         "ENABLE_GUI": "false"
       }
@@ -227,7 +211,6 @@ You can also set up dedicated configurations for each project to use independent
       "args": ["/path/to/mcp-shrimp-task-manager/dist/index.js"],
       "env": {
         "DATA_DIR": "/path/to/project/data", // Must use absolute path
-        "ENABLE_THOUGHT_CHAIN": "true",
         "TEMPLATES_USE": "en",
         "ENABLE_GUI": "false"
       }
@@ -244,8 +227,7 @@ or
       "command": "npx",
       "args": ["-y", "mcp-shrimp-task-manager"],
       "env": {
-        "DATA_DIR": "/path/to/project/data", // 必須使用絕對路徑
-        "ENABLE_THOUGHT_CHAIN": "true",
+        "DATA_DIR": "/path/to/project/data", // Must use absolute path
         "TEMPLATES_USE": "en",
         "ENABLE_GUI": "false"
       }
@@ -279,7 +261,6 @@ Shrimp Task Manager supports customizing prompt behavior through environment var
         "DATA_DIR": "/path/to/project/data",
         "MCP_PROMPT_PLAN_TASK": "Custom planning guidance...",
         "MCP_PROMPT_EXECUTE_TASK_APPEND": "Additional execution instructions...",
-        "ENABLE_THOUGHT_CHAIN": "true",
         "TEMPLATES_USE": "en",
         "ENABLE_GUI": "false"
       }
@@ -296,7 +277,6 @@ There are two customization methods:
 Additionally, there are other system configuration variables:
 
 - **DATA_DIR**: Specifies the directory where task data is stored
-- **ENABLE_THOUGHT_CHAIN**: Controls the thinking model in task planning workflow. When set to `true` (default), the system guides users to use the `process_thought` tool for step-by-step reasoning. When set to `false`, the system directly uses `analyze_task` to submit analysis results, skipping the detailed thinking process.
 - **TEMPLATES_USE**: Specifies the template set to use for prompts. Defaults to `en`. Currently available options are `en` and `zh`. To use custom templates, copy the `src/prompts/templates_en` directory to the location specified by `DATA_DIR`, rename the copied directory (e.g., to `my_templates`), and set `TEMPLATES_USE` to the new directory name (e.g., `my_templates`).
 
 For detailed instructions on customizing prompts, including supported parameters and examples, see the [Prompt Customization Guide](docs/en/prompt-customization.md).
@@ -355,7 +335,6 @@ After configuration, you can use the following tools:
 |                         | `delete_task`        | Delete incomplete tasks                          |
 | **Task Execution**      | `execute_task`       | Execute specific tasks                           |
 |                         | `verify_task`        | Verify task completion                           |
-|                         | `complete_task`      | Mark tasks as completed                          |
 
 ## 🔧 Technical Implementation
 

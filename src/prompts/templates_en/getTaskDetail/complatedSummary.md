@@ -1,4 +1,4 @@
-**Completed At:** {completedTime}
+**Completion Time:** {completedTime}
 
 **Completion Summary:**
 

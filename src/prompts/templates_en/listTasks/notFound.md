@@ -1,3 +1,3 @@
 # System Notification
 
-Currently, there are no {statusText} tasks in the system. Please query tasks with other statuses or first use the "split_tasks" tool to create the task structure before proceeding.
+There are currently no {statusText} tasks in the system. Please query other status tasks or first use the "split_tasks" tool to create task structures before proceeding with subsequent operations.

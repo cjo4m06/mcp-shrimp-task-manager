@@ -1,7 +1,7 @@
 # Clear All Tasks Result
 
-## Operation Canceled
+## Operation Cancelled
 
-Clear operation not confirmed. To clear all tasks, set the confirm parameter to true.
+The clearing operation was not confirmed. To clear all tasks, please set the confirm parameter to true.
 
-⚠️ This action will delete all unfinished tasks and cannot be undone.
+⚠️ This operation will delete all incomplete tasks and cannot be undone.

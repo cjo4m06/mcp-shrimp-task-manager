@@ -1,62 +1,94 @@
-**Please strictly follow the guidelines below**
-
 ## Task Analysis
 
-{description}
+You must complete the following sub-steps in sequence, and at the end call the `analyze_task` tool to pass the preliminary design solution to the next stage.
 
-## Requirements and Constraints
+1. **Analysis Purpose**
 
-{requirements}
+   - Read and understand:
+     ```
+     Task Description: {description}
+     Task Requirements and Constraints: {requirements}
+     {tasksTemplate}
+     ```
+   - Confirm:
+     - Task objectives and expected outcomes
+     - Technical challenges and key decision points
+     - Integration requirements with existing systems/architecture
 
-{tasksTemplate}
+2. **Identify Project Architecture**
 
-## Analysis Guidelines
+   - View key configuration files and structures:
+     - Examine root directory structure and important configuration files (package.json, tsconfig.json, etc.)
+     - If {rulesPath} exists, please read and refer to it in detail
+     - Analyze main directory organization and module divisions
+   - Identify architectural patterns:
+     - Identify core design patterns and architectural styles (MVC, MVVM, microservices, etc.)
+     - Determine the project's layered structure and module boundaries
+   - Analyze core components:
+     - Research main class/interface designs and dependencies
+     - Mark key services/utility classes and their responsibilities and uses
+   - Document existing patterns:
+     - Document discovered code organization methods and architectural regularities
+     - Establish deep understanding of the project's technology stack and architectural characteristics
 
-1. Determine the task's goals and expected outcomes
-2. Identify technical challenges and key decision points
-3. Consider potential solutions and alternatives
-4. Evaluate the pros and cons of each solution
-5. Determine if the task needs to be broken down into subtasks
-6. Consider integration requirements with existing systems
+3. **Collect Information**  
+   If there is any uncertainty or lack of confidence, **must do one of the following**:
 
-## Task Memory Retrieval
+   - Ask the user for clarification
+   - Use `query_task`, `read_file`, `codebase_search` or other similar tools to query existing programs/architecture
+   - Use `web_search` or other web search tools to query unfamiliar concepts or technologies  
+     Speculation is prohibited; all information must have traceable sources.
 
-Past task records are stored in **{memoryDir}**.
+4. **Check Existing Programs and Structures**
 
-When using the query tool, judge based on the following scenarios:
+   - Use precise search strategies:
+     - Use `read_file`, `codebase_search` or other similar tools to query existing implementation methods related to the task
+     - Look for existing code with functionality similar to the current task
+     - Analyze directory structure to find similar functional modules
+   - Analyze code style and conventions:
+     - Check naming conventions of existing components (camelCase, snake_case, etc.)
+     - Confirm comment styles and format conventions
+     - Analyze error handling patterns and logging methods
+   - Record and follow discovered patterns:
+     - Document code patterns and organizational structures in detail
+     - Plan how to extend these patterns in the design
+   - Determine if there is overlap with existing functionality, and decide whether to "reuse" or "abstract and refactor"
+   - **Do not** generate designs before checking existing code; must "check first, then design"
 
-- **Must Query (High Priority)**:
+5. **Task Type-Specific Guidelines**
 
-  - Involves modifying or extending existing functionality, requiring understanding of the original implementation
-  - Task description mentions referencing past work or existing implementation experience
-  - Involves internal system technical implementation or key components
-  - User requires memory query
+   Based on task characteristics, additionally consider the following specific guidelines:
 
-- **Can Query (Medium Priority)**:
+   - **Frontend/UI Tasks**:
 
-  - New functionality has integration needs with the existing system, but implementation is partially independent
-  - Functionality is standardized and needs to conform to system conventions
-  - Unsure if similar implementations already exist
+     - Prioritize examining existing UI component libraries and design systems
+     - Analyze page layout structures and component composition patterns
+     - Confirm style management methods (CSS modules, Styled Components, etc.)
+     - Understand state management and data flow patterns
 
-- **Can Skip (Low Priority)**:
-  - Completely new, independent functionality
-  - Basic setup or simple standard tasks
-  - User explicitly instructs not to reference past records
+   - **Backend API Tasks**:
 
-> ※ Querying memory helps understand past solutions, learn from successful experiences, and avoid repeating mistakes.
+     - Check API route structures and naming conventions
+     - Analyze request handling and middleware patterns
+     - Confirm error handling and response format standards
+     - Understand authorization/authentication implementation methods
 
-## Information Gathering Guide
+   - **Database Operations**:
+     - Analyze existing data access patterns and abstraction layers
+     - Confirm query building and transaction processing methods
+     - Understand relationship handling and data validation methods
+     - Check caching strategies and performance optimization techniques
 
-1. **Ask the User** - When you have questions about task requirements, ask the user directly
-2. **Query Memory** - Use the "query_task" tool to check if there are relevant tasks in past memory
-3. **Web Search** - When encountering terms or concepts you don't understand, use a web search tool to find answers
+6. **Preliminary Solution Output**
+   - Based on the above, write a "Preliminary Design Solution":
+     - Clearly mark **facts** (sources) vs **inferences** (selection basis)
+     - Prohibit vague statements; must be final deliverable content
+     - Ensure the solution is consistent with the project's existing architectural patterns
+     - Explain how to reuse existing components or follow existing patterns
+   - The process must be thought through step by step and organize thoughts; if the problem is too complex, utilize `process_thought` to think
+   - Call tool:
+     ```
+     analyze_task({ summary: <Task Summary>, initialConcept: <Initial Concept> })
+     ```
 
-## Next Steps
-
-⚠️ Important: Please read the rules in {rulesPath} before conducting any analysis or design ⚠️
-
-**Step 1: Decide whether to query memory based on the task description**
-
-- Determine if the task falls under a "Must Query" scenario. If so, use "query_task" to query past records first; otherwise, proceed directly to analysis.
-
-{thoughtTemplate}
+**Now start calling `analyze_task`, strictly forbidden not to call the tool**

@@ -1,1 +1,1 @@
-A backup has been automatically created: `{{backupFile}}`
+Backup automatically created: `{{backupFile}}`

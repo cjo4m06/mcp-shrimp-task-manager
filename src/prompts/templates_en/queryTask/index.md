@@ -2,23 +2,23 @@
 
 ## Query Information
 
-- Query Term: {query}
+- Query term: {query}
 
 ## Task List
 
-The following tasks match the query:
+Below are tasks matching the query:
 
 {tasksContent}
 
 ## Pagination Information
 
-- Current Page: {page} / {totalPages}
-- Items Per Page: {pageSize}
-- Total Results: {totalTasks}
+- Current page: {page} / {totalPages}
+- Items per page: {pageSize}
+- Total results: {totalTasks}
 
 You can specify the page parameter to view more results.
 
-## Related Action Tips
+## Related Operation Tips
 
-- Use `get_task_detail {taskID}` to view full task details
+- Use `get_task_detail {taskID}` to view complete task details
 - Use `list_tasks` to view all tasks

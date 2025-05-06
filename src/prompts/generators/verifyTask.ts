@@ -15,6 +15,8 @@ import { Task } from "../../types/index.js";
  */
 export interface VerifyTaskPromptParams {
   task: Task;
+  score: number;
+  summary: string;
 }
 
 /**
@@ -43,7 +45,16 @@ function extractSummary(
  * @returns 生成的 prompt
  */
 export function getVerifyTaskPrompt(params: VerifyTaskPromptParams): string {
-  const { task } = params;
+  const { task, score, summary } = params;
+  if (score < 80) {
+    const noPassTemplate = loadPromptFromTemplate("verifyTask/noPass.md");
+    const prompt = generatePrompt(noPassTemplate, {
+      name: task.name,
+      id: task.id,
+      summary,
+    });
+    return prompt;
+  }
   const indexTemplate = loadPromptFromTemplate("verifyTask/index.md");
   const prompt = generatePrompt(indexTemplate, {
     name: task.name,

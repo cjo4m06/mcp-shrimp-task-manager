@@ -16,22 +16,64 @@ This system allows users to customize the prompt content for each tool function 
 
 Where `[FUNCTION_NAME]` is the name of the tool function in uppercase. For example, for the task planning function `planTask`, the corresponding environment variable name is `MCP_PROMPT_PLAN_TASK`.
 
+## Multi-language Prompt Templates
+
+Shrimp Task Manager supports prompt templates in multiple languages, configurable via the `TEMPLATES_USE` environment variable:
+
+- Currently supported languages: `en` (English) and `zh` (Traditional Chinese)
+- Default is `en` (English)
+
+### Switching Languages
+
+Set in the `mcp.json` configuration:
+
+```json
+"env": {
+  "TEMPLATES_USE": "zh"  // Use Traditional Chinese templates
+}
+```
+
+Or in the `.env` file:
+
+```
+TEMPLATES_USE=zh
+```
+
+### Custom Templates
+
+You can create your own template set:
+
+1. Copy an existing template set (e.g., `src/prompts/templates_en` or `src/prompts/templates_zh`) to your directory specified by `DATA_DIR`
+2. Rename the copied directory (e.g., `my_templates`)
+3. Modify the template files to meet your needs
+4. Set the `TEMPLATES_USE` environment variable to your template directory name:
+
+```json
+"env": {
+  "DATA_DIR": "/path/to/project/data",
+  "TEMPLATES_USE": "my_templates"
+}
+```
+
+The system will prioritize your custom templates and fall back to the built-in English templates if specific template files cannot be found.
+
 ## Supported Tool Functions
 
 All major functions in the system support prompt customization through environment variables:
 
-| Function Name   | Environment Variable Prefix  | Description         |
-| --------------- | ---------------------------- | ------------------- |
-| `planTask`      | `MCP_PROMPT_PLAN_TASK`       | Task planning       |
-| `analyzeTask`   | `MCP_PROMPT_ANALYZE_TASK`    | Task analysis       |
-| `reflectTask`   | `MCP_PROMPT_REFLECT_TASK`    | Solution evaluation |
-| `splitTasks`    | `MCP_PROMPT_SPLIT_TASKS`     | Task splitting      |
-| `executeTask`   | `MCP_PROMPT_EXECUTE_TASK`    | Task execution      |
-| `verifyTask`    | `MCP_PROMPT_VERIFY_TASK`     | Task verification   |
-| `completeTask`  | `MCP_PROMPT_COMPLETE_TASK`   | Task completion     |
-| `listTasks`     | `MCP_PROMPT_LIST_TASKS`      | List tasks          |
-| `queryTask`     | `MCP_PROMPT_QUERY_TASK`      | Query tasks         |
-| `getTaskDetail` | `MCP_PROMPT_GET_TASK_DETAIL` | Get task details    |
+| Function Name      | Environment Variable Prefix     | Description              |
+| ------------------ | ------------------------------- | ------------------------ |
+| `planTask`         | `MCP_PROMPT_PLAN_TASK`          | Task planning            |
+| `analyzeTask`      | `MCP_PROMPT_ANALYZE_TASK`       | Task analysis            |
+| `reflectTask`      | `MCP_PROMPT_REFLECT_TASK`       | Solution evaluation      |
+| `splitTasks`       | `MCP_PROMPT_SPLIT_TASKS`        | Task splitting           |
+| `executeTask`      | `MCP_PROMPT_EXECUTE_TASK`       | Task execution           |
+| `verifyTask`       | `MCP_PROMPT_VERIFY_TASK`        | Task verification        |
+| `listTasks`        | `MCP_PROMPT_LIST_TASKS`         | List tasks               |
+| `queryTask`        | `MCP_PROMPT_QUERY_TASK`         | Query tasks              |
+| `getTaskDetail`    | `MCP_PROMPT_GET_TASK_DETAIL`    | Get task details         |
+| `processThought`   | `MCP_PROMPT_PROCESS_THOUGHT`    | Thought chain processing |
+| `initProjectRules` | `MCP_PROMPT_INIT_PROJECT_RULES` | Initialize project rules |
 
 ## Environment Variable Configuration Methods
 
@@ -150,11 +192,6 @@ The parameters supported by each function are as follows:
 ### verifyTask Supported Parameters
 
 - `{task}` - Task details
-
-### completeTask Supported Parameters
-
-- `{task}` - Task details
-- `{completionTime}` - Completion time
 
 ### listTasks Supported Parameters
 

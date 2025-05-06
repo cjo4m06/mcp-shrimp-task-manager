@@ -1,44 +1,17 @@
 **Please strictly follow the guidelines below**
 
-## Task Verification
+## Task Completion Confirmation
 
-**Name:** {name}
+Task "{name}" (ID: `{id}`) has been successfully marked as completed.
 
-**ID:** `{id}`
+## Task Summary Requirements
 
-**Description:** {description}
+Please provide a summary of this completed task, including the following key points:
 
-**Notes:** {notes}
+1. Task objectives and main accomplishments
+2. Key points of the implemented solution
+3. Major challenges encountered and solutions
 
-## Verification Criteria
-
-{verificationCriteria}
-
-## Implementation Guide Summary
-
-{implementationGuideSummary}
-
-## Analysis Points
-
-{analysisSummary}
-
-## Verification Standards
-
-1. **Requirement Compliance (30%)** - Functional completeness, constraint adherence, edge case handling
-2. **Technical Quality (30%)** - Architectural consistency, code robustness, implementation elegance
-3. **Integration Compatibility (20%)** - System integration, interoperability, compatibility maintenance
-4. **Performance & Scalability (20%)** - Performance optimization, load adaptability, resource management
-
-## Reporting Requirements
-
-Provide overall score and rating, evaluation of each standard, issues and recommendations, and final conclusion.
-
-## Next Steps
-
-**Choose your next action based on the verification results:**
-
-- **Critical Errors**: Use the "plan_task" tool directly to replan the task
-- **Minor Errors**: Fix the issues directly
-- **No Errors**: Use the "complete_task" tool directly to mark as complete
-
-**Please decide your next action directly, do not ask the user**
+**Important Note:**
+Please provide the task summary in the current response. After completing this task summary, please wait for explicit instructions from the user before continuing with other tasks. Do not automatically start executing the next task.
+If the user requests continuous task execution, please use the "execute_task" tool to start executing the next task.

@@ -1,4 +1,4 @@
-**Step 2: Submit analysis results using analyze_task**
+**Step Two: Use analyze_task to submit analysis results**
 
-1. **Task Summary** - Goals, scope, challenges, and constraints
-2. **Initial Solution Concept** - Feasible technical solutions and implementation plans
+1. **Task Summary** - Objectives, scope, challenges, and constraints
+2. **Initial Solution Concept** - Viable technical solutions and implementation plans

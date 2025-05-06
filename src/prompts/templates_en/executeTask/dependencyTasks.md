@@ -1,3 +1,3 @@
-## Dependency Task Completion Summaries
+## Dependency Tasks Completion Summary
 
 {{ dependencyTasks }}

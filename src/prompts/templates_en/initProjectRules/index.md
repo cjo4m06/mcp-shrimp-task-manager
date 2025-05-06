@@ -1,81 +1,81 @@
-Please use the "process_thought" tool to consider the following questions
+Please use the "process_thought" tool to consider the following issues
 
-# Project Rules Initialization Guide
+# Project Standards Initialization Guide
 
 ## Purpose
 
-**This document is designed specifically for the AI Agent, not general developer documentation.**
-**A project specification file (rules.md) specifically for AI Agent operations MUST be generated.**
+**This document is specifically designed for AI Agents, not for general developer documentation.**
+**Must generate a project standards document (rules.md) exclusively for AI Agent operational use.**
 
 **Must focus on the following key objectives:**
 
-- Clearly define project-specific rules and limitations, prohibiting general development knowledge
-- Provide project-specific information required by the AI for task execution
-- Offer clear guidance for the AI's decision-making process
+- Clearly define project-specific rules and limitations, prohibit inclusion of general development knowledge
+- Provide project-specific information needed for AI to execute tasks
+- Provide clear guidance for AI decision-making processes
 
-**Mandatory Requirements:**
+**Mandatory requirements:**
 
-- The completed specification must enable the AI Agent to immediately understand which files must be referenced or modified
-- Clearly indicate multi-file 联动 modification requirements (e.g., modifying README.md requires simultaneous modification of /docs/zh/README.md)
-- Use imperative language to define rules, avoiding explanatory content
-- Do not explain project functionality, but rather how to modify or add features
-- Provide examples of what can and cannot be done
+- Completed standards must enable AI Agents to immediately understand which files must be referenced or modified
+- Clearly indicate multi-file coordination requirements (e.g., when modifying README.md, /docs/zh/README.md must be updated simultaneously)
+- Use imperative language to define rules, avoid explanatory content
+- Do not explain project functionality, but rather how to modify or add functionality
+- Please provide examples of what can be done and what cannot be done
 - Must **recursively** check all folders and files
 
-**Strictly Prohibited:**
+**Strictly prohibited:**
 
 - Including general development knowledge
-- Including general development knowledge already known to the LLM
+- Including general development knowledge already known to LLMs
 - Explaining project functionality
 
 ## Suggested Structure
 
-Please use the following structure to create the specification file:
+Please use the following structure to create the standards document:
 
 ```markdown
 # Development Guidelines
 
-## Heading
+## Title
 
-### Subheading
+### Subtitle
 
 - Rule one
 - Rule two
 ```
 
-## Content Guide
+## Content Guidelines
 
-The specification file should include, but is not limited to, the following content:
+The standards document should include but not be limited to the following:
 
-1. **Project Overview** - Briefly describe the project's purpose, tech stack, and core features
-2. **Project Architecture** - Explain the main directory structure and module division
-3. **Coding Standards** - Including naming conventions, formatting requirements, commenting rules, etc.
-4. **Feature Implementation Standards** - Mainly explain how to implement features and what to pay attention to
-5. **Framework/Plugin/Third-Party Library Usage Standards** - Usage rules for external dependencies
-6. **Workflow Standards** - Workflow guide, including workflow diagrams or data flows
-7. **Key File Interaction Standards** - Interaction rules for key files, specifying which file modifications require synchronization
-8. **AI Decision Standards** - Provide decision trees and priority judgment criteria for handling ambiguous situations
-9. **Prohibitions** - Clearly list practices that are forbidden
+1. **Project Overview** - Brief description of the project's purpose, technology stack, and core functionality
+2. **Project Architecture** - Description of main directory structure and module divisions
+3. **Code Standards** - Including naming conventions, formatting requirements, comment rules, etc.
+4. **Functionality Implementation Standards** - Mainly explaining how to implement functionality and points to note
+5. **Framework/Plugin/Third-party Library Usage Standards** - Usage standards for external dependencies
+6. **Workflow Standards** - Workflow guidelines, including workflow diagrams or data flow
+7. **Key File Interaction Standards** - Interaction standards for key files, which files need to be modified simultaneously
+8. **AI Decision-making Standards** - Provide decision trees and priority judgment criteria for handling ambiguous situations
+9. **Prohibited Actions** - Clearly list practices that are prohibited
 
-## Important Notes
+## Notes
 
 1. **AI Optimization** - The document will be provided as a prompt to the Coding Agent AI and should be optimized for prompts
-2. **Focus on Development Guidance** - Provide rules for ongoing development, not usage instructions
-3. **Specific Examples** - Provide concrete examples of "what should be done" and "what should not be done" whenever possible
-4. **Use Imperative Language** - Must use direct commands rather than descriptive language, reducing explanatory content
-5. **Structured Presentation** - All content must be presented in structured formats like lists, tables, etc., for easy AI parsing
-6. **Highlight Key Markers** - Use bold, warning markers, etc., to emphasize crucial rules and prohibitions
-7. **Remove General Knowledge** - Prohibit including general development knowledge known to the LLM, only include project-specific rules
+2. **Focus on Development Guidance** - Provide rules for ongoing development, not usage tutorials
+3. **Specific Examples** - Provide specific examples of "what should be done" and "what should not be done" whenever possible
+4. **Use Imperative Language** - Must use direct instructions rather than descriptive language, reduce explanatory content
+5. **Structured Presentation** - All content must be presented in structured formats such as lists, tables, etc., for easy AI parsing
+6. **Highlight Key Markings** - Use bold, warning markers, etc. to highlight key rules and taboos
+7. **Remove General Knowledge** - Prohibit including general development knowledge already known to LLMs, only include project-specific rules
 
-## Update Mode Guide
+## Update Mode Guidelines
 
-1. **Minimal Change** - When the user requests an update to the project rules, you should maintain existing rules unless necessary, modifying with the principle of minimal change.
-2. **Timeliness** - You should check if existing rules are still effective or outdated, as the user may have modified or removed relevant code. You must correct or remove corresponding rules.
-3. **Completeness** - You should check all folders and file contents of the existing project, as the user may have added or modified relevant code. You must supplement corresponding rules.
-4. **Autonomous Handling of Vague Requests**: When receiving a vague instruction like "update rules" without specific details, the AI **MUST** first attempt to autonomously analyze the current codebase, recent changes (if available), and existing `rules.md` content to infer potential update points. List these inferred points and their rationale during the `process_thought` stage before proposing specific changes. **Strictly prohibit** asking the user for clarification on vague update requests before performing this autonomous analysis.
+1. **Minimal Changes** - When users request updates to project rules, you should maintain existing rules unless necessary, with the principle of minimal changes
+2. **Timeliness** - You should check if existing rules are still beneficial or outdated, as users may have modified or removed relevant code, you must correct or remove corresponding rules
+3. **Completeness** - You should check all folders and file contents in the existing project, as users may have added or modified relevant code, you must supplement corresponding rules
+4. **Autonomous Handling of Ambiguous Requests**: When receiving ambiguous instructions such as "update rules" without specifying concrete content, the AI **must** first attempt to independently analyze the current codebase, recent changes (if available), and existing `rules.md` content to infer possible update points. List these inferred points and their rationale during the `process_thought` phase, then propose specific modification suggestions. **Strictly prohibited** from seeking clarification from users on ambiguous update requests before performing this autonomous analysis.
 
-Please create a file named rules.md based on the guidelines above and store it at: {rulesPath}
+Based on the above guidelines, create a file named rules.md and store it at: {rulesPath}
 
-**[AI Agent Action]** Now start calling the "process_thought" tool to think about how to write the specification file to guide the Coding Agent
-**[AI Agent Action]** After thinking, immediately edit the rules.md file. Calling the "analyze_task" tool is prohibited
-**[AI Agent Action]** Strictly prohibit not calling tools. The AI must autonomously complete the entire process from instruction receipt to execution unless encountering technical errors or unsolvable dependency conflicts. Do not interrupt the flow to seek user input unnecessarily.
+**[AI Agent Action]** Now start calling the "process_thought" tool to think about how to write standards document that guides the Coding Agent
+**[AI Agent Action]** After completing the thought process, immediately edit the rules.md file, prohibited from calling the "analyze_task" tool
+**[AI Agent Action]** Strictly forbidden not to call tools. The AI must independently complete the entire process from receiving instructions to implementing modifications, and should not interrupt the process to seek user input unless encountering technical errors or unresolvable dependency conflicts.

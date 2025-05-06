@@ -1,1 +1,1 @@
-Initialize project rules. Call this tool when the user requests to generate or initialize the project specification file, or if the user requests to change or update the project specification.
+Initialize project standards, call this tool when the user requests to generate or initialize a project standards document, also call this tool if the user requests to change or update project standards

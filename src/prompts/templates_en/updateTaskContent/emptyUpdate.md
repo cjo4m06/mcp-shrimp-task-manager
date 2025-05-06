@@ -2,4 +2,4 @@
 
 ## Operation Failed
 
-At least one field (name, description, notes, or related files) must be updated
+At least one field needs to be updated (name, description, notes, or related files)

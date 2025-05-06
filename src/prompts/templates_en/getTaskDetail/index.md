@@ -1,4 +1,4 @@
-## Full Task Details
+## Complete Task Details
 
 ### {name}
 
@@ -18,8 +18,8 @@
 
 {relatedFilesTemplate}
 
-**Created At:** {createdTime}
+**Creation Time:** {createdTime}
 
-**Updated At:** {updatedTime}
+**Update Time:** {updatedTime}
 
 {complatedSummaryTemplate}

@@ -2,6 +2,25 @@
 
 # Changelog
 
+## [1.0.14]
+
+### Changed
+
+- Optimized prompts to reduce token usage and improved guidance. (662b3be, 7842e0d)
+- Updated English prompts for better clarity and efficiency. (7842e0d)
+- Restructured tools architecture for better organization and maintainability. (04f55cb)
+- Optimized workflow by reducing unnecessary steps. (3037d4e)
+
+### Removed
+
+- Removed unused code and files. (ea40e78)
+
+## [1.0.13]
+
+### Fixed
+
+- Fix: Corrected issue with invariantlabs misjudgment (148f0cd)
+
 ## [1.0.12]
 
 ### Added
