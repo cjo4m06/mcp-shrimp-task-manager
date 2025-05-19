@@ -45,6 +45,8 @@ import {
   processThoughtSchema,
   initProjectRules,
   initProjectRulesSchema,
+  taskReport,
+  taskReportSchema,
 } from "./tools/index.js";
 
 async function main() {
@@ -279,6 +281,13 @@ async function main() {
             ),
             inputSchema: zodToJsonSchema(initProjectRulesSchema),
           },
+          {
+            name: "taskReport",
+            description: loadPromptFromTemplate(
+              "toolsDescription/taskReport.md"
+            ),
+            inputSchema: zodToJsonSchema(taskReportSchema),
+          },
         ],
       };
     });
@@ -425,6 +434,8 @@ async function main() {
               return await processThought(parsedArgs.data);
             case "init_project_rules":
               return await initProjectRules();
+            case "taskReport":
+              return await taskReport();
             default:
               throw new Error(`Tool ${request.params.name} does not exist`);
           }

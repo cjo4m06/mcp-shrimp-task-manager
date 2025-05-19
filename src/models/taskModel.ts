@@ -6,6 +6,8 @@ import {
   TaskComplexityThresholds,
   TaskComplexityAssessment,
   RelatedFile,
+  TaskReport,
+  TaskExecutionStep
 } from "../types/index.js";
 import fs from "fs/promises";
 import path from "path";
@@ -22,6 +24,7 @@ const PROJECT_ROOT = path.resolve(__dirname, "../..");
 // 數據文件路徑
 const DATA_DIR = process.env.DATA_DIR || path.join(PROJECT_ROOT, "data");
 const TASKS_FILE = path.join(DATA_DIR, "tasks.json");
+const REPORTS_DIR = path.join(DATA_DIR, "reports");
 
 // 將exec轉換為Promise形式
 const execPromise = promisify(exec);
@@ -39,6 +42,13 @@ async function ensureDataDir() {
   } catch (error) {
     await fs.writeFile(TASKS_FILE, JSON.stringify({ tasks: [] }));
   }
+  
+  // 確保報告目錄存在
+  try {
+    await fs.access(REPORTS_DIR);
+  } catch (error) {
+    await fs.mkdir(REPORTS_DIR, { recursive: true });
+  }
 }
 
 // 讀取所有任務
@@ -53,6 +63,15 @@ async function readTasks(): Promise<Task[]> {
     createdAt: task.createdAt ? new Date(task.createdAt) : new Date(),
     updatedAt: task.updatedAt ? new Date(task.updatedAt) : new Date(),
     completedAt: task.completedAt ? new Date(task.completedAt) : undefined,
+    // 處理執行步驟中的時間戳
+    taskReport: task.taskReport ? {
+      ...task.taskReport,
+      executionSteps: task.taskReport.executionSteps ? 
+        task.taskReport.executionSteps.map((step: any) => ({
+          ...step,
+          timestamp: step.timestamp ? new Date(step.timestamp) : new Date()
+        })) : []
+    } : undefined
   }));
 }
 
@@ -119,8 +138,8 @@ export async function updateTask(
 
   // 檢查任務是否已完成，已完成的任務不允許更新（除非是明確允許的欄位）
   if (tasks[taskIndex].status === TaskStatus.COMPLETED) {
-    // 僅允許更新 summary 欄位（任務摘要）和 relatedFiles 欄位
-    const allowedFields = ["summary", "relatedFiles"];
+    // 僅允許更新 summary 欄位（任務摘要）、relatedFiles 欄位和 taskReport 欄位
+    const allowedFields = ["summary", "relatedFiles", "taskReport"];
     const attemptedFields = Object.keys(updates);
 
     const disallowedFields = attemptedFields.filter(
@@ -141,6 +160,124 @@ export async function updateTask(
   await writeTasks(tasks);
 
   return tasks[taskIndex];
+}
+
+// 生成任務報告
+export async function generateTaskReport(
+  taskId: string,
+  reportData: Partial<TaskReport>,
+  allCompletedTasks?: Task[]
+): Promise<{ success: boolean; message: string; task?: Task; reportFilePath?: string }> {
+  try {
+    const task = await getTaskById(taskId);
+    
+    if (!task) {
+      return { 
+        success: false, 
+        message: `找不到ID為 ${taskId} 的任務`
+      };
+    }
+    
+    // 创建或更新任务报告
+    const currentReport = task.taskReport || {
+      requirements: '',
+      taskBreakdown: '',
+      executionSteps: [],
+      completionStatus: ''
+    };
+    
+    const updatedReport: TaskReport = {
+      ...currentReport,
+      ...reportData,
+      // 確保執行步驟是數組類型
+      executionSteps: [
+        ...(currentReport.executionSteps || []),
+        ...(reportData.executionSteps || [])
+      ]
+    };
+    
+    // 更新任務
+    const updatedTask = await updateTask(taskId, { taskReport: updatedReport });
+    
+    if (!updatedTask) {
+      return {
+        success: false,
+        message: "更新任務報告時發生錯誤"
+      };
+    }
+    
+    // 將報告歸檔到文件
+    const reportFileName = `task-report-${taskId}-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    const reportFilePath = path.join(REPORTS_DIR, reportFileName);
+    
+    // 確保報告目錄存在
+    await ensureDataDir();
+    
+    // 构建报告数据，包括主任务和其他已完成任务
+    const reportFileData = {
+      taskId,
+      taskName: task.name,
+      completedAt: task.completedAt || new Date(),
+      report: updatedReport,
+      allCompletedTasks: allCompletedTasks || []
+    };
+    
+    // 將報告寫入文件
+    await fs.writeFile(
+      reportFilePath,
+      JSON.stringify(reportFileData, null, 2)
+    );
+    
+    return {
+      success: true,
+      message: "任務報告已成功生成並歸檔",
+      task: updatedTask,
+      reportFilePath
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "未知錯誤";
+    return {
+      success: false,
+      message: `生成任務報告時發生錯誤: ${errorMessage}`
+    };
+  }
+}
+
+// 獲取任務報告歸檔列表
+export async function getTaskReportArchives(
+  taskId?: string
+): Promise<string[]> {
+  try {
+    await ensureDataDir();
+    
+    const files = await fs.readdir(REPORTS_DIR);
+    
+    // 如果指定了任務ID，則僅返回該任務的報告
+    if (taskId) {
+      return files.filter(file => file.includes(`task-report-${taskId}`));
+    }
+    
+    // 否則返回所有報告
+    return files.filter(file => file.startsWith('task-report-'));
+  } catch (error) {
+    console.error(`獲取任務報告歸檔列表時發生錯誤: ${error}`);
+    return [];
+  }
+}
+
+// 獲取歸檔的任務報告內容
+export async function getArchivedTaskReport(
+  reportFileName: string
+): Promise<any | null> {
+  try {
+    const reportFilePath = path.join(REPORTS_DIR, reportFileName);
+    const reportData = await fs.readFile(reportFilePath, 'utf-8');
+    
+    return JSON.parse(reportData);
+  } catch (error) {
+    console.error(`獲取歸檔任務報告時發生錯誤: ${error}`);
+    return null;
+  }
 }
 
 // 更新任務狀態
@@ -254,11 +391,6 @@ export async function updateTaskRelatedFiles(
     return { success: false, message: "找不到指定任務" };
   }
 
-  // 檢查任務是否已完成
-  if (task.status === TaskStatus.COMPLETED) {
-    return { success: false, message: "無法更新已完成的任務" };
-  }
-
   // 執行更新
   const updatedTask = await updateTask(taskId, { relatedFiles });
 
@@ -268,7 +400,7 @@ export async function updateTaskRelatedFiles(
 
   return {
     success: true,
-    message: `已成功更新任務相關文件，共 ${relatedFiles.length} 個文件`,
+    message: "任務相關文件已成功更新",
     task: updatedTask,
   };
 }

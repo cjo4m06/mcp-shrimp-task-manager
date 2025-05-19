@@ -35,3 +35,6 @@ export { queryTask, queryTaskSchema } from "./queryTask.js";
 
 // getTaskDetail
 export { getTaskDetail, getTaskDetailSchema } from "./getTaskDetail.js";
+
+// taskReport
+export { taskReport, taskReportSchema } from "./taskReport.js";

@@ -359,3 +359,66 @@ Due to differences in training methods and understanding capabilities across mod
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=cjo4m06/mcp-shrimp-task-manager&type=Timeline)](https://www.star-history.com/#cjo4m06/mcp-shrimp-task-manager&Timeline)
+
+## 🐞 Debugging with MCP Inspector
+
+Shrimp Task Manager includes built-in debugging tools that leverage the MCP Inspector to help you troubleshoot issues and understand how the tools are working.
+
+### Using the Debug Script
+
+We provide several ways to run the application in debug mode:
+
+#### 1. Using npm script
+
+```bash
+npm run debug
+```
+
+This will start the application with MCP Inspector, allowing you to see all tool calls and model responses.
+
+#### 2. Using the debug.bat file (Windows)
+
+```bash
+debug.bat
+```
+
+Or with parameters:
+
+```bash
+debug.bat --port 3001 --feature verifyTask
+```
+
+#### 3. Using the Node.js script directly
+
+```bash
+node scripts/debug.js
+```
+
+With parameters:
+
+```bash
+node scripts/debug.js --port 3001 --feature verifyTask
+```
+
+### Debug Parameters
+
+- `--port`: Specify the port for the server (default: 3000)
+- `--feature`: Focus debugging on a specific feature or tool
+
+### Debugging Features
+
+When running in debug mode:
+
+1. The MCP Inspector interface will be available at http://localhost:3000 (or your specified port)
+2. All tool calls and model responses will be displayed in the Inspector
+3. Node.js debugging is enabled via the `--inspect` flag, allowing you to connect Chrome DevTools (navigate to chrome://inspect)
+4. Console output will show detailed logs of application activity
+
+### Common Debug Scenarios
+
+- **API Errors**: Debug issues with API responses and request formatting
+- **Tool Chain Problems**: Inspect the flow between different tools like verifyTask and taskReport
+- **Template Issues**: Check if template files are loaded correctly
+- **Data Persistence**: Monitor how task data is saved and retrieved
+
+> **Tip**: When debugging template issues, ensure your build process has correctly copied all template files to the dist directory by running `npm run build` before starting debug mode.

@@ -1,0 +1,1 @@
+Generate a task report document based on the provided task information, producing a structured, reusable template that helps with task tracking and documentation 

@@ -3,6 +3,7 @@ import {
   getTaskById,
   updateTaskStatus,
   updateTaskSummary,
+  getAllTasks
 } from "../../models/taskModel.js";
 import { TaskStatus } from "../../types/index.js";
 import { getVerifyTaskPrompt } from "../../prompts/index.js";
@@ -59,14 +60,33 @@ export async function verifyTask({
     };
   }
 
+  // 检查任务是否已成功完成
+  let taskCompleted = false;
   if (score >= 80) {
     // 更新任務狀態為已完成，並添加摘要
     await updateTaskSummary(taskId, summary);
     await updateTaskStatus(taskId, TaskStatus.COMPLETED);
+    taskCompleted = true;
+  }
+
+  // 检查是否为最后一个任务
+  let isLastTask = false;
+  if (taskCompleted) {
+    const allTasks = await getAllTasks();
+    const pendingOrInProgressTasks = allTasks.filter(
+      t => t.status === TaskStatus.PENDING || t.status === TaskStatus.IN_PROGRESS
+    );
+    isLastTask = pendingOrInProgressTasks.length === 0;
   }
 
   // 使用prompt生成器獲取最終prompt
-  const prompt = getVerifyTaskPrompt({ task, score, summary });
+  const prompt = getVerifyTaskPrompt({ 
+    task, 
+    score, 
+    summary,
+    taskCompleted,
+    isLastTask
+  });
 
   return {
     content: [

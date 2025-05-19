@@ -29,6 +29,20 @@ export interface RelatedFile {
   lineEnd?: number; // 相關代碼區塊的結束行（選填）
 }
 
+// 任務報告執行步驟：定義任務執行過程中的步驟和時間點
+export interface TaskExecutionStep {
+  step: string; // 步驟描述
+  timestamp: Date; // 步驟完成時間
+}
+
+// 任務報告：定義任務完成後的詳細報告結構
+export interface TaskReport {
+  requirements: string; // 任務需求概述，來自任務描述
+  taskBreakdown: string; // 任務拆解情況，包含實現方法和步驟
+  executionSteps: TaskExecutionStep[]; // 執行步驟和時間線，記錄任務執行過程
+  completionStatus: string; // 任務完成狀態，描述最終結果
+}
+
 // 任務介面：定義任務的完整數據結構
 export interface Task {
   id: string; // 任務的唯一標識符
@@ -51,6 +65,9 @@ export interface Task {
 
   // 新增欄位：保存驗證標準和檢驗方法
   verificationCriteria?: string; // 明確的驗證標準、測試要點和驗收條件
+  
+  // 新增欄位：保存任務報告
+  taskReport?: TaskReport; // 任務報告，包含完整的任務執行情況（僅適用於已完成的任務）
 }
 
 // 任務複雜度級別：定義任務的複雜程度分類
@@ -92,3 +109,12 @@ export interface TaskComplexityAssessment {
   };
   recommendations: string[]; // 處理建議列表
 }
+
+// Git分析相关的类型
+export interface GitAnalysisArgs {
+  diffOutput: string;    // git diff输出的完整内容
+  changedFiles: string[]; // 变更的文件列表
+  commitInfo: string;    // 提交信息
+  tasksToAnalyze: Task[]; // 要分析的任务列表
+}
+;

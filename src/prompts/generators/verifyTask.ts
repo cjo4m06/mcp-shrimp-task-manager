@@ -17,6 +17,8 @@ export interface VerifyTaskPromptParams {
   task: Task;
   score: number;
   summary: string;
+  taskCompleted?: boolean; // 任务是否已完成
+  isLastTask?: boolean; // 是否为最后一个任务
 }
 
 /**
@@ -45,7 +47,7 @@ function extractSummary(
  * @returns 生成的 prompt
  */
 export function getVerifyTaskPrompt(params: VerifyTaskPromptParams): string {
-  const { task, score, summary } = params;
+  const { task, score, summary, taskCompleted, isLastTask } = params;
   if (score < 80) {
     const noPassTemplate = loadPromptFromTemplate("verifyTask/noPass.md");
     const prompt = generatePrompt(noPassTemplate, {
@@ -55,6 +57,7 @@ export function getVerifyTaskPrompt(params: VerifyTaskPromptParams): string {
     });
     return prompt;
   }
+  
   const indexTemplate = loadPromptFromTemplate("verifyTask/index.md");
   const prompt = generatePrompt(indexTemplate, {
     name: task.name,
@@ -68,8 +71,17 @@ export function getVerifyTaskPrompt(params: VerifyTaskPromptParams): string {
       "no implementation guide",
     analysisResult:
       extractSummary(task.analysisResult, 300) || "no analysis result",
+    taskCompleted: taskCompleted || false,
+    isLastTask: isLastTask || false,
   });
 
-  // 載入可能的自定義 prompt
-  return loadPrompt(prompt, "VERIFY_TASK");
+  // 添加调用taskReport的指导
+  let finalPrompt = loadPrompt(prompt, "VERIFY_TASK");
+  
+  // 如果任务已完成且是最后一个任务，添加关于生成报告的提示
+  if (taskCompleted && isLastTask) {
+    finalPrompt += `\n\n## 🎉 所有任务已完成！\n\n恭喜您已完成所有任务！现在可以使用 taskReport 工具生成完整的任务报告：\n\n请使用以下命令生成任务报告：\n\`\`\`\ntaskReport({\n  taskId: "${task.id}"\n})\n\`\`\`\n\n这将自动生成一份包含任务需求、执行步骤和完成状态的详细报告。`;
+  }
+  
+  return finalPrompt;
 }
