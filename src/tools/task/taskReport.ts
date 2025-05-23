@@ -85,11 +85,20 @@ export async function taskReport() {
       outputFormat: "markdown"
     });
 
+    let reportInstruction = "【注意】请将任务报告内容以 Markdown 格式输出。";
+    const jsonFilePath = result.reportFilePath;
+    let markdownFilePath = "";
+
+    if (jsonFilePath && jsonFilePath !== "未保存到文件") {
+      markdownFilePath = jsonFilePath.replace(/\\.json$/, ".md");
+      reportInstruction = `【注意】请读取 JSON 文件 \`${jsonFilePath}\` 的内容，并参考其格式，输出一份 Markdown 任务报告到 \`${markdownFilePath}\` 中。`;
+    }
+
     return {
       content: [
         {
           type: "text" as const,
-          text: `## 任務報告已生成\n\n共 ${completedTasks.length} 個已完成任務的報告已成功生成。\n\n主要任務: "${updatedTask.name}" (ID: \`${updatedTask.id}\`)\n\n json文件路徑: ${result.reportFilePath || "未保存到文件"}\n\n 读取该文件内容，参考本文档的格式来输出一份taskreport.md  \n\n${prompt}`,
+          text: `## 任務報告已生成\n\n共 ${completedTasks.length} 個已完成任務的報告已成功生成。\n\n主要任務: "${updatedTask.name}" (ID: \`${updatedTask.id}\`)\n\nJSON 文件路徑: ${jsonFilePath || "未保存到文件"}\n\n${reportInstruction}\n\n${prompt}`,
         },
       ],
     };

@@ -1,4 +1,4 @@
-[English](../../README.md) | [中文](README.md)
+[English](../../docs/en/README.md) | [简体中文](../../README.md) | [中文](README.md)
 
 ## 目錄
 
@@ -127,21 +127,23 @@
 
 ## 🔧 <a id="安裝與使用"></a>安裝與使用
 
-### Installing via Smithery
+### 透過 NPM 安裝 (建議)
 
-To install 蝦米任務管理器 for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@cjo4m06/mcp-shrimp-task-manager):
+您可以使用以下指令直接從我們的私有 Nexus 套件庫安裝 `@unis/mcp-shrimp-task-manager`：
 
 ```bash
-npx -y @smithery/cli install @cjo4m06/mcp-shrimp-task-manager --client claude
+npm install @unis/mcp-shrimp-task-manager --registry=http://nexus.item.pub/repository/npm-private/
 ```
 
-### Manual Installation
+### 本地開發與建置
+
+如果您需要從原始碼進行本地開發或建置：
 
 ```bash
 # 安裝依賴套件
 npm install
 
-# 建置並啟動服務
+# 建置服務
 npm run build
 ```
 

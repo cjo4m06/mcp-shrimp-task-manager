@@ -1,165 +1,160 @@
-[English](README.md) | [中文](docs/zh/README.md)
+[English](docs/en/README.md) | [简体中文](README.md) | [繁體中文](docs/zh/README.md)
 
-## 目錄
+## 目录
 
-- [✨ Features](#features1)
-- [🧭 Usage Guide](#usage-guide)
-- [🧠 Task Memory Function](#task-memory-function)
-- [📋 Project Rules Initialization](#project-rules)
+- [✨ 功能特性](#features1)
+- [🧭 使用指南](#usage-guide)
+- [🧠 任务记忆功能](#task-memory-function)
+- [📋 项目规范初始化](#project-rules)
 - [🌐 Web GUI](#web-gui)
-- [📚 Documentation Resources](#documentation)
-- [🔧 Installation and Usage](#installation)
-- [🔌 Using with MCP-Compatible Clients](#clients)
-- [💡 System Prompt Guidance](#prompt)
-- [🛠️ Available Tools Overview](#tools)
-- [📄 License](#license)
-- [🤖 Recommended Models](#recommended)
+- [📚 文档资源](#documentation)
+- [🔧 安装与使用](#installation)
+- [🔌 与MCP兼容的客户端一起使用](#clients)
+- [💡 系统提示指导](#prompt)
+- [🛠️ 可用工具概览](#tools)
+- [📄 许可证](#license)
+- [🤖 推荐模型](#recommended)
 
-# MCP Shrimp Task Manager
+# MCP 虾米任务管理器
 
-[![Shrimp Task Manager Demo](/docs/yt.png)](https://www.youtube.com/watch?v=Arzu0lV09so)
 
-[![smithery badge](https://smithery.ai/badge/@cjo4m06/mcp-shrimp-task-manager)](https://smithery.ai/server/@cjo4m06/mcp-shrimp-task-manager)
+> 🚀 一个基于模型上下文协议 (MCP) 的智能任务管理系统，为 AI Agent 提供高效的编程工作流框架。
 
-> 🚀 An intelligent task management system based on Model Context Protocol (MCP), providing an efficient programming workflow framework for AI Agents.
 
-<a href="https://glama.ai/mcp/servers/@cjo4m06/mcp-shrimp-task-manager">
-  <img width="380" height="200" src="https://glama.ai/mcp/servers/@cjo4m06/mcp-shrimp-task-manager/badge" alt="Shrimp Task Manager MCP server" />
-</a>
+虾米任务管理器通过结构化的工作流引导 Agent 进行系统化编程，增强任务记忆管理机制，并有效避免冗余和重复的编码工作。
 
-Shrimp Task Manager guides Agents through structured workflows for systematic programming, enhancing task memory management mechanisms, and effectively avoiding redundant and repetitive coding work.
+## ✨ <a id="features1"></a>功能特性
 
-## ✨ <a id="features1"></a>Features
+- **任务规划与分析**：深入理解和分析复杂任务需求
+- **智能任务分解**：自动将大型任务分解为可管理的小型任务
+- **依赖管理**：精确处理任务间的依赖关系，确保正确的执行顺序
+- **执行状态跟踪**：实时监控任务执行进度和状态
+- **任务完成性验证**：确保任务结果符合预期要求
+- **任务复杂度评估**：自动评估任务复杂度并提供最佳处理建议
+- **自动任务摘要更新**：任务完成时自动生成摘要，优化记忆性能
+- **任务记忆功能**：自动备份任务历史，提供长期记忆和参考能力
+- **项目规范初始化**：定义项目标准和规则，以保持大型项目的一致性
+- **<a id="web-gui"></a>Web GUI**：提供一个可选的基于 Web 的图形用户界面来管理任务。通过在您的 `.env` 文件中设置 `ENABLE_GUI=true` 来启用。启用后，将在您的 `DATA_DIR` 中创建一个包含访问地址的 `WebGUI.md` 文件。
 
-- **Task Planning and Analysis**: Deep understanding and analysis of complex task requirements
-- **Intelligent Task Decomposition**: Automatically break down large tasks into manageable smaller tasks
-- **Dependency Management**: Precisely handle dependencies between tasks, ensuring correct execution order
-- **Execution Status Tracking**: Real-time monitoring of task execution progress and status
-- **Task Completeness Verification**: Ensure task results meet expected requirements
-- **Task Complexity Assessment**: Automatically evaluate task complexity and provide optimal handling suggestions
-- **Automatic Task Summary Updates**: Automatically generate summaries upon task completion, optimizing memory performance
-- **Task Memory Function**: Automatically backup task history, providing long-term memory and reference capabilities
-- **Project Rules Initialization**: Define project standards and rules to maintain consistency across large projects
-- **<a id="web-gui"></a>Web GUI**: Provides an optional web-based graphical user interface for task management. Enable by setting `ENABLE_GUI=true` in your `.env` file. When enabled, a `WebGUI.md` file containing the access address will be created in your `DATA_DIR`.
+## 🧭 <a id="usage-guide"></a>使用指南
 
-## 🧭 <a id="usage-guide"></a>Usage Guide
+虾米任务管理器通过引导式工作流和系统化任务管理，为 AI 辅助编程提供了一种结构化方法。
 
-Shrimp Task Manager offers a structured approach to AI-assisted programming through guided workflows and systematic task management.
+### 什么是虾米？
 
-### What is Shrimp?
+虾米本质上是一个提示模板，引导 AI Agent 更好地理解和使用您的项目。它使用一系列提示来确保 Agent 与您项目的特定需求和约定紧密对齐。
 
-Shrimp is essentially a prompt template that guides AI Agents to better understand and work with your project. It uses a series of prompts to ensure the Agent aligns closely with your project's specific needs and conventions.
+### 首次设置
 
-### First-Time Setup
+在处理新项目时，只需告诉 Agent "初始化项目规范"。这将引导 Agent 生成一套适合您项目特定需求和结构的规范。
 
-When working with a new project, simply tell the Agent "init project rules". This will guide the Agent to generate a set of rules tailored to your project's specific requirements and structure.
+### 任务规划流程
 
-### Task Planning Process
+要开发或更新功能，请使用命令"规划任务 [您的描述]"。系统将参考先前建立的规范，尝试理解您的项目，搜索相关代码段，并根据项目的当前状态提出综合计划。
 
-To develop or update features, use the command "plan task [your description]". The system will reference the previously established rules, attempt to understand your project, search for relevant code sections, and propose a comprehensive plan based on the current state of your project.
+### 反馈机制
 
-### Feedback Mechanism
+在规划过程中，虾米会引导 Agent 完成多步思考。您可以审查此过程，如果觉得方向有误，可以提供反馈。只需打断并分享您的观点——Agent 将采纳您的反馈并继续规划过程。
 
-During the planning process, Shrimp guides the Agent through multiple steps of thinking. You can review this process and provide feedback if you feel it's heading in the wrong direction. Simply interrupt and share your perspective - the Agent will incorporate your feedback and continue the planning process.
+### 任务执行
 
-### Task Execution
+当您对计划满意后，使用"执行任务 [任务名称或ID]"来实施它。如果您未指定任务名称或ID，系统将自动识别并执行优先级最高的任务。
 
-When you're satisfied with the plan, use "execute task [task name or ID]" to implement it. If you don't specify a task name or ID, the system will automatically identify and execute the highest priority task.
+### 连续模式
 
-### Continuous Mode
+如果您希望按顺序执行所有任务，而无需为每个任务手动干预，请使用"连续模式"自动处理整个任务队列。
 
-If you prefer to execute all tasks in sequence without manual intervention for each task, use "continuous mode" to automatically process the entire task queue.
+### Token 限制说明
 
-### Token Limitation Note
+由于语言模型的 Token 限制，在长时间对话中可能会丢失上下文。如果发生这种情况，只需打开一个新的聊天会话并要求 Agent 继续执行。系统将从中断处继续，无需您重复任务细节或上下文。
 
-Due to LLM token limits, context may be lost during lengthy conversations. If this occurs, simply open a new chat session and ask the Agent to continue execution. The system will pick up where it left off without requiring you to repeat the task details or context.
+### 提示语言和自定义
 
-### Prompt Language and Customization
+您可以通过设置 `TEMPLATES_USE` 环境变量来切换系统提示的语言。默认支持 `en` (英语) 和 `zh` (繁体中文)。此外，您可以将现有的模板目录（例如 `src/prompts/templates_en`）复制到 `DATA_DIR` 指定的位置，对其进行修改，然后将 `TEMPLATES_USE` 指向您的自定义模板目录名称。这允许更深层次的提示自定义。有关详细说明，请参阅相关文档。
 
-You can switch the language of system prompts by setting the `TEMPLATES_USE` environment variable. It supports `en` (English) and `zh` (Traditional Chinese) by default. Furthermore, you can copy an existing template directory (e.g., `src/prompts/templates_en`) to the location specified by `DATA_DIR`, modify it, and then point `TEMPLATES_USE` to your custom template directory name. This allows for deeper prompt customization. For detailed instructions.
+## 🧠 <a id="task-memory-function"></a>任务记忆功能
 
-## 🧠 <a id="task-memory-function"></a>Task Memory Function
+虾米任务管理器具有长期记忆功能，可自动保存任务执行历史，并在规划新任务时提供参考经验。
 
-Shrimp Task Manager has long-term memory capabilities, automatically saving task execution history and providing reference experiences when planning new tasks.
+### 主要特点
 
-### Key Features
+- 系统自动将任务备份到记忆目录
+- 备份文件按时间顺序命名，格式为 tasks_backup_YYYY-MM-DDThh-mm-ss.json
+- 任务规划 Agent 会自动获得关于如何使用记忆功能的指导
 
-- The system automatically backs up tasks to the memory directory
-- Backup files are named in chronological order, in the format tasks_backup_YYYY-MM-DDThh-mm-ss.json
-- Task planning Agents automatically receive guidance on how to use the memory function
+### 优势与益处
 
-### Advantages and Benefits
+- **避免重复工作**：参考过去的任务，无需从头解决类似问题
+- **借鉴成功经验**：利用行之有效的解决方案，提高开发效率
+- **学习与改进**：识别过去的错误或低效解决方案，持续优化工作流程
+- **知识积累**：随着系统使用量的增加，形成不断扩展的知识库
 
-- **Avoid Duplicate Work**: Reference past tasks, no need to solve similar problems from scratch
-- **Learn from Successful Experiences**: Utilize proven effective solutions, improve development efficiency
-- **Learning and Improvement**: Identify past mistakes or inefficient solutions, continuously optimize workflows
-- **Knowledge Accumulation**: Form a continuously expanding knowledge base as system usage increases
+通过有效利用任务记忆功能，系统可以不断积累经验，智能水平和工作效率也将持续提高。
 
-Through effective use of the task memory function, the system can continuously accumulate experience, with intelligence level and work efficiency continuously improving.
+## 📋 <a id="project-rules"></a>项目规范初始化
 
-## 📋 <a id="project-rules"></a>Project Rules Initialization
+项目规范功能有助于保持代码库的一致性：
 
-The Project Rules feature helps maintain consistency across your codebase:
+- **规范化开发**：建立一致的编码模式和实践
+- **新开发人员入门**：为项目贡献提供清晰的指南
+- **保持质量**：确保所有代码符合既定的项目标准
 
-- **Standardize Development**: Establish consistent coding patterns and practices
-- **Onboard New Developers**: Provide clear guidelines for project contributions
-- **Maintain Quality**: Ensure all code meets established project standards
+> **⚠️ 建议**：当您的项目变大或发生重大更改时，请初始化项目规范。这有助于在复杂性增加时保持一致性和质量。
 
-> **⚠️ Recommendation**: Initialize project rules when your project grows larger or undergoes significant changes. This helps maintain consistency and quality as complexity increases.
+在以下情况下使用 `init_project_rules` 工具设置或更新项目标准：
 
-Use the `init_project_rules` tool to set up or update project standards when:
+- 启动新的大型项目
+- 新团队成员加入
+- 实施重大的架构变更
+- 采用新的开发约定
 
-- Starting a new large-scale project
-- Onboarding new team members
-- Implementing major architectural changes
-- Adopting new development conventions
+### 使用示例
 
-### Usage Examples
+您可以通过简单的自然语言命令轻松访问此功能：
 
-You can easily access this feature with simple natural language commands:
+- **初次设置**：只需告诉 Agent "初始化规范"或"初始化项目规范"
+- **更新时**：当您的项目演变时，告诉 Agent "更新规范"或"更新项目规范"
 
-- **For initial setup**: Simply tell the Agent "init rules" or "init project rules"
-- **For updates**: When your project evolves, tell the Agent "Update rules" or "Update project rules"
+当您的代码库扩展或经历重大结构性更改时，此工具尤其有价值，有助于在整个项目生命周期中保持一致的开发实践。
 
-This tool is particularly valuable when your codebase expands or undergoes significant structural changes, helping maintain consistent development practices throughout the project lifecycle.
+## 📚 <a id="documentation"></a>文档资源
 
-## 📚 <a id="documentation"></a>Documentation Resources
+- [提示自定义指南](docs/en/prompt-customization.md)：有关通过环境变量自定义工具提示的说明
 
-- [Prompt Customization Guide](docs/en/prompt-customization.md): Instructions for customizing tool prompts via environment variables
-- [Changelog](CHANGELOG.md): Record of all notable changes to this project
+## 🔧 <a id="installation"></a>安装与使用
 
-## 🔧 <a id="installation"></a>Installation and Usage
+### 通过 NPM 安装 (推荐)
 
-### Installing via Smithery
-
-To install Shrimp Task Manager for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@cjo4m06/mcp-shrimp-task-manager):
+您可以使用以下命令直接从我们的私有 Nexus 仓库安装 `@unis/mcp-shrimp-task-manager`：
 
 ```bash
-npx -y @smithery/cli install @cjo4m06/mcp-shrimp-task-manager --client claude
+npm install @unis/mcp-shrimp-task-manager --registry=http://nexus.item.pub/repository/npm-private/
 ```
 
-### Manual Installation
+### 本地开发和构建
+
+如果您需要从源码进行本地开发或构建：
 
 ```bash
-# Install dependencies
+# 安装依赖
 npm install
 
-# Build and start service
+# 构建服务
 npm run build
 ```
 
-## 🔌 <a id="clients"></a>Using with MCP-Compatible Clients
+## 🔌 <a id="clients"></a>与MCP兼容的客户端一起使用
 
-Shrimp Task Manager can be used with any client that supports the Model Context Protocol, such as Cursor IDE.
+虾米任务管理器可以与任何支持模型上下文协议的客户端一起使用，例如 Cursor IDE。
 
-### Configuration in Cursor IDE
+### 在 Cursor IDE 中配置
 
-Shrimp Task Manager offers two configuration methods: global configuration and project-specific configuration.
+虾米任务管理器提供两种配置方法：全局配置和项目特定配置。
 
-#### Global Configuration
+#### 全局配置
 
-1. Open the Cursor IDE global configuration file (usually located at `~/.cursor/mcp.json`)
-2. Add the following configuration in the `mcpServers` section:
+1. 打开 Cursor IDE 全局配置文件（通常位于 `~/.cursor/mcp.json`）
+2. 在 `mcpServers` 部分添加以下配置：
 
 ```json
 {
@@ -168,7 +163,7 @@ Shrimp Task Manager offers two configuration methods: global configuration and p
       "command": "node",
       "args": ["/mcp-shrimp-task-manager/dist/index.js"],
       "env": {
-        "DATA_DIR": "/path/to/project/data", // 必須使用絕對路徑
+        "DATA_DIR": "/path/to/project/data", // 必须使用绝对路径
         "TEMPLATES_USE": "en",
         "ENABLE_GUI": "false"
       }
@@ -177,7 +172,7 @@ Shrimp Task Manager offers two configuration methods: global configuration and p
 }
 
 
-or
+或者
 
 {
   "mcpServers": {
@@ -194,14 +189,14 @@ or
 }
 ```
 
-> ⚠️ Please replace `/mcp-shrimp-task-manager` with your actual path.
+> ⚠️ 请将 `/mcp-shrimp-task-manager` 替换为您的实际路径。
 
-#### Project-Specific Configuration
+#### 项目特定配置
 
-You can also set up dedicated configurations for each project to use independent data directories for different projects:
+您还可以为每个项目设置专用配置，以便为不同的项目使用独立的数据目录：
 
-1. Create a `.cursor` directory in the project root
-2. Create an `mcp.json` file in this directory with the following content:
+1. 在项目根目录中创建一个 `.cursor` 目录
+2. 在此目录中创建一个 `mcp.json` 文件，内容如下：
 
 ```json
 {
@@ -210,7 +205,7 @@ You can also set up dedicated configurations for each project to use independent
       "command": "node",
       "args": ["/path/to/mcp-shrimp-task-manager/dist/index.js"],
       "env": {
-        "DATA_DIR": "/path/to/project/data", // Must use absolute path
+        "DATA_DIR": "/path/to/project/data", // 必须使用绝对路径
         "TEMPLATES_USE": "en",
         "ENABLE_GUI": "false"
       }
@@ -219,7 +214,7 @@ You can also set up dedicated configurations for each project to use independent
 }
 
 
-or
+或者
 
 {
   "mcpServers": {
@@ -227,7 +222,7 @@ or
       "command": "npx",
       "args": ["-y", "mcp-shrimp-task-manager"],
       "env": {
-        "DATA_DIR": "/path/to/project/data", // Must use absolute path
+        "DATA_DIR": "/path/to/project/data", // 必须使用绝对路径
         "TEMPLATES_USE": "en",
         "ENABLE_GUI": "false"
       }
@@ -236,20 +231,20 @@ or
 }
 ```
 
-### ⚠️ Important Configuration Notes
+### ⚠️ 重要配置说明
 
-The **DATA_DIR parameter** is the directory where Shrimp Task Manager stores task data, conversation logs, and other information. Setting this parameter correctly is crucial for the normal operation of the system. This parameter must use an **absolute path**; using a relative path may cause the system to incorrectly locate the data directory, resulting in data loss or function failure.
+**DATA_DIR 参数**是虾米任务管理器存储任务数据、对话日志和其他信息的目录。正确设置此参数对于系统的正常运行至关重要。此参数必须使用**绝对路径**；使用相对路径可能会导致系统错误地定位数据目录，从而导致数据丢失或功能故障。
 
-> **Warning**: Using relative paths may cause the following issues:
+> **警告**：使用相对路径可能会导致以下问题：
 >
-> - Data files not found, causing system initialization failure
-> - Task status loss or inability to save correctly
-> - Inconsistent application behavior across different environments
-> - System crashes or failure to start
+> - 找不到数据文件，导致系统初始化失败
+> - 任务状态丢失或无法正确保存
+> - 不同环境下应用程序行为不一致
+> - 系统崩溃或无法启动
 
-### 🔧 Environment Variable Configuration
+### 🔧 环境变量配置
 
-Shrimp Task Manager supports customizing prompt behavior through environment variables, allowing you to fine-tune AI assistant responses without modifying code. You can set these variables in the configuration or through an `.env` file:
+虾米任务管理器支持通过环境变量自定义提示行为，使您无需修改代码即可微调 AI 助手的响应。您可以在配置中或通过 `.env` 文件设置这些变量：
 
 ```json
 {
@@ -259,8 +254,8 @@ Shrimp Task Manager supports customizing prompt behavior through environment var
       "args": ["/path/to/mcp-shrimp-task-manager/dist/index.js"],
       "env": {
         "DATA_DIR": "/path/to/project/data",
-        "MCP_PROMPT_PLAN_TASK": "Custom planning guidance...",
-        "MCP_PROMPT_EXECUTE_TASK_APPEND": "Additional execution instructions...",
+        "MCP_PROMPT_PLAN_TASK": "自定义规划指南...",
+        "MCP_PROMPT_EXECUTE_TASK_APPEND": "附加执行说明...",
         "TEMPLATES_USE": "en",
         "ENABLE_GUI": "false"
       }
@@ -269,156 +264,152 @@ Shrimp Task Manager supports customizing prompt behavior through environment var
 }
 ```
 
-There are two customization methods:
+有两种自定义方法：
 
-- **Override Mode** (`MCP_PROMPT_[FUNCTION_NAME]`): Completely replace the default prompt
-- **Append Mode** (`MCP_PROMPT_[FUNCTION_NAME]_APPEND`): Add content to the existing prompt
+- **覆盖模式** (`MCP_PROMPT_[FUNCTION_NAME]`)：完全替换默认提示
+- **追加模式** (`MCP_PROMPT_[FUNCTION_NAME]_APPEND`)：向现有提示添加内容
 
-Additionally, there are other system configuration variables:
+此外，还有其他系统配置变量：
 
-- **DATA_DIR**: Specifies the directory where task data is stored
-- **TEMPLATES_USE**: Specifies the template set to use for prompts. Defaults to `en`. Currently available options are `en` and `zh`. To use custom templates, copy the `src/prompts/templates_en` directory to the location specified by `DATA_DIR`, rename the copied directory (e.g., to `my_templates`), and set `TEMPLATES_USE` to the new directory name (e.g., `my_templates`).
+- **DATA_DIR**：指定存储任务数据的目录
+- **TEMPLATES_USE**：指定用于提示的模板集。默认为 `en`。当前可用选项为 `en` 和 `zh`。要使用自定义模板，请将 `src/prompts/templates_en` 目录复制到 `DATA_DIR` 指定的位置，重命名复制的目录（例如，`my_templates`），然后将 `TEMPLATES_USE` 设置为新的目录名称（例如，`my_templates`）。
 
-For detailed instructions on customizing prompts, including supported parameters and examples, see the [Prompt Customization Guide](docs/en/prompt-customization.md).
+有关自定义提示的详细说明，包括支持的参数和示例，请参阅[提示自定义指南](docs/en/prompt-customization.md)。
 
-## 💡 <a id="prompt"></a>System Prompt Guidance
+## 💡 <a id="prompt"></a>系统提示指导
 
-### Cursor IDE Configuration
+### Cursor IDE 配置
 
-You can enable Cursor Settings => Features => Custom modes, and configure the following two modes:
+您可以启用 Cursor 设置 => 功能 => 自定义模式，并配置以下两种模式：
 
-#### TaskPlanner Mode
-
-```
-You are a professional task planning expert. You must interact with users, analyze their needs, and collect project-related information. Finally, you must use "plan_task" to create tasks. When the task is created, you must summarize it and inform the user to use the "TaskExecutor" mode to execute the task.
-You must focus on task planning. Do not use "execute_task" to execute tasks.
-Serious warning: you are a task planning expert, you cannot modify the program code directly, you can only plan tasks, and you cannot modify the program code directly, you can only plan tasks.
-```
-
-#### TaskExecutor Mode
+#### 任务规划器模式
 
 ```
-You are a professional task execution expert. When a user specifies a task to execute, use "execute_task" to execute the task.
-If no task is specified, use "list_tasks" to find unexecuted tasks and execute them.
-When the execution is completed, a summary must be given to inform the user of the conclusion.
-You can only perform one task at a time, and when a task is completed, you are prohibited from performing the next task unless the user explicitly tells you to.
-If the user requests "continuous mode", all tasks will be executed in sequence.
+您是一位专业的任务规划专家。您必须与用户互动，分析他们的需求，并收集项目相关信息。最后，您必须使用 "plan_task" 来创建任务。创建任务后，您必须对其进行总结，并通知用户使用 "TaskExecutor" 模式执行任务。
+您必须专注于任务规划。不要使用 "execute_task" 来执行任务。
+严重警告：您是任务规划专家，不能直接修改程序代码，只能规划任务，不能直接修改程序代码，只能规划任务。
 ```
 
-> 💡 Choose the appropriate mode based on your needs:
+#### 任务执行器模式
+
+```
+您是一位专业的任务执行专家。当用户指定要执行的任务时，请使用 "execute_task" 执行任务。
+如果未指定任务，请使用 "list_tasks" 查找未执行的任务并执行它们。
+执行完成后，必须给出总结以通知用户结论。
+您一次只能执行一个任务，完成一个任务后，除非用户明确告知，否则禁止执行下一个任务。
+如果用户请求"连续模式"，则所有任务将按顺序执行。
+```
+
+> 💡 根据您的需求选择合适的模式：
 >
-> - Use **TaskPlanner** mode when planning tasks
-> - Use **TaskExecutor** mode when executing tasks
+> - 规划任务时使用**任务规划器**模式
+> - 执行任务时使用**任务执行器**模式
 
-### Using with Other Tools
+### 与其他工具一起使用
 
-If your tool doesn't support Custom modes, you can:
+如果您的工具不支持自定义模式，您可以：
 
-- Manually paste the appropriate prompts at different stages
-- Or directly use simple commands like `Please plan the following task: ......` or `Please start executing the task...`
+- 在不同阶段手动粘贴相应的提示
+- 或者直接使用简单的命令，例如 `请规划以下任务：......` 或 `请开始执行任务...`
 
-## 🛠️ <a id="tools"></a>Available Tools Overview
+## 🛠️ <a id="tools"></a>可用工具概览
 
-After configuration, you can use the following tools:
+配置完成后，您可以使用以下工具：
 
-| Category                | Tool Name            | Description                                      |
+| 类别                | 工具名称            | 描述                                      |
 | ----------------------- | -------------------- | ------------------------------------------------ |
-| **Task Planning**       | `plan_task`          | Start planning tasks                             |
-| **Task Analysis**       | `analyze_task`       | In-depth analysis of task requirements           |
-|                         | `process_thought`    | Step-by-step reasoning for complex problems      |
-| **Solution Assessment** | `reflect_task`       | Reflect and improve solution concepts            |
-| **Project Management**  | `init_project_rules` | Initialize or update project standards and rules |
-| **Task Management**     | `split_tasks`        | Break tasks into subtasks                        |
-|                         | `list_tasks`         | Display all tasks and status                     |
-|                         | `query_task`         | Search and list tasks                            |
-|                         | `get_task_detail`    | Display complete task details                    |
-|                         | `delete_task`        | Delete incomplete tasks                          |
-| **Task Execution**      | `execute_task`       | Execute specific tasks                           |
-|                         | `verify_task`        | Verify task completion                           |
+| **任务规划**       | `plan_task`          | 开始规划任务                             |
+| **任务分析**       | `analyze_task`       | 深入分析任务需求           |
+|                         | `process_thought`    | 对复杂问题进行逐步推理      |
+| **解决方案评估** | `reflect_task`       | 反思和改进解决方案概念            |
+| **项目管理**  | `init_project_rules` | 初始化或更新项目标准和规则 |
+| **任务管理**     | `split_tasks`        | 将任务分解为子任务                        |
+|                         | `list_tasks`         | 显示所有任务和状态                     |
+|                         | `query_task`         | 搜索和列出任务                            |
+|                         | `get_task_detail`    | 显示完整的任务详细信息                    |
+|                         | `delete_task`        | 删除未完成的任务                          |
+| **任务执行**      | `execute_task`       | 执行特定任务                           |
+|                         | `verify_task`        | 验证任务完成情况                           |
 
-## 🔧 Technical Implementation
+## 🔧 技术实现
 
-- **Node.js**: High-performance JavaScript runtime environment
-- **TypeScript**: Provides type-safe development environment
-- **MCP SDK**: Interface for seamless interaction with large language models
-- **UUID**: Generate unique and reliable task identifiers
+- **Node.js**：高性能 JavaScript 运行时环境
+- **TypeScript**：提供类型安全的开发环境
+- **MCP SDK**：用于与大型语言模型无缝交互的接口
+- **UUID**：生成唯一可靠的任务标识符
 
-## 📄 <a id="license"></a>License
+## 📄 <a id="license"></a>许可证
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+本项目根据 MIT 许可证授权 - 详见 [LICENSE](LICENSE) 文件。
 
-## <a id="recommended"></a>Recommended Models
+## <a id="recommended"></a>推荐模型
 
-For the best experience, we recommend using the following models:
+为获得最佳体验，我们建议使用以下模型：
 
-- **Claude 3.7**: Offers strong understanding and generation capabilities.
-- **Gemini 2.5**: Google's latest model, performs excellently.
+- **Claude 3.7**：提供强大的理解和生成能力。
+- **Gemini 2.5**：谷歌最新模型，表现优异。
 
-Due to differences in training methods and understanding capabilities across models, using other models might lead to varying results for the same prompts. This project has been optimized for Claude 3.7 and Gemini 2.5.
+由于不同模型的训练方法和理解能力存在差异，使用其他模型可能会导致相同提示产生不同的结果。本项目已针对 Claude 3.7 和 Gemini 2.5 进行了优化。
 
-## Star History
+## 🐞 使用 MCP Inspector 进行调试
 
-[![Star History Chart](https://api.star-history.com/svg?repos=cjo4m06/mcp-shrimp-task-manager&type=Timeline)](https://www.star-history.com/#cjo4m06/mcp-shrimp-task-manager&Timeline)
+虾米任务管理器包含内置调试工具，利用 MCP Inspector 帮助您解决问题并了解工具的工作方式。
 
-## 🐞 Debugging with MCP Inspector
+### 使用调试脚本
 
-Shrimp Task Manager includes built-in debugging tools that leverage the MCP Inspector to help you troubleshoot issues and understand how the tools are working.
+我们提供多种在调试模式下运行应用程序的方法：
 
-### Using the Debug Script
-
-We provide several ways to run the application in debug mode:
-
-#### 1. Using npm script
+#### 1. 使用 npm 脚本
 
 ```bash
 npm run debug
 ```
 
-This will start the application with MCP Inspector, allowing you to see all tool calls and model responses.
+这将启动带有 MCP Inspector 的应用程序，允许您查看所有工具调用和模型响应。
 
-#### 2. Using the debug.bat file (Windows)
+#### 2. 使用 debug.bat 文件 (Windows)
 
 ```bash
 debug.bat
 ```
 
-Or with parameters:
+或带参数：
 
 ```bash
 debug.bat --port 3001 --feature verifyTask
 ```
 
-#### 3. Using the Node.js script directly
+#### 3. 直接使用 Node.js 脚本
 
 ```bash
 node scripts/debug.js
 ```
 
-With parameters:
+带参数：
 
 ```bash
 node scripts/debug.js --port 3001 --feature verifyTask
 ```
 
-### Debug Parameters
+### 调试参数
 
-- `--port`: Specify the port for the server (default: 3000)
-- `--feature`: Focus debugging on a specific feature or tool
+- `--port`：指定服务器的端口（默认为 3000）
+- `--feature`：将调试重点放在特定功能或工具上
 
-### Debugging Features
+### 调试功能
 
-When running in debug mode:
+在调试模式下运行时：
 
-1. The MCP Inspector interface will be available at http://localhost:3000 (or your specified port)
-2. All tool calls and model responses will be displayed in the Inspector
-3. Node.js debugging is enabled via the `--inspect` flag, allowing you to connect Chrome DevTools (navigate to chrome://inspect)
-4. Console output will show detailed logs of application activity
+1. MCP Inspector 界面将在 http://localhost:3000（或您指定的端口）上可用
+2. 所有工具调用和模型响应都将显示在 Inspector 中
+3. Node.js 调试通过 `--inspect` 标志启用，允许您连接 Chrome DevTools（导航到 chrome://inspect）
+4. 控制台输出将显示应用程序活动的详细日志
 
-### Common Debug Scenarios
+### 常见调试场景
 
-- **API Errors**: Debug issues with API responses and request formatting
-- **Tool Chain Problems**: Inspect the flow between different tools like verifyTask and taskReport
-- **Template Issues**: Check if template files are loaded correctly
-- **Data Persistence**: Monitor how task data is saved and retrieved
+- **API 错误**：调试 API 响应和请求格式问题
+- **工具链问题**：检查 verifyTask 和 taskReport 等不同工具之间的流程
+- **模板问题**：检查模板文件是否正确加载
+- **数据持久性**：监控任务数据的保存和检索方式
 
-> **Tip**: When debugging template issues, ensure your build process has correctly copied all template files to the dist directory by running `npm run build` before starting debug mode.
+> **提示**：调试模板问题时，请在启动调试模式前运行 `npm run build`，确保您的构建过程已将所有模板文件正确复制到 dist 目录。
