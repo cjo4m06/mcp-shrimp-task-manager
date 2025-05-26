@@ -17,16 +17,23 @@ export const reflectTaskSchema = z.object({
     .describe(
       "完整詳盡的技術分析結果，包括所有技術細節、依賴組件和實施方案，如果需要提供程式碼請使用 pseudocode 格式且僅提供高級邏輯流程和關鍵步驟避免完整代碼"
     ),
+  taskBrief: z
+    .string()
+    .max(20, { message: "任务简介不能超过20个字符" })
+    .optional()
+    .describe("任务的简短概括，不超过20个字，可选"),
 });
 
 export async function reflectTask({
   summary,
   analysis,
+  taskBrief,
 }: z.infer<typeof reflectTaskSchema>) {
   // 使用prompt生成器獲取最終prompt
   const prompt = getReflectTaskPrompt({
     summary,
     analysis,
+    taskBrief,
   });
 
   return {

@@ -60,6 +60,9 @@ export interface Task {
   // 新增欄位：保存完整的技術分析結果
   analysisResult?: string; // 來自 analyze_task 和 reflect_task 階段的完整分析結果
 
+  // 新增欄位：任務簡介
+  taskBrief?: string; // 任務簡介，不超過20字，來自 analyze_task 和 reflect_task 階段
+
   // 新增欄位：保存具體的實現指南
   implementationGuide?: string; // 具體的實現方法、步驟和建議
 

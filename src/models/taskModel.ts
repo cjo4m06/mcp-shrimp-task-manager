@@ -413,8 +413,9 @@ export async function batchCreateOrUpdateTasks(
     notes?: string;
     dependencies?: string[];
     relatedFiles?: RelatedFile[];
-    implementationGuide?: string; // 新增：實現指南
-    verificationCriteria?: string; // 新增：驗證標準
+    implementationGuide?: string;
+    verificationCriteria?: string;
+    taskBrief?: string;
   }>,
   updateMode: "append" | "overwrite" | "selective" | "clearAllTasks", // 必填參數，指定任務更新策略
   globalAnalysisResult?: string // 新增：全局分析結果

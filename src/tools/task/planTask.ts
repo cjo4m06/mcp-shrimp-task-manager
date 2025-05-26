@@ -16,12 +16,16 @@ export const planTaskSchema = z.object({
   requirements: z
     .string()
     .optional()
-    .describe("任務的特定技術要求、業務約束條件或品質標準（選填）"),
+    .describe("任务的特定技术要求、业务约束条件或品质标准（选填）"),
   existingTasksReference: z
     .boolean()
     .optional()
-    .default(false)
-    .describe("是否參考現有任務作為規劃基礎，用於任務調整和延續性規劃"),
+    .describe("是否参考现有任务作为规划基础，用于任务调整和延续性规划"),
+  taskBrief: z
+    .string()
+    .max(20, { message: "任务简介不能超过20个字符" })
+    .optional()
+    .describe("任务的简短概括，不超过20个字，可选"),
 });
 
 export async function planTask({

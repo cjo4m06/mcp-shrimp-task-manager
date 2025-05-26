@@ -44,6 +44,11 @@ export const splitTasksSchema = z.object({
           .string()
           .optional()
           .describe("補充說明、特殊處理要求或實施建議（選填）"),
+        taskBrief: z
+          .string()
+          .max(20, { message: "任务简介字数不能超过20个字" })
+          .optional()
+          .describe("任务简介：任务的简短概括，不超过20个字"),
         relatedFiles: z
           .array(
             z.object({
@@ -139,6 +144,7 @@ export async function splitTasks({
       dependencies: task.dependencies,
       implementationGuide: task.implementationGuide,
       verificationCriteria: task.verificationCriteria,
+      taskBrief: task.taskBrief,
       relatedFiles: task.relatedFiles?.map((file) => ({
         path: file.path,
         type: file.type as RelatedFileType,

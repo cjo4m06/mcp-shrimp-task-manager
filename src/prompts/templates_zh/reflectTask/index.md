@@ -42,7 +42,7 @@
    - 調整後的最終方案 + 反思報告
    - 呼叫工具：
    ```
-   split_tasks( ... )
+   split_tasks( globalAnalysisResult: <來自 reflect_task 的分析結果>, tasks: [ { name: "...", description: "...", taskBrief: <任務簡介的值_如有>, ... } ], ... )
    ```
 
 **現在開始呼叫 `split_tasks`，嚴禁不呼叫工具**

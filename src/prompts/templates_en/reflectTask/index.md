@@ -42,7 +42,7 @@ After receiving the solution and suggestions, conduct self-reflection and final 
    - Adjusted final solution + reflection report
    - Call tool:
    ```
-   split_tasks( ... )
+   split_tasks( globalAnalysisResult: <analysis_output_from_reflect_task>, tasks: [ { name: "...", description: "...", taskBrief: <the_task_brief_value_if_any>, ... } ], ... )
    ```
 
 **Now start calling `split_tasks`, strictly forbidden not to call the tool**

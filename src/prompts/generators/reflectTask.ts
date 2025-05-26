@@ -15,6 +15,7 @@ import {
 export interface ReflectTaskPromptParams {
   summary: string;
   analysis: string;
+  taskBrief?: string;
 }
 
 /**
