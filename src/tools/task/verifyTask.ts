@@ -8,27 +8,27 @@ import {
 import { TaskStatus } from "../../types/index.js";
 import { getVerifyTaskPrompt } from "../../prompts/index.js";
 
-// 檢驗任務工具
+// Verify task tool
 export const verifyTaskSchema = z.object({
   taskId: z
     .string()
     .regex(UUID_V4_REGEX, {
-      message: "任務ID格式無效，請提供有效的UUID v4格式",
+      message: "Invalid task ID format, please provide a valid UUID v4 format",
     })
-    .describe("待驗證任務的唯一標識符，必須是系統中存在的有效任務ID"),
+    .describe("Unique identifier of the task to be verified, must be a valid task ID in the system"),
   summary: z
     .string()
     .min(30, {
-      message: "最少30個字",
+      message: "At least 30 characters",
     })
     .describe(
-      "當分數高於或等於 80分時代表任務完成摘要，簡潔描述實施結果和重要決策，當分數低於 80分時代表缺失或需要修正的部分說明，最少30個字"
+      "When the score is 80 or above, it represents the task completion summary, briefly describing the implementation results and important decisions, when the score is below 80, it represents the missing or parts that need to be corrected, at least 30 characters"
     ),
   score: z
     .number()
-    .min(0, { message: "分數不能小於0" })
-    .max(100, { message: "分數不能大於100" })
-    .describe("針對任務的評分，當評分等於或超過80分時自動完成任務"),
+    .min(0, { message: "Score cannot be less than 0" })
+    .max(100, { message: "Score cannot be greater than 100" })
+    .describe("Score for the task, when the score is equal to or exceeds 80, the task is automatically completed"),
 });
 
 export async function verifyTask({
@@ -43,7 +43,7 @@ export async function verifyTask({
       content: [
         {
           type: "text" as const,
-          text: `## 系統錯誤\n\n找不到ID為 \`${taskId}\` 的任務。請使用「list_tasks」工具確認有效的任務ID後再試。`,
+          text: `## System error\n\nCannot find task with ID \`${taskId}\`. Please use the "list_tasks" tool to confirm a valid task ID before trying again.`,
         },
       ],
       isError: true,
@@ -55,7 +55,7 @@ export async function verifyTask({
       content: [
         {
           type: "text" as const,
-          text: `## 狀態錯誤\n\n任務 "${task.name}" (ID: \`${task.id}\`) 當前狀態為 "${task.status}"，不處於進行中狀態，無法進行檢驗。\n\n只有狀態為「進行中」的任務才能進行檢驗。請先使用「execute_task」工具開始任務執行。`,
+          text: `## Status error\n\nTask "${task.name}" (ID: \`${task.id}\`) is currently in status "${task.status}", which is not in progress status. Cannot perform verification.\n\nOnly tasks in "in progress" status can be verified. Please use the "execute_task" tool to start task execution.`,
         },
       ],
       isError: true,
@@ -63,12 +63,12 @@ export async function verifyTask({
   }
 
   if (score >= 80) {
-    // 更新任務狀態為已完成，並添加摘要
+    // Update task status to completed and add summary
     await updateTaskSummary(taskId, summary);
     await updateTaskStatus(taskId, TaskStatus.COMPLETED);
   }
 
-  // 使用prompt生成器獲取最終prompt
+  // Use prompt generator to get the final prompt
   const prompt = getVerifyTaskPrompt({ task, score, summary });
 
   return {

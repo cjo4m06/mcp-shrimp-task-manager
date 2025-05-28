@@ -1,8 +1,9 @@
-import {
-  loadPrompt,
-  generatePrompt,
-  loadPromptFromTemplate,
-} from "../loader.js";
+/**
+ * processThought prompt generator
+ * Responsible for combining templates and parameters into the final prompt
+ */
+
+import { loadPrompt, generatePrompt, loadPromptFromTemplate } from "../loader.js";
 
 export interface ProcessThoughtPromptParams {
   thought: string;
@@ -15,6 +16,11 @@ export interface ProcessThoughtPromptParams {
   assumptions_challenged: string[];
 }
 
+/**
+ * Get the complete prompt for processThought
+ * @param param prompt parameters
+ * @returns generated prompt
+ */
 export function getProcessThoughtPrompt(
   param: ProcessThoughtPromptParams
 ): string {

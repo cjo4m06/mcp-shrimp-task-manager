@@ -7,14 +7,14 @@ import {
 import { TaskStatus } from "../../types/index.js";
 import { getDeleteTaskPrompt } from "../../prompts/index.js";
 
-// 刪除任務工具
+// Delete task tool
 export const deleteTaskSchema = z.object({
   taskId: z
     .string()
     .regex(UUID_V4_REGEX, {
-      message: "任務ID格式無效，請提供有效的UUID v4格式",
+      message: "Invalid task ID format, please provide a valid UUID v4 format",
     })
-    .describe("待刪除任務的唯一標識符，必須是系統中存在且未完成的任務ID"),
+    .describe("Unique identifier of the task to be deleted, must be an existing and unfinished task ID in the system"),
 });
 
 export async function deleteTask({ taskId }: z.infer<typeof deleteTaskSchema>) {

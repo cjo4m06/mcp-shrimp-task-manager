@@ -2,20 +2,16 @@ import "dotenv/config";
 import { loadPromptFromTemplate } from "./prompts/loader.js";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { CallToolRequest, CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { zodToJsonSchema } from "zod-to-json-schema";
-import {
-  CallToolRequest,
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-} from "@modelcontextprotocol/sdk/types.js";
-import express, { Request, Response, NextFunction } from "express";
-import getPort from "get-port";
-import path from "path";
-import fs from "fs";
-import fsPromises from "fs/promises";
-import { fileURLToPath } from "url";
+// import express, { Request, Response } from "express";
+// import getPort from "get-port";
+// import path from "path";
+// import fs from "fs";
+// import fsPromises from "fs/promises";
+// import { fileURLToPath } from "url";
 
-// 導入所有工具函數和 schema
+// Import all tool functions and schemas
 import {
   planTask,
   planTaskSchema,
@@ -54,122 +50,120 @@ async function main() {
     console.log("Starting Shrimp Task Manager service...");
     const ENABLE_GUI = process.env.ENABLE_GUI === "true";
 
-    if (ENABLE_GUI) {
-      // 創建 Express 應用
-      const app = express();
+    // if (ENABLE_GUI) {
+    //   // Create Express application
+    //   const app = express();
 
-      // 儲存 SSE 客戶端的列表
-      let sseClients: Response[] = [];
+    //   // Store list of SSE clients
+    //   let sseClients: Response[] = [];
 
-      // 發送 SSE 事件的輔助函數
-      function sendSseUpdate() {
-        sseClients.forEach((client) => {
-          // 檢查客戶端是否仍然連接
-          if (!client.writableEnded) {
-            client.write(
-              `event: update\ndata: ${JSON.stringify({
-                timestamp: Date.now(),
-              })}\n\n`
-            );
-          }
-        });
-        // 清理已斷開的客戶端 (可選，但建議)
-        sseClients = sseClients.filter((client) => !client.writableEnded);
-      }
+    //   // Helper function to send SSE events
+    //   function sendSseUpdate() {
+    //     sseClients.forEach((client) => {
+    //       // Check if client is still connected
+    //       if (!client.writableEnded) {
+    //         client.write(
+    //           `event: update\ndata: ${JSON.stringify({
+    //             timestamp: Date.now(),
+    //           })}\n\n`
+    //         );
+    //       }
+    //     });
+    //     // Clean up disconnected clients (optional but recommended)
+    //     sseClients = sseClients.filter((client) => !client.writableEnded);
+    //   }
 
-      // 設置靜態文件目錄
-      const __filename = fileURLToPath(import.meta.url);
-      const __dirname = path.dirname(__filename);
-      const publicPath = path.join(__dirname, "public");
-      const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
-      const TASKS_FILE_PATH = path.join(DATA_DIR, "tasks.json"); // 提取檔案路徑
+    //   // Set static file directory
+    //   const __filename = fileURLToPath(import.meta.url);
+    //   const __dirname = path.dirname(__filename);
+    //   const publicPath = path.join(__dirname, "public");
+    //   const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
+    //   const TASKS_FILE_PATH = path.join(DATA_DIR, "tasks.json"); // Extract file path
 
-      app.use(express.static(publicPath));
+    //   app.use(express.static(publicPath));
 
-      // 設置 API 路由
-      app.get("/api/tasks", async (req: Request, res: Response) => {
-        try {
-          // 使用 fsPromises 保持異步讀取
-          const tasksData = await fsPromises.readFile(TASKS_FILE_PATH, "utf-8");
-          res.json(JSON.parse(tasksData));
-        } catch (error) {
-          // 確保檔案不存在時返回空任務列表
-          if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-            res.json({ tasks: [] });
-          } else {
-            res.status(500).json({ error: "Failed to read tasks data" });
-          }
-        }
-      });
+    //   // Set API routes
+    //   app.get("/api/tasks", async (req: Request, res: Response) => {
+    //     try {
+    //       // Use fsPromises for asynchronous reading
+    //       const tasksData = await fsPromises.readFile(TASKS_FILE_PATH, "utf-8");
+    //       res.json(JSON.parse(tasksData));
+    //     } catch (error) {
+    //       // Ensure an empty task list is returned if the file does not exist
+    //       if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+    //         res.json({ tasks: [] });
+    //       } else {
+    //         res.status(500).json({ error: "Failed to read tasks data" });
+    //       }
+    //     }
+    //   });
 
-      // 新增：SSE 端點
-      app.get("/api/tasks/stream", (req: Request, res: Response) => {
-        res.writeHead(200, {
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          Connection: "keep-alive",
-          // 可選: CORS 頭，如果前端和後端不在同一個 origin
-          // "Access-Control-Allow-Origin": "*",
-        });
+    //   // New: SSE endpoint
+    //   app.get("/api/tasks/stream", (req: Request, res: Response) => {
+    //     res.writeHead(200, {
+    //       "Content-Type": "text/event-stream",
+    //       "Cache-Control": "no-cache",
+    //       Connection: "keep-alive",
+    //       // Optional: CORS headers if frontend and backend are not on the same origin
+    //       // "Access-Control-Allow-Origin": "*",
+    //     });
 
-        // 發送一個初始事件或保持連接
-        res.write("data: connected\n\n");
+    //     // Send an initial event or keep the connection
+    //     res.write("data: connected\n\n");
 
-        // 將客戶端添加到列表
-        sseClients.push(res);
+    //     // Add client to the list
+    //     sseClients.push(res);
 
-        // 當客戶端斷開連接時，將其從列表中移除
-        req.on("close", () => {
-          sseClients = sseClients.filter((client) => client !== res);
-        });
-      });
+    //     // Remove client from the list when it disconnects
+    //     req.on("close", () => {
+    //       sseClients = sseClients.filter((client) => client !== res);
+    //     });
+    //   });
 
-      // 獲取可用埠
-      const port = await getPort();
+    //   // Get available port
+    //   const port = await getPort();
 
-      // 啟動 HTTP 伺服器
-      const httpServer = app.listen(port, () => {
-        // 在伺服器啟動後開始監聽檔案變化
-        try {
-          // 檢查檔案是否存在，如果不存在則不監聽 (避免 watch 報錯)
-          if (fs.existsSync(TASKS_FILE_PATH)) {
-            fs.watch(TASKS_FILE_PATH, (eventType, filename) => {
-              if (
-                filename &&
-                (eventType === "change" || eventType === "rename")
-              ) {
-                // 稍微延遲發送，以防短時間內多次觸發 (例如編輯器保存)
-                // debounce sendSseUpdate if needed
-                sendSseUpdate();
-              }
-            });
-          }
-        } catch (watchError) {}
-      });
+    //   // Start HTTP server
+    //   const httpServer = app.listen(port, () => {
+    //     // Check if the file exists, do not watch if it doesn't (avoid watch errors)
+    //     try {
+    //       if (fs.existsSync(TASKS_FILE_PATH)) {
+    //         fs.watch(TASKS_FILE_PATH, (eventType, filename) => {
+    //           if (
+    //             filename &&
+    //             (eventType === "change" || eventType === "rename")
+    //           ) {
+    //             // Slightly delay sending to prevent multiple triggers in a short time (e.g., editor save)
+    //             // debounce sendSseUpdate if needed
+    //             sendSseUpdate();
+    //           }
+    //         });
+    //       }
+    //     } catch (watchError) {}
+    //   });
 
-      // 將 URL 寫入 ebGUI.md
-      try {
-        const websiteUrl = `[Task Manager UI](http://localhost:${port})`;
-        const websiteFilePath = path.join(DATA_DIR, "WebGUI.md");
-        await fsPromises.writeFile(websiteFilePath, websiteUrl, "utf-8");
-      } catch (error) {}
+    //   // Write URL to ebGUI.md
+    //   try {
+    //     const websiteUrl = `[Task Manager UI](http://localhost:${port})`;
+    //     const websiteFilePath = path.join(DATA_DIR, "WebGUI.md");
+    //     await fsPromises.writeFile(websiteFilePath, websiteUrl, "utf-8");
+    //   } catch (error) {}
 
-      // 設置進程終止事件處理 (確保移除 watcher)
-      const shutdownHandler = async () => {
-        // 關閉所有 SSE 連接
-        sseClients.forEach((client) => client.end());
-        sseClients = [];
+    //   // Set process termination event handling (ensure watcher removal)
+    //   const shutdownHandler = async () => {
+    //     // Close all SSE connections
+    //     sseClients.forEach((client) => client.end());
+    //     sseClients = [];
 
-        // 關閉 HTTP 伺服器
-        await new Promise<void>((resolve) => httpServer.close(() => resolve()));
-        process.exit(0);
-      };
+    //     // Close HTTP server
+    //     await new Promise<void>((resolve) => httpServer.close(() => resolve()));
+    //     process.exit(0);
+    //   };
 
-      process.on("SIGINT", shutdownHandler);
-      process.on("SIGTERM", shutdownHandler);
-    }
+    //   process.on("SIGINT", shutdownHandler);
+    //   process.on("SIGTERM", shutdownHandler);
+    // }
 
-    // 創建MCP服務器
     const server = new Server(
       {
         name: "Shrimp Task Manager",
@@ -269,183 +263,176 @@ async function main() {
           },
           {
             name: "process_thought",
-            description: loadPromptFromTemplate(
-              "toolsDescription/processThought.md"
-            ),
+            description: loadPromptFromTemplate("toolsDescription/processThought.md"),
             inputSchema: zodToJsonSchema(processThoughtSchema),
           },
           {
             name: "init_project_rules",
-            description: loadPromptFromTemplate(
-              "toolsDescription/initProjectRules.md"
-            ),
+            description: loadPromptFromTemplate("toolsDescription/initProjectRules.md"),
             inputSchema: zodToJsonSchema(initProjectRulesSchema),
           },
         ],
       };
     });
 
-    server.setRequestHandler(
-      CallToolRequestSchema,
-      async (request: CallToolRequest) => {
-        try {
-          if (!request.params.arguments) {
-            throw new Error("No arguments provided");
-          }
-
-          let parsedArgs;
-          switch (request.params.name) {
-            case "plan_task":
-              parsedArgs = await planTaskSchema.safeParseAsync(
-                request.params.arguments
-              );
-              if (!parsedArgs.success) {
-                throw new Error(
-                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
-                );
-              }
-              return await planTask(parsedArgs.data);
-            case "analyze_task":
-              parsedArgs = await analyzeTaskSchema.safeParseAsync(
-                request.params.arguments
-              );
-              if (!parsedArgs.success) {
-                throw new Error(
-                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
-                );
-              }
-              return await analyzeTask(parsedArgs.data);
-            case "reflect_task":
-              parsedArgs = await reflectTaskSchema.safeParseAsync(
-                request.params.arguments
-              );
-              if (!parsedArgs.success) {
-                throw new Error(
-                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
-                );
-              }
-              return await reflectTask(parsedArgs.data);
-            case "split_tasks":
-              parsedArgs = await splitTasksRawSchema.safeParseAsync(
-                request.params.arguments
-              );
-              if (!parsedArgs.success) {
-                throw new Error(
-                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
-                );
-              }
-              return await splitTasksRaw(parsedArgs.data);
-            case "list_tasks":
-              parsedArgs = await listTasksSchema.safeParseAsync(
-                request.params.arguments
-              );
-              if (!parsedArgs.success) {
-                throw new Error(
-                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
-                );
-              }
-              return await listTasks(parsedArgs.data);
-            case "execute_task":
-              parsedArgs = await executeTaskSchema.safeParseAsync(
-                request.params.arguments
-              );
-              if (!parsedArgs.success) {
-                throw new Error(
-                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
-                );
-              }
-              return await executeTask(parsedArgs.data);
-            case "verify_task":
-              parsedArgs = await verifyTaskSchema.safeParseAsync(
-                request.params.arguments
-              );
-              if (!parsedArgs.success) {
-                throw new Error(
-                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
-                );
-              }
-              return await verifyTask(parsedArgs.data);
-            case "delete_task":
-              parsedArgs = await deleteTaskSchema.safeParseAsync(
-                request.params.arguments
-              );
-              if (!parsedArgs.success) {
-                throw new Error(
-                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
-                );
-              }
-              return await deleteTask(parsedArgs.data);
-            case "clear_all_tasks":
-              parsedArgs = await clearAllTasksSchema.safeParseAsync(
-                request.params.arguments
-              );
-              if (!parsedArgs.success) {
-                throw new Error(
-                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
-                );
-              }
-              return await clearAllTasks(parsedArgs.data);
-            case "update_task":
-              parsedArgs = await updateTaskContentSchema.safeParseAsync(
-                request.params.arguments
-              );
-              if (!parsedArgs.success) {
-                throw new Error(
-                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
-                );
-              }
-              return await updateTaskContent(parsedArgs.data);
-            case "query_task":
-              parsedArgs = await queryTaskSchema.safeParseAsync(
-                request.params.arguments
-              );
-              if (!parsedArgs.success) {
-                throw new Error(
-                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
-                );
-              }
-              return await queryTask(parsedArgs.data);
-            case "get_task_detail":
-              parsedArgs = await getTaskDetailSchema.safeParseAsync(
-                request.params.arguments
-              );
-              if (!parsedArgs.success) {
-                throw new Error(
-                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
-                );
-              }
-              return await getTaskDetail(parsedArgs.data);
-            case "process_thought":
-              parsedArgs = await processThoughtSchema.safeParseAsync(
-                request.params.arguments
-              );
-              if (!parsedArgs.success) {
-                throw new Error(
-                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
-                );
-              }
-              return await processThought(parsedArgs.data);
-            case "init_project_rules":
-              return await initProjectRules();
-            default:
-              throw new Error(`Tool ${request.params.name} does not exist`);
-          }
-        } catch (error) {
-          const errorMsg =
-            error instanceof Error ? error.message : String(error);
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Error occurred: ${errorMsg} \n Please try correcting the error and calling the tool again`,
-              },
-            ],
-          };
+    server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest) => {
+      try {
+        if (!request.params.arguments) {
+          throw new Error("No arguments provided");
         }
-      }
-    );
 
-    // 建立連接
+        let parsedArgs;
+        switch (request.params.name) {
+          case "plan_task":
+            parsedArgs = await planTaskSchema.safeParseAsync(
+              request.params.arguments
+            );
+            if (!parsedArgs.success) {
+              throw new Error(
+                `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+              );
+            }
+            return await planTask(parsedArgs.data);
+          case "analyze_task":
+            parsedArgs = await analyzeTaskSchema.safeParseAsync(
+              request.params.arguments
+            );
+            if (!parsedArgs.success) {
+              throw new Error(
+                `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+              );
+            }
+            return await analyzeTask(parsedArgs.data);
+          case "reflect_task":
+            parsedArgs = await reflectTaskSchema.safeParseAsync(
+              request.params.arguments
+            );
+            if (!parsedArgs.success) {
+              throw new Error(
+                `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+              );
+            }
+            return await reflectTask(parsedArgs.data);
+          case "split_tasks":
+            parsedArgs = await splitTasksRawSchema.safeParseAsync(
+              request.params.arguments
+            );
+            if (!parsedArgs.success) {
+              throw new Error(
+                `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+              );
+            }
+            return await splitTasksRaw(parsedArgs.data);
+          case "list_tasks":
+            parsedArgs = await listTasksSchema.safeParseAsync(
+              request.params.arguments
+            );
+            if (!parsedArgs.success) {
+              throw new Error(
+                `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+              );
+            }
+            return await listTasks(parsedArgs.data);
+          case "execute_task":
+            parsedArgs = await executeTaskSchema.safeParseAsync(
+              request.params.arguments
+            );
+            if (!parsedArgs.success) {
+              throw new Error(
+                `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+              );
+            }
+            return await executeTask(parsedArgs.data);
+          case "verify_task":
+            parsedArgs = await verifyTaskSchema.safeParseAsync(
+              request.params.arguments
+            );
+            if (!parsedArgs.success) {
+              throw new Error(
+                `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+              );
+            }
+            return await verifyTask(parsedArgs.data);
+          case "delete_task":
+            parsedArgs = await deleteTaskSchema.safeParseAsync(
+              request.params.arguments
+            );
+            if (!parsedArgs.success) {
+              throw new Error(
+                `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+              );
+            }
+            return await deleteTask(parsedArgs.data);
+          case "clear_all_tasks":
+            parsedArgs = await clearAllTasksSchema.safeParseAsync(
+              request.params.arguments
+            );
+            if (!parsedArgs.success) {
+              throw new Error(
+                `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+              );
+            }
+            return await clearAllTasks(parsedArgs.data);
+          case "update_task":
+            parsedArgs = await updateTaskContentSchema.safeParseAsync(
+              request.params.arguments
+            );
+            if (!parsedArgs.success) {
+              throw new Error(
+                `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+              );
+            }
+            return await updateTaskContent(parsedArgs.data);
+          case "query_task":
+            parsedArgs = await queryTaskSchema.safeParseAsync(
+              request.params.arguments
+            );
+            if (!parsedArgs.success) {
+              throw new Error(
+                `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+              );
+            }
+            return await queryTask(parsedArgs.data);
+          case "get_task_detail":
+            parsedArgs = await getTaskDetailSchema.safeParseAsync(
+              request.params.arguments
+            );
+            if (!parsedArgs.success) {
+              throw new Error(
+                `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+              );
+            }
+            return await getTaskDetail(parsedArgs.data);
+          case "process_thought":
+            parsedArgs = await processThoughtSchema.safeParseAsync(
+              request.params.arguments
+            );
+            if (!parsedArgs.success) {
+              throw new Error(
+                `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+              );
+            }
+            return await processThought(parsedArgs.data);
+          case "init_project_rules":
+            return await initProjectRules();
+          default:
+            throw new Error(`Tool ${request.params.name} does not exist`);
+        }
+      } catch (error) {
+        const errorMsg =
+          error instanceof Error ? error.message : String(error);
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error occurred: ${errorMsg} \n Please try correcting the error and calling the tool again`,
+            },
+          ],
+        };
+      }
+    });
+
+    // Establish connection
     const transport = new StdioServerTransport();
     await server.connect(transport);
 

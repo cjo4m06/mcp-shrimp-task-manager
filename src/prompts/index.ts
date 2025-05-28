@@ -1,13 +1,8 @@
 /**
- * Prompt 管理系統索引文件
- * 匯出所有 prompt 生成器和載入工具
+ * Prompt management system index file
+ * Export all prompt generators
  */
 
-// 匯出核心工具
-export { loadPrompt, generatePrompt } from "./loader.js";
-
-// 當完成各個模塊時，將在下方匯出各個 prompt 生成器
-// 例如：
 export { getPlanTaskPrompt } from "./generators/planTask.js";
 export { getAnalyzeTaskPrompt } from "./generators/analyzeTask.js";
 export { getReflectTaskPrompt } from "./generators/reflectTask.js";
@@ -22,3 +17,4 @@ export { getInitProjectRulesPrompt } from "./generators/initProjectRules.js";
 export { getDeleteTaskPrompt } from "./generators/deleteTask.js";
 export { getClearAllTasksPrompt } from "./generators/clearAllTasks.js";
 export { getUpdateTaskContentPrompt } from "./generators/updateTaskContent.js";
+export { getProcessThoughtPrompt, ProcessThoughtPromptParams } from "./generators/processThought.js";

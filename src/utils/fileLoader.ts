@@ -1,34 +1,34 @@
 import { RelatedFile, RelatedFileType } from "../types/index.js";
 
 /**
- * 生成任務相關文件的內容摘要
+ * Generate content summary for task-related files
  *
- * 此函數根據提供的 RelatedFile 物件列表，生成文件的摘要信息，而不實際讀取檔案內容。
- * 這是一個輕量級的實現，僅基於檔案元數據（如路徑、類型、描述等）生成格式化的摘要，
- * 適用於需要提供文件上下文信息但不需要訪問實際檔案內容的情境。
+ * This function generates a summary of files based on the provided RelatedFile object list, without actually reading the file content.
+ * This is a lightweight implementation that generates a formatted summary based only on file metadata (such as path, type, description, etc.),
+ * suitable for scenarios where file context information is needed but actual file content does not need to be accessed.
  *
- * @param relatedFiles 相關文件列表 - RelatedFile 物件數組，包含文件的路徑、類型、描述等資訊
- * @param maxTotalLength 摘要內容的最大總長度 - 控制生成摘要的總字符數，避免過大的返回內容
- * @returns 包含兩個字段的物件：
- *   - content: 詳細的文件資訊，包含每個檔案的基本資訊和提示訊息
- *   - summary: 簡潔的檔案列表概覽，適合快速瀏覽
+ * @param relatedFiles List of related files - an array of RelatedFile objects, including file path, type, description, etc.
+ * @param maxTotalLength Maximum total length of the summary content - controls the total number of characters generated in the summary to avoid excessive return content
+ * @returns An object containing two fields:
+ *   - content: Detailed file information, including basic information and prompt messages for each file
+ *   - summary: Concise file list overview, suitable for quick browsing
  */
 export async function loadTaskRelatedFiles(
   relatedFiles: RelatedFile[],
-  maxTotalLength: number = 15000 // 控制生成內容的總長度
+  maxTotalLength: number = 15000
 ): Promise<{ content: string; summary: string }> {
   if (!relatedFiles || relatedFiles.length === 0) {
     return {
       content: "",
-      summary: "無相關文件",
+      summary: "No related files",
     };
   }
 
   let totalContent = "";
-  let filesSummary = `## 相關文件內容摘要 (共 ${relatedFiles.length} 個文件)\n\n`;
+  let filesSummary = `## Related File Content Summary (Total ${relatedFiles.length} files)\n\n`;
   let totalLength = 0;
 
-  // 按文件類型優先級排序（首先處理待修改的文件）
+  // Sort files by priority (first process files to be modified)
   const priorityOrder: Record<RelatedFileType, number> = {
     [RelatedFileType.TO_MODIFY]: 1,
     [RelatedFileType.REFERENCE]: 2,
@@ -41,29 +41,29 @@ export async function loadTaskRelatedFiles(
     (a, b) => priorityOrder[a.type] - priorityOrder[b.type]
   );
 
-  // 處理每個文件
+  // Process each file
   for (const file of sortedFiles) {
     if (totalLength >= maxTotalLength) {
-      filesSummary += `\n### 已達到上下文長度限制，部分文件未載入\n`;
+      filesSummary += `\n### Context length limit reached, some files not loaded\n`;
       break;
     }
 
-    // 生成文件基本資訊
+    // Generate file basic information
     const fileInfo = generateFileInfo(file);
 
-    // 添加到總內容
+    // Add to total content
     const fileHeader = `\n### ${file.type}: ${file.path}${
       file.description ? ` - ${file.description}` : ""
     }${
       file.lineStart && file.lineEnd
-        ? ` (行 ${file.lineStart}-${file.lineEnd})`
+        ? ` (lines ${file.lineStart}-${file.lineEnd})`
         : ""
     }\n\n`;
 
     totalContent += fileHeader + "```\n" + fileInfo + "\n```\n\n";
     filesSummary += `- **${file.path}**${
       file.description ? ` - ${file.description}` : ""
-    } (${fileInfo.length} 字符)\n`;
+    } (${fileInfo.length} characters)\n`;
 
     totalLength += fileInfo.length + fileHeader.length + 8; // 8 for "```\n" and "\n```"
   }
@@ -75,27 +75,27 @@ export async function loadTaskRelatedFiles(
 }
 
 /**
- * 生成文件基本資訊摘要
+ * Generate basic file information summary
  *
- * 根據檔案的元數據生成格式化的資訊摘要，包含檔案路徑、類型和相關提示。
- * 不讀取實際檔案內容，僅基於提供的 RelatedFile 物件生成信息。
+ * Generates a formatted information summary based on file metadata, including file path, type, and related prompts.
+ * Does not read actual file content, only generates information based on the provided RelatedFile object.
  *
- * @param file 相關文件物件 - 包含檔案路徑、類型、描述等基本資訊
- * @returns 格式化的檔案資訊摘要文字
+ * @param file Related file object - includes file path, type, description, and other basic information
+ * @returns Formatted file information summary text
  */
 function generateFileInfo(file: RelatedFile): string {
-  let fileInfo = `檔案: ${file.path}\n`;
-  fileInfo += `類型: ${file.type}\n`;
+  let fileInfo = `File: ${file.path}\n`;
+  fileInfo += `Type: ${file.type}\n`;
 
   if (file.description) {
-    fileInfo += `描述: ${file.description}\n`;
+    fileInfo += `Description: ${file.description}\n`;
   }
 
   if (file.lineStart && file.lineEnd) {
-    fileInfo += `行範圍: ${file.lineStart}-${file.lineEnd}\n`;
+    fileInfo += `Line range: ${file.lineStart}-${file.lineEnd}\n`;
   }
 
-  fileInfo += `若需查看實際內容，請直接查看檔案: ${file.path}\n`;
+  fileInfo += `To view the actual content, please check the file directly: ${file.path}\n`;
 
   return fileInfo;
 }

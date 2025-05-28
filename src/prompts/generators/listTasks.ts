@@ -1,18 +1,11 @@
 /**
- * listTasks prompt 生成器
- * 負責將模板和參數組合成最終的 prompt
+ * listTasks prompt generator
+ * Responsible for combining templates and parameters into the final prompt
  */
 
-import {
-  loadPrompt,
-  generatePrompt,
-  loadPromptFromTemplate,
-} from "../loader.js";
+import { loadPrompt, generatePrompt, loadPromptFromTemplate } from "../loader.js";
 import { Task, TaskStatus } from "../../types/index.js";
 
-/**
- * listTasks prompt 參數介面
- */
 export interface ListTasksPromptParams {
   status: string;
   tasks: Record<string, Task[]>;
@@ -20,27 +13,27 @@ export interface ListTasksPromptParams {
 }
 
 /**
- * 獲取 listTasks 的完整 prompt
- * @param params prompt 參數
- * @returns 生成的 prompt
+ * Get the complete prompt for listTasks
+ * @param params prompt parameters
+ * @returns generated prompt
  */
 export function getListTasksPrompt(params: ListTasksPromptParams): string {
   const { status, tasks, allTasks } = params;
 
-  // 如果沒有任務，顯示通知
+  // If there are no tasks, display notification
   if (allTasks.length === 0) {
     const notFoundTemplate = loadPromptFromTemplate("listTasks/notFound.md");
-    const statusText = status === "all" ? "任何" : `任何 ${status} 的`;
+    const statusText = status === "all" ? "any" : `any ${status} `;
     return generatePrompt(notFoundTemplate, {
       statusText: statusText,
     });
   }
 
-  // 獲取所有狀態的計數
+  // Get the count of all statuses
   const statusCounts = Object.values(TaskStatus)
     .map((statusType) => {
       const count = tasks[statusType]?.length || 0;
-      return `- **${statusType}**: ${count} 個任務`;
+      return `- **${statusType}**: ${count} tasks`;
     })
     .join("\n");
 
@@ -59,7 +52,7 @@ export function getListTasksPrompt(params: ListTasksPromptParams): string {
 
   let taskDetails = "";
   let taskDetailsTemplate = loadPromptFromTemplate("listTasks/taskDetails.md");
-  // 添加每個狀態下的詳細任務
+  // Add task details for each status
   for (const statusType of Object.values(TaskStatus)) {
     const tasksWithStatus = tasks[statusType] || [];
     if (
@@ -67,7 +60,7 @@ export function getListTasksPrompt(params: ListTasksPromptParams): string {
       (filterStatus === "all" || filterStatus === statusType)
     ) {
       for (const task of tasksWithStatus) {
-        let dependencies = "沒有依賴";
+        let dependencies = "no dependencies";
         if (task.dependencies && task.dependencies.length > 0) {
           dependencies = task.dependencies
             .map((d) => `\`${d.taskId}\``)
@@ -94,6 +87,6 @@ export function getListTasksPrompt(params: ListTasksPromptParams): string {
     taskDetailsTemplate: taskDetails,
   });
 
-  // 載入可能的自定義 prompt
+  // Load possible custom prompt
   return loadPrompt(prompt, "LIST_TASKS");
 }

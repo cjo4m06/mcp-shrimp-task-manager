@@ -1,18 +1,11 @@
 /**
- * executeTask prompt 生成器
- * 負責將模板和參數組合成最終的 prompt
+ * executeTask prompt generator
+ * Responsible for combining templates and parameters into the final prompt
  */
 
-import {
-  loadPrompt,
-  generatePrompt,
-  loadPromptFromTemplate,
-} from "../loader.js";
+import { loadPrompt, generatePrompt, loadPromptFromTemplate } from "../loader.js";
 import { Task, TaskStatus } from "../../types/index.js";
 
-/**
- * 任務複雜度評估的介面
- */
 interface ComplexityAssessment {
   level: string;
   metrics: {
@@ -23,7 +16,7 @@ interface ComplexityAssessment {
 }
 
 /**
- * executeTask prompt 參數介面
+ * Interface for executeTask prompt parameters
  */
 export interface ExecuteTaskPromptParams {
   task: Task;
@@ -33,27 +26,27 @@ export interface ExecuteTaskPromptParams {
 }
 
 /**
- * 獲取複雜度級別的樣式文字
- * @param level 複雜度級別
- * @returns 樣式文字
+ * Get style text for complexity level
+ * @param level complexity level
+ * @returns style text
  */
 function getComplexityStyle(level: string): string {
   switch (level) {
     case "VERY_HIGH":
-      return "⚠️ **警告：此任務複雜度極高** ⚠️";
+      return "⚠️ **Warning: This task complexity is extremely high** ⚠️";
     case "HIGH":
-      return "⚠️ **注意：此任務複雜度較高**";
+      return "⚠️ **Note: This task complexity is high**";
     case "MEDIUM":
-      return "**提示：此任務具有一定複雜性**";
+      return "**Tip: This task has some complexity**";
     default:
       return "";
   }
 }
 
 /**
- * 獲取 executeTask 的完整 prompt
- * @param params prompt 參數
- * @returns 生成的 prompt
+ * Get complete executeTask prompt
+ * @param params prompt parameters
+ * @returns generated prompt
  */
 export function getExecuteTaskPrompt(params: ExecuteTaskPromptParams): string {
   const { task, complexityAssessment, relatedFilesSummary, dependencyTasks } =
@@ -110,7 +103,7 @@ export function getExecuteTaskPrompt(params: ExecuteTaskPromptParams): string {
       let dependencyTasksContent = "";
       for (const depTask of completedDependencyTasks) {
         dependencyTasksContent += `### ${depTask.name}\n${
-          depTask.summary || "*無完成摘要*"
+          depTask.summary || "*No completion summary*"
         }\n\n`;
       }
       dependencyTasksPrompt = generatePrompt(dependencyTasksTemplate, {
@@ -124,7 +117,7 @@ export function getExecuteTaskPrompt(params: ExecuteTaskPromptParams): string {
   );
   let relatedFilesSummaryPrompt = "";
   relatedFilesSummaryPrompt = generatePrompt(relatedFilesSummaryTemplate, {
-    relatedFilesSummary: relatedFilesSummary || "當前任務沒有關聯的文件。",
+    relatedFilesSummary: relatedFilesSummary || "No related files for this task.",
   });
 
   const complexityTemplate = loadPromptFromTemplate(
@@ -165,6 +158,6 @@ export function getExecuteTaskPrompt(params: ExecuteTaskPromptParams): string {
     complexityTemplate: complexityPrompt,
   });
 
-  // 載入可能的自定義 prompt
+  // Load possible custom prompt
   return loadPrompt(prompt, "EXECUTE_TASK");
 }
