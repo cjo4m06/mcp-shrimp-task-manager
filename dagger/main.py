@@ -43,7 +43,7 @@ class MCPTestingFramework:
         config_content = await config_file.contents()
         config = json.loads(config_content)
         
-        # Set up Node.js environment
+        # Set up Node.js and Python environment
         container = (
             dag.container()
             .from_(f"node:{node_version}-slim")
@@ -53,15 +53,18 @@ class MCPTestingFramework:
             .with_workdir("/app")
         )
         
-        # Install dependencies
+        # Install Node.js dependencies
         container = container.with_exec(["npm", "install"])
         
-        # Make test script executable
-        container = container.with_exec(["chmod", "+x", "tests/run-tests.sh"])
+        # Build the server
+        container = container.with_exec(["npm", "run", "build"])
+        
+        # Install MCP Testing Framework
+        container = container.with_exec(["pip3", "install", "mcp-testing-framework"])
         
         # Run comprehensive tests
         result = await container.with_exec([
-            "bash", "tests/run-tests.sh", "--comprehensive"
+            "mcp-test", "--run-test-suite", "all", "--test-config", "test-config.json", "--test-parallel"
         ]).stdout()
         
         return result
@@ -86,15 +89,16 @@ class MCPTestingFramework:
             dag.container()
             .from_(f"node:{node_version}-slim")
             .with_exec(["apt-get", "update"])
-            .with_exec(["apt-get", "install", "-y", "git", "curl", "jq"])
+            .with_exec(["apt-get", "install", "-y", "git", "curl", "jq", "python3", "python3-pip"])
             .with_directory("/app", source)
             .with_workdir("/app")
             .with_exec(["npm", "install"])
-            .with_exec(["chmod", "+x", "tests/run-tests.sh"])
+            .with_exec(["npm", "run", "build"])
+            .with_exec(["pip3", "install", "mcp-testing-framework"])
         )
         
         result = await container.with_exec([
-            "bash", "tests/run-tests.sh", "--functional"
+            "mcp-test", "--run-test-suite", "functional", "--test-config", "test-config.json", "--test-output-format", "json"
         ]).stdout()
         
         return result
@@ -119,15 +123,16 @@ class MCPTestingFramework:
             dag.container()
             .from_(f"node:{node_version}-slim")
             .with_exec(["apt-get", "update"])
-            .with_exec(["apt-get", "install", "-y", "git", "curl", "jq"])
+            .with_exec(["apt-get", "install", "-y", "git", "curl", "jq", "python3", "python3-pip"])
             .with_directory("/app", source)
             .with_workdir("/app")
             .with_exec(["npm", "install"])
-            .with_exec(["chmod", "+x", "tests/run-tests.sh"])
+            .with_exec(["npm", "run", "build"])
+            .with_exec(["pip3", "install", "mcp-testing-framework"])
         )
         
         result = await container.with_exec([
-            "bash", "tests/run-tests.sh", "--security"
+            "mcp-test", "--run-test-suite", "security", "--test-config", "test-config.json", "--test-output-format", "json"
         ]).stdout()
         
         return result
@@ -156,11 +161,12 @@ class MCPTestingFramework:
             .with_directory("/app", source)
             .with_workdir("/app")
             .with_exec(["npm", "install"])
-            .with_exec(["chmod", "+x", "tests/run-tests.sh"])
+            .with_exec(["npm", "run", "build"])
+            .with_exec(["pip3", "install", "mcp-testing-framework"])
         )
         
         result = await container.with_exec([
-            "bash", "tests/run-tests.sh", "--performance"
+            "mcp-test", "--run-test-suite", "performance", "--test-config", "test-config.json", "--test-output-format", "json"
         ]).stdout()
         
         return result
@@ -185,15 +191,16 @@ class MCPTestingFramework:
             dag.container()
             .from_(f"node:{node_version}-slim")
             .with_exec(["apt-get", "update"])
-            .with_exec(["apt-get", "install", "-y", "git", "curl", "jq"])
+            .with_exec(["apt-get", "install", "-y", "git", "curl", "jq", "python3", "python3-pip"])
             .with_directory("/app", source)
             .with_workdir("/app")
             .with_exec(["npm", "install"])
-            .with_exec(["chmod", "+x", "tests/run-tests.sh"])
+            .with_exec(["npm", "run", "build"])
+            .with_exec(["pip3", "install", "mcp-testing-framework"])
         )
         
         result = await container.with_exec([
-            "bash", "tests/run-tests.sh", "--integration"
+            "mcp-test", "--run-test-suite", "integration", "--test-config", "test-config.json", "--test-output-format", "json"
         ]).stdout()
         
         return result
@@ -218,15 +225,16 @@ class MCPTestingFramework:
             dag.container()
             .from_(f"node:{node_version}-slim")
             .with_exec(["apt-get", "update"])
-            .with_exec(["apt-get", "install", "-y", "git", "curl", "jq"])
+            .with_exec(["apt-get", "install", "-y", "git", "curl", "jq", "python3", "python3-pip"])
             .with_directory("/app", source)
             .with_workdir("/app")
             .with_exec(["npm", "install"])
-            .with_exec(["chmod", "+x", "tests/run-tests.sh"])
+            .with_exec(["npm", "run", "build"])
+            .with_exec(["pip3", "install", "mcp-testing-framework"])
         )
         
         result = await container.with_exec([
-            "bash", "tests/run-tests.sh", "--quick"
+            "mcp-test", "--test-mcp-servers", "--test-config", "test-config.json", "--test-timeout", "15"
         ]).stdout()
         
         return result

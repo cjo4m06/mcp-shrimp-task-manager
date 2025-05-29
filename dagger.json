@@ -4,5 +4,5 @@
   "sdk": {
     "source": "python"
   },
-  "source": ".dagger"
+  "source": "dagger"
 }

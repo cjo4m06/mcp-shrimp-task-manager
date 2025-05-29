@@ -1,61 +1,82 @@
 {
-  "servers": {
+  "mcpServers": {
     "shrimp-task-manager": {
       "command": "node",
       "args": ["dist/index.js"],
-      "timeout": 30,
-      "retry_attempts": 3,
-      "description": "Shrimp Task Manager MCP Server",
-      "build_command": "npm run build",
-      "health_check_timeout": 10
+      "env": {
+        "NODE_ENV": "test",
+        "LOG_LEVEL": "info"
+      }
     }
   },
   "testing": {
+    "timeout": 30,
+    "parallel": true,
+    "retries": 3,
+    "outputFormat": "table"
+  },
+  "testSuites": {
     "functional": {
       "enabled": true,
-      "test_tools": true,
-      "test_resources": true,
-      "test_prompts": true,
-      "test_task_management": true,
-      "test_research_mode": true,
-      "test_project_rules": true
+      "tests": [
+        "server_startup",
+        "tool_discovery",
+        "task_management",
+        "research_mode",
+        "project_rules"
+      ]
     },
     "security": {
       "enabled": true,
-      "test_authentication": true,
-      "test_authorization": true,
-      "test_input_validation": true,
-      "test_xss_prevention": true,
-      "test_injection_attacks": true
+      "tests": [
+        "input_validation",
+        "authentication",
+        "authorization",
+        "xss_prevention",
+        "injection_protection"
+      ]
     },
     "performance": {
       "enabled": true,
-      "benchmark_tools": true,
-      "concurrent_connections": 5,
-      "test_duration": 60,
-      "memory_monitoring": true,
-      "response_time_targets": {
+      "benchmarks": {
         "task_creation": 1000,
         "task_retrieval": 500,
         "research_mode": 2000
-      }
+      },
+      "concurrency": 5,
+      "duration": 60
     },
     "integration": {
       "enabled": true,
-      "test_web_gui": true,
-      "test_task_workflows": true,
-      "test_project_initialization": true
+      "tests": [
+        "web_gui",
+        "task_workflow",
+        "project_initialization"
+      ]
     }
   },
-  "confidence_thresholds": {
-    "minimum_pass": 80,
-    "high_confidence": 95,
-    "critical_functionality": 90
-  },
   "reporting": {
-    "formats": ["json", "html", "markdown"],
-    "include_performance_charts": true,
-    "include_security_analysis": true,
-    "confidence_scoring": true
+    "formats": ["json", "html", "table"],
+    "outputDir": "test-results",
+    "includeMetrics": true,
+    "includeLogs": true
+  },
+  "confidence": {
+    "functional": {
+      "threshold": 85,
+      "weight": 0.4
+    },
+    "security": {
+      "threshold": 90,
+      "weight": 0.3
+    },
+    "performance": {
+      "threshold": 80,
+      "weight": 0.2
+    },
+    "integration": {
+      "threshold": 85,
+      "weight": 0.1
+    }
   }
 }

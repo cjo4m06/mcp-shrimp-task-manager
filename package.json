@@ -19,13 +19,13 @@
     "build": "tsc && copyfiles -u 1 \"src/**/*.md\" dist && copyfiles -u 1 \"src/public/**/*\" dist && node scripts/add-shebang.js",
     "dev": "ts-node src/index.ts",
     "start": "node dist/index.js",
-    "test": "bash tests/run-tests.sh",
-    "test:functional": "mcp-test --run-test-suite functional --config test-config.json",
-    "test:security": "mcp-test --run-test-suite security --config test-config.json",
-    "test:performance": "mcp-test --run-test-suite performance --config test-config.json",
-    "test:integration": "mcp-test --run-test-suite integration --config test-config.json",
-    "test:quick": "mcp-test --test-mcp-servers --config test-config.json",
-    "test:report": "mcp-test --generate-test-report --config test-config.json --output-format html"
+    "test": "bash tests/run-tests-mcp.sh --comprehensive",
+    "test:functional": "bash tests/run-tests-mcp.sh --functional",
+    "test:security": "bash tests/run-tests-mcp.sh --security",
+    "test:performance": "bash tests/run-tests-mcp.sh --performance",
+    "test:integration": "bash tests/run-tests-mcp.sh --integration",
+    "test:quick": "bash tests/run-tests-mcp.sh --quick",
+    "test:report": "bash tests/run-tests-mcp.sh --report"
   },
   "keywords": [
     "mcp",

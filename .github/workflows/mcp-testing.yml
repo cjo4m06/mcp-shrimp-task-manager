@@ -39,52 +39,52 @@ jobs:
         
     - name: Install MCP Testing Framework
       run: |
+        python -m pip install --upgrade pip
         pip install mcp-testing-framework
         
-    - name: Run MCP Server Tests
+    - name: Create MCP Server Configuration
       run: |
-        # Start server in background
-        timeout 60s node dist/index.js &
-        SERVER_PID=$!
-        sleep 5
+        # Create configuration file for MCP Testing Framework
+        cat > mcp-server-config.json << EOF
+        {
+          "mcpServers": {
+            "shrimp-task-manager": {
+              "command": "node",
+              "args": ["dist/index.js"],
+              "env": {
+                "NODE_ENV": "test",
+                "LOG_LEVEL": "info"
+              }
+            }
+          }
+        }
+        EOF
         
-        # Run comprehensive test suite
-        mcp-test --test-mcp-servers --config test-config.json --output-format json > test-results.json
+    - name: Test MCP Server Connection
+      run: |
+        # Test basic MCP server connectivity
+        mcp-test --test-mcp-servers --test-config mcp-server-config.json --test-timeout 30
         
-        # Stop server
-        kill $SERVER_PID || true
+    - name: Run Functional Tests
+      run: |
+        # Run functional test suite
+        mcp-test --run-test-suite functional --test-config mcp-server-config.json --test-output-format json > functional-results.json
         
     - name: Run Security Tests
       run: |
-        # Start server in background
-        timeout 60s node dist/index.js &
-        SERVER_PID=$!
-        sleep 5
-        
         # Run security test suite
-        mcp-test --run-test-suite security --config test-config.json --output-format json > security-results.json
-        
-        # Stop server
-        kill $SERVER_PID || true
+        mcp-test --run-test-suite security --test-config mcp-server-config.json --test-output-format json > security-results.json
         
     - name: Run Performance Tests
       run: |
-        # Start server in background
-        timeout 120s node dist/index.js &
-        SERVER_PID=$!
-        sleep 5
-        
         # Run performance test suite
-        mcp-test --run-test-suite performance --config test-config.json --output-format json > performance-results.json
-        
-        # Stop server
-        kill $SERVER_PID || true
+        mcp-test --run-test-suite performance --test-config mcp-server-config.json --test-output-format json > performance-results.json
         
     - name: Generate Test Report
       if: always()
       run: |
         # Generate comprehensive HTML report
-        mcp-test --generate-test-report --config test-config.json --output-format html
+        mcp-test --generate-test-report --test-output-format html
         
     - name: Upload Test Results
       if: always()
@@ -92,10 +92,11 @@ jobs:
       with:
         name: test-results-node-${{ matrix.node-version }}
         path: |
-          test-results.json
+          functional-results.json
           security-results.json
           performance-results.json
           test-report.html
+          mcp-server-config.json
           
     - name: Upload Test Coverage
       if: always()
@@ -135,16 +136,8 @@ jobs:
         
     - name: Run Integration Tests
       run: |
-        # Start server in background
-        timeout 180s node dist/index.js &
-        SERVER_PID=$!
-        sleep 10
-        
         # Run integration test suite
-        mcp-test --run-test-suite integration --config test-config.json --output-format json > integration-results.json
-        
-        # Stop server
-        kill $SERVER_PID || true
+        mcp-test --run-test-suite integration --test-config mcp-server-config.json --test-output-format json > integration-results.json
         
     - name: Upload Integration Results
       if: always()
