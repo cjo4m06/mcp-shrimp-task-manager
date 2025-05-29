@@ -3,6 +3,7 @@ import { loadPromptFromTemplate } from "./prompts/loader.js";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { zodToJsonSchema } from "zod-to-json-schema";
+import { getProjectDataDir } from "./utils/projectDetector.js";
 import {
   CallToolRequest,
   CallToolRequestSchema,
@@ -82,7 +83,10 @@ async function main() {
       const __filename = fileURLToPath(import.meta.url);
       const __dirname = path.dirname(__filename);
       const publicPath = path.join(__dirname, "public");
-      const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
+
+      // 獲取項目感知的數據目錄
+      const baseDataDir = process.env.DATA_DIR || path.join(__dirname, "data");
+      const DATA_DIR = await getProjectDataDir(baseDataDir);
       const TASKS_FILE_PATH = path.join(DATA_DIR, "tasks.json"); // 提取檔案路徑
 
       app.use(express.static(publicPath));

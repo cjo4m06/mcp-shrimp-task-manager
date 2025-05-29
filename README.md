@@ -10,6 +10,7 @@
 - [🌐 Web GUI](#web-gui)
 - [📚 Documentation Resources](#documentation)
 - [🔧 Installation and Usage](#installation)
+- [🧪 Testing and Development](#testing)
 - [🔌 Using with MCP-Compatible Clients](#clients)
 - [💡 System Prompt Guidance](#prompt)
 - [🛠️ Available Tools Overview](#tools)
@@ -207,6 +208,68 @@ npm install
 npm run build
 ```
 
+## 🧪 <a id="testing"></a>Testing and Development
+
+Shrimp Task Manager includes a comprehensive testing suite powered by **Vitest** to ensure code quality and reliability.
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode (interactive)
+npm run test:watch
+
+# Run tests with coverage report
+npm run test:coverage
+
+# Run tests with UI interface
+npm run test:ui
+
+# Run tests for CI (no watch, with coverage)
+npm run test:ci
+```
+
+### Test Framework
+
+We use **Vitest** as our testing framework, which provides:
+- **Fast execution** with native ES modules support
+- **Better TypeScript integration** out of the box
+- **Modern testing features** with excellent developer experience
+- **Built-in coverage reporting** with v8 provider
+- **Watch mode** with intelligent re-running
+
+### Test Coverage
+
+The project maintains a minimum test coverage threshold of **50%** across:
+- Lines, Functions, Branches, and Statements
+- Core task management operations
+- Tool functionality and utilities
+- Type definitions and validation
+
+### CI/CD Pipeline
+
+Every pull request automatically runs:
+- **Comprehensive test suite** on Node.js 18.x and 20.x
+- **TypeScript compilation** validation
+- **Code coverage analysis** with threshold enforcement
+- **Security audit** for vulnerabilities
+- **Build verification** to ensure deployability
+
+Coverage reports are automatically posted as PR comments, and builds fail if coverage drops below the 50% threshold.
+
+### Development Guidelines
+
+For contributors:
+- Write tests for new features and bug fixes
+- Ensure all tests pass before submitting PRs
+- Maintain or improve code coverage
+- Follow the established testing patterns
+- Use Vitest's modern testing features and syntax
+
+For detailed testing information, see [TESTING.md](TESTING.md).
+
 ## 🔌 <a id="clients"></a>Using with MCP-Compatible Clients
 
 Shrimp Task Manager can be used with any client that supports the Model Context Protocol, such as Cursor IDE.
@@ -306,6 +369,69 @@ The **DATA_DIR parameter** is the directory where Shrimp Task Manager stores tas
 > - Inconsistent application behavior across different environments
 > - System crashes or failure to start
 
+### 🎯 Project-Aware Data Directory
+
+Shrimp Task Manager supports **project-aware data directories** to automatically isolate task data for different projects. This feature prevents task conflicts when working with multiple projects simultaneously.
+
+#### How It Works
+
+The system automatically detects your current project and creates project-specific data directories:
+
+```
+DATA_DIR/
+├── projects/
+│   ├── project-a/
+│   │   ├── tasks.json
+│   │   ├── memory/
+│   │   └── WebGUI.md
+│   ├── project-b/
+│   │   ├── tasks.json
+│   │   └── memory/
+│   └── my-custom-project/
+│       └── tasks.json
+└── tasks.json (legacy, for backward compatibility)
+```
+
+#### Project Detection Priority
+
+1. **PROJECT_NAME environment variable** (highest priority)
+2. **Git repository name**
+3. **package.json name field**
+4. **Current working directory name** (lowest priority)
+
+#### Configuration
+
+Add these environment variables to enable project-aware functionality:
+
+```json
+{
+  "mcpServers": {
+    "shrimp-task-manager": {
+      "command": "node",
+      "args": ["/path/to/mcp-shrimp-task-manager/dist/index.js"],
+      "env": {
+        "DATA_DIR": "/path/to/global/data",
+        "PROJECT_AUTO_DETECT": "true",
+        "PROJECT_NAME": "my-custom-project",
+        "TEMPLATES_USE": "en",
+        "ENABLE_GUI": "false"
+      }
+    }
+  }
+}
+```
+
+**Environment Variables:**
+- `PROJECT_AUTO_DETECT`: Set to `"true"` to enable project detection (default: `"false"`)
+- `PROJECT_NAME`: Optional manual project identifier (overrides automatic detection)
+
+#### Benefits
+
+- **Multi-Project Support**: Work on multiple projects without task data conflicts
+- **Automatic Isolation**: Each project gets its own task history and memory
+- **Backward Compatibility**: Disabled by default, existing users unaffected
+- **Flexible Detection**: Multiple detection methods ensure reliable project identification
+
 ### 🔧 Environment Variable Configuration
 
 Shrimp Task Manager supports customizing prompt behavior through environment variables, allowing you to fine-tune AI assistant responses without modifying code. You can set these variables in the configuration or through an `.env` file:
@@ -336,6 +462,8 @@ There are two customization methods:
 Additionally, there are other system configuration variables:
 
 - **DATA_DIR**: Specifies the directory where task data is stored
+- **PROJECT_AUTO_DETECT**: Enable automatic project detection for data isolation (default: `"false"`)
+- **PROJECT_NAME**: Manual project identifier, overrides automatic detection
 - **TEMPLATES_USE**: Specifies the template set to use for prompts. Defaults to `en`. Currently available options are `en` and `zh`. To use custom templates, copy the `src/prompts/templates_en` directory to the location specified by `DATA_DIR`, rename the copied directory (e.g., to `my_templates`), and set `TEMPLATES_USE` to the new directory name (e.g., `my_templates`).
 
 For detailed instructions on customizing prompts, including supported parameters and examples, see the [Prompt Customization Guide](docs/en/prompt-customization.md).

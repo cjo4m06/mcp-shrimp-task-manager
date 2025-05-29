@@ -1,9 +1,10 @@
 import { z } from "zod";
 import path from "path";
-import { fileURLToPath } from "url";
 import { getAllTasks } from "../../models/taskModel.js";
 import { TaskStatus, Task } from "../../types/index.js";
 import { getPlanTaskPrompt } from "../../prompts/index.js";
+import { getProjectDataDir } from "../../utils/projectDetector.js";
+import { getProjectRoot } from "../../utils/moduleResolver.js";
 
 // 開始規劃工具
 export const planTaskSchema = z.object({
@@ -29,11 +30,10 @@ export async function planTask({
   requirements,
   existingTasksReference = false,
 }: z.infer<typeof planTaskSchema>) {
-  // 獲取基礎目錄路徑
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  const PROJECT_ROOT = path.resolve(__dirname, "../../..");
-  const DATA_DIR = process.env.DATA_DIR || path.join(PROJECT_ROOT, "data");
+  // 獲取項目感知的數據目錄路徑
+  const PROJECT_ROOT = getProjectRoot();
+  const baseDataDir = process.env.DATA_DIR || path.join(PROJECT_ROOT, "data");
+  const DATA_DIR = await getProjectDataDir(baseDataDir);
   const MEMORY_DIR = path.join(DATA_DIR, "memory");
 
   // 準備所需參數

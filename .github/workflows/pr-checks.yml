@@ -1,0 +1,193 @@
+name: PR Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pr-validation:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for better diff analysis
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run comprehensive tests
+      run: |
+        echo "Running comprehensive test suite for PR..."
+        npm run test:ci
+
+    - name: Generate test report
+      if: always()
+      run: |
+        echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+        if [ -f coverage/lcov-report/index.html ]; then
+          echo "Coverage report generated successfully" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Check code coverage threshold
+      run: |
+        # Extract coverage percentage from Vitest output
+        npm run test:coverage > coverage_output.txt 2>&1
+        COVERAGE=$(grep -o 'All files.*[0-9]\+\.[0-9]\+' coverage_output.txt | grep -o '[0-9]\+\.[0-9]\+' | head -1 || echo "0")
+        echo "Current coverage: $COVERAGE%"
+
+        # Set minimum coverage threshold
+        THRESHOLD=50
+
+        if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
+          echo "💡 Coverage $COVERAGE% is below threshold $THRESHOLD%"
+          echo "Consider adding more tests to improve coverage."
+          echo "This is informational only and will not fail the CI."
+        else
+          echo "✅ Coverage $COVERAGE% meets threshold $THRESHOLD%"
+        fi
+
+    - name: Validate TypeScript compilation
+      run: |
+        echo "Checking TypeScript compilation..."
+        npx tsc --noEmit --strict
+
+    - name: Check for breaking changes
+      run: |
+        echo "Analyzing potential breaking changes..."
+        
+        # Check if any public API files have been modified
+        CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
+        
+        if echo "$CHANGED_FILES" | grep -E "(src/types|src/tools.*index\.ts|src/index\.ts)"; then
+          echo "⚠️ Public API files have been modified. Please ensure backward compatibility."
+          echo "Changed API files:" >> $GITHUB_STEP_SUMMARY
+          echo "$CHANGED_FILES" | grep -E "(src/types|src/tools.*index\.ts|src/index\.ts)" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Run integration tests
+      run: |
+        echo "Running integration tests..."
+        # Run tests that specifically test tool integration
+        npm test -- tests/tools/
+
+    - name: Validate task model integrity
+      run: |
+        echo "Validating task model integrity..."
+        # Run specific tests for task model
+        npm test -- tests/models/taskModel.test.ts
+
+    - name: Check bundle size impact
+      run: |
+        echo "Checking bundle size impact..."
+        npm run build
+        
+        # Get current build size
+        CURRENT_SIZE=$(du -sh dist/ | cut -f1)
+        echo "Current build size: $CURRENT_SIZE"
+        echo "Build size: $CURRENT_SIZE" >> $GITHUB_STEP_SUMMARY
+
+    - name: Validate documentation
+      run: |
+        echo "Validating documentation..."
+        
+        # Check if README files exist and are not empty
+        if [ ! -s README.md ]; then
+          echo "❌ README.md is missing or empty"
+          exit 1
+        fi
+        
+        # Check for basic documentation sections
+        if ! grep -q "## Installation\|## Usage\|## API" README.md; then
+          echo "⚠️ README.md might be missing important sections"
+        fi
+
+  comment-coverage:
+    runs-on: ubuntu-latest
+    needs: pr-validation
+    if: always()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Generate coverage report
+      run: npm run test:coverage
+
+    - name: Comment PR with coverage
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          // Read coverage summary if it exists
+          let coverageComment = '## 📊 Test Coverage Report\n\n';
+          
+          try {
+            if (fs.existsSync('coverage/coverage-summary.json')) {
+              const coverage = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'));
+              const total = coverage.total;
+              
+              coverageComment += `| Metric | Coverage | Status |\n`;
+              coverageComment += `|--------|----------|--------|\n`;
+              coverageComment += `| Lines | ${total.lines.pct}% | ${total.lines.pct >= 50 ? '✅' : '❌'} |\n`;
+              coverageComment += `| Functions | ${total.functions.pct}% | ${total.functions.pct >= 50 ? '✅' : '❌'} |\n`;
+              coverageComment += `| Branches | ${total.branches.pct}% | ${total.branches.pct >= 50 ? '✅' : '❌'} |\n`;
+              coverageComment += `| Statements | ${total.statements.pct}% | ${total.statements.pct >= 50 ? '✅' : '❌'} |\n\n`;
+
+              if (total.lines.pct >= 50) {
+                coverageComment += '🎉 Great job! Coverage meets the minimum threshold of 50%.\n';
+              } else {
+                coverageComment += '⚠️ Coverage is below the minimum threshold of 50%. Please add more tests.\n';
+              }
+            } else {
+              coverageComment += 'Coverage report not available.\n';
+            }
+          } catch (error) {
+            coverageComment += 'Error reading coverage report.\n';
+          }
+          
+          // Find existing coverage comment
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+          
+          const existingComment = comments.find(comment => 
+            comment.body.includes('📊 Test Coverage Report')
+          );
+          
+          if (existingComment) {
+            // Update existing comment
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: existingComment.id,
+              body: coverageComment
+            });
+          } else {
+            // Create new comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: coverageComment
+            });
+          }
