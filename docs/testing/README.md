@@ -49,6 +49,63 @@ The testing framework is configured through `test-config.json` which includes:
 - Complete task workflow testing
 - Project initialization end-to-end testing
 
+## Testing Infrastructure
+
+### GitHub Actions CI/CD
+Automated testing runs on:
+- **Node.js Versions**: 18, 20, 22 (matrix strategy)
+- **Trigger Events**: Push to main, pull requests
+- **Test Artifacts**: Results uploaded for analysis
+- **Workflow Jobs**: 
+  - Functional testing across Node.js versions
+  - Security testing with vulnerability scanning
+  - Performance benchmarking
+  - Integration testing with end-to-end validation
+
+### Local Testing with Dagger
+For local development and testing:
+
+```bash
+# Quick connectivity test
+./dagger/run-local-tests.sh quick
+
+# Comprehensive testing
+./dagger/run-local-tests.sh all
+
+# Matrix testing across Node.js versions
+./dagger/run-local-tests.sh matrix
+
+# Generate HTML test report
+./dagger/run-local-tests.sh report
+```
+
+**Dagger Benefits**:
+- Containerized testing environment
+- Mirrors GitHub Actions workflow locally
+- Supports multiple Node.js versions
+- Consistent testing across different machines
+- Detailed HTML reporting
+
+### npm Script Integration
+Available npm scripts for testing:
+
+```bash
+# Main test runner
+npm test
+
+# Individual test suites
+npm run test:functional
+npm run test:security
+npm run test:performance
+npm run test:integration
+
+# Quick connectivity check
+npm run test:quick
+
+# Generate HTML report
+npm run test:report
+```
+
 ## Confidence Scoring
 
 The testing framework uses methodological pragmatism principles with confidence scoring:
@@ -97,6 +154,70 @@ Test results are automatically uploaded as GitHub Actions artifacts:
 - `security-results.json` - Security analysis results
 - `performance-results.json` - Performance benchmarks
 - `test-report.html` - Comprehensive HTML report
+
+## Complete Testing Workflow
+
+### 1. Local Development
+```bash
+# Check prerequisites and configuration
+./dagger/run-local-tests.sh check
+
+# Quick development testing
+npm run test:quick
+
+# Comprehensive local testing
+npm test
+```
+
+### 2. Pre-commit Testing
+```bash
+# Run functional tests locally with Dagger
+./dagger/run-local-tests.sh functional
+
+# Run security checks
+./dagger/run-local-tests.sh security
+
+# Generate local test report
+./dagger/run-local-tests.sh report
+```
+
+### 3. CI/CD Pipeline
+- Automatic triggers on push/PR to main branch
+- Matrix testing across multiple Node.js versions
+- Comprehensive test suite execution
+- Artifact generation and storage
+
+### 4. Production Readiness
+```bash
+# Final matrix testing
+./dagger/run-local-tests.sh matrix
+
+# Performance validation
+npm run test:performance
+
+# Integration testing
+npm run test:integration
+```
+
+## Benefits of This Integration
+
+### For Developers
+- **Immediate Feedback**: Quick local testing with npm scripts
+- **Containerized Testing**: Consistent environment with Dagger
+- **Comprehensive Coverage**: Multiple test types and Node.js versions
+- **Detailed Reporting**: HTML reports with confidence scoring
+
+### For Teams
+- **Automated CI/CD**: GitHub Actions for continuous testing
+- **Quality Gates**: Confidence thresholds prevent broken deployments
+- **Cross-platform**: Testing works on any system with Docker
+- **Scalable**: Easy to add new test types and configurations
+
+### For Operations
+- **Production Readiness**: Performance and integration testing
+- **Security Assurance**: Vulnerability scanning and input validation
+- **Monitoring Integration**: Health checks and performance metrics
+- **Artifact Management**: Automated test result storage and analysis
 
 ## Error Architecture Awareness
 

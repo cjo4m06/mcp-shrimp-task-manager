@@ -1,0 +1,8 @@
+{
+  "name": "mcp-shrimp-task-manager",
+  "engineVersion": "v0.18.8",
+  "sdk": {
+    "source": "python"
+  },
+  "source": ".dagger"
+}
