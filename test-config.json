@@ -1,0 +1,61 @@
+{
+  "servers": {
+    "shrimp-task-manager": {
+      "command": "node",
+      "args": ["dist/index.js"],
+      "timeout": 30,
+      "retry_attempts": 3,
+      "description": "Shrimp Task Manager MCP Server",
+      "build_command": "npm run build",
+      "health_check_timeout": 10
+    }
+  },
+  "testing": {
+    "functional": {
+      "enabled": true,
+      "test_tools": true,
+      "test_resources": true,
+      "test_prompts": true,
+      "test_task_management": true,
+      "test_research_mode": true,
+      "test_project_rules": true
+    },
+    "security": {
+      "enabled": true,
+      "test_authentication": true,
+      "test_authorization": true,
+      "test_input_validation": true,
+      "test_xss_prevention": true,
+      "test_injection_attacks": true
+    },
+    "performance": {
+      "enabled": true,
+      "benchmark_tools": true,
+      "concurrent_connections": 5,
+      "test_duration": 60,
+      "memory_monitoring": true,
+      "response_time_targets": {
+        "task_creation": 1000,
+        "task_retrieval": 500,
+        "research_mode": 2000
+      }
+    },
+    "integration": {
+      "enabled": true,
+      "test_web_gui": true,
+      "test_task_workflows": true,
+      "test_project_initialization": true
+    }
+  },
+  "confidence_thresholds": {
+    "minimum_pass": 80,
+    "high_confidence": 95,
+    "critical_functionality": 90
+  },
+  "reporting": {
+    "formats": ["json", "html", "markdown"],
+    "include_performance_charts": true,
+    "include_security_analysis": true,
+    "confidence_scoring": true
+  }
+}

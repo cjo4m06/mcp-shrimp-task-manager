@@ -48,6 +48,16 @@ Thumbs.db
 # 覆蓋率報告
 coverage/
 
+# 測試結果和報告
+*-results.json
+test-results.json
+security-results.json
+performance-results.json
+integration-results.json
+test-report.html
+test-report.json
+test-summary.html
+
 # 資料檔案
 *.sqlite
 data/*.json

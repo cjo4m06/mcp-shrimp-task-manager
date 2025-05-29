@@ -2,6 +2,31 @@
 
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- **MCP Testing Framework Integration**: Comprehensive testing capabilities for quality assurance
+  - Functional testing for MCP server functionality and tool execution
+  - Security testing with authentication, authorization, and input validation
+  - Performance testing with response time benchmarking and resource monitoring
+  - Integration testing for end-to-end workflow validation
+- **Automated CI/CD Testing**: GitHub Actions workflow for continuous testing
+  - Multi-version Node.js testing (18, 20, 22)
+  - Automated test reporting with confidence scoring
+  - Issue detection and remediation suggestions
+- **Testing Scripts and Configuration**: 
+  - `test-config.json` for comprehensive test configuration
+  - `tests/run-tests.sh` automated testing script
+  - NPM scripts for different test types (`test:functional`, `test:security`, etc.)
+- **Testing Documentation**: Detailed testing guide and best practices
+
+### Enhanced
+
+- **Package.json**: Added testing scripts and improved test commands
+- **README.md**: Added comprehensive testing section with usage examples
+- **Project Structure**: Added testing infrastructure with proper organization
+
 ## [1.0.19]
 
 ### Added
