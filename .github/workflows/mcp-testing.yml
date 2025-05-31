@@ -63,7 +63,7 @@ jobs:
       run: |
         echo "🧪 Running comprehensive MCP server tests..."
         echo "Working directory: $(pwd)"
-        echo "Node.js available: $(which node)"
+        echo "Node.js available: $(command -v node)"
         python scripts/ci-test-mcp.py
       env:
         PATH: ${{ env.PATH }}

@@ -131,59 +131,31 @@ class CIMCPTester:
                     error_message="Node.js not available in PATH"
                 )
             
-            # Test server startup with timeout - handle different platforms
-            system = platform.system()
-            
-            if system == "Darwin":  # macOS
-                # Use Python's subprocess timeout instead of timeout command
-                try:
-                    result = subprocess.run(
-                        [self.node_path, "dist/index.js"],
-                        cwd=self.project_root,
-                        capture_output=True,
-                        text=True,
-                        timeout=3
-                    )
-                    # If we get here, server exited unexpectedly
-                    return TestResult(
-                        test_name="server_startup",
-                        success=False,
-                        duration=time.time() - start_time,
-                        details=f"Server exited unexpectedly with code: {result.returncode}",
-                        error_message=f"STDERR: {result.stderr[:200]}"
-                    )
-                except subprocess.TimeoutExpired:
-                    # This is expected - server should run until timeout
-                    return TestResult(
-                        test_name="server_startup", 
-                        success=True,
-                        duration=time.time() - start_time,
-                        details="Server started and ran until timeout (expected behavior)"
-                    )
-            else:  # Linux/Ubuntu (GitHub Actions)
+            # Use Python's subprocess timeout for all platforms (more reliable)
+            try:
                 result = subprocess.run(
-                    ["timeout", "3s", self.node_path, "dist/index.js"],
+                    [self.node_path, "dist/index.js"],
                     cwd=self.project_root,
                     capture_output=True,
-                    text=True
+                    text=True,
+                    timeout=3
                 )
-                
-                # Exit code 124 means timeout (expected for MCP servers)
-                if result.returncode == 124:
-                    return TestResult(
-                        test_name="server_startup", 
-                        success=True,
-                        duration=time.time() - start_time,
-                        details="Server started and ran until timeout (expected behavior)"
-                    )
-                else:
-                    return TestResult(
-                        test_name="server_startup",
-                        success=False,
-                        duration=time.time() - start_time,
-                        details=f"Unexpected exit code: {result.returncode}",
-                        error_message=f"STDERR: {result.stderr[:200]}"
-                    )
+                # If we get here, server exited unexpectedly
+                return TestResult(
+                    test_name="server_startup",
+                    success=False,
+                    duration=time.time() - start_time,
+                    details=f"Server exited unexpectedly with code: {result.returncode}",
+                    error_message=f"STDERR: {result.stderr[:200]}"
+                )
+            except subprocess.TimeoutExpired:
+                # This is expected - server should run until timeout
+                return TestResult(
+                    test_name="server_startup", 
+                    success=True,
+                    duration=time.time() - start_time,
+                    details="Server started and ran until timeout (expected behavior)"
+                )
                 
         except Exception as e:
             return TestResult(
