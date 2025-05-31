@@ -45,6 +45,7 @@
     "zod-to-json-schema": "^3.24.5"
   },
   "devDependencies": {
+    "@dagger.io/dagger": "^0.18.9",
     "@types/chai": "^5.2.2",
     "@types/express": "^5.0.1",
     "@types/mocha": "^10.0.10",

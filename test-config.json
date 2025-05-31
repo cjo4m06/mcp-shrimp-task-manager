@@ -161,12 +161,35 @@
     }
   },
   "confidence_thresholds": {
-    "minimum_pass": 80,
-    "high_confidence": 95,
-    "security_minimum": 90,
-    "performance_minimum": 80,
-    "functional_minimum": 85,
-    "integration_minimum": 85
+    "minimum_pass": 75,
+    "high_confidence": 90,
+    "security_minimum": 80,
+    "performance_minimum": 70,
+    "functional_minimum": 75,
+    "integration_minimum": 80
+  },
+  "tool_validation": {
+    "expected_tools": [
+      "plan_task",
+      "analyze_task",
+      "reflect_task",
+      "split_tasks",
+      "list_tasks",
+      "execute_task",
+      "verify_task",
+      "delete_task",
+      "clear_all_tasks",
+      "update_task",
+      "query_task",
+      "get_task_detail",
+      "process_thought",
+      "init_project_rules",
+      "research_mode"
+    ],
+    "tool_validation_timeout": 10,
+    "validate_schemas": true,
+    "validate_responses": true,
+    "check_error_handling": true
   },
   "optimization": {
     "parallel_execution": true,

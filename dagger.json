@@ -1,9 +1,6 @@
 {
   "name": "mcp-shrimp-task-manager",
-  "engineVersion": "v0.18.8",
-  "sdk": {
-    "source": "python",
-    "path": "dagger_enhanced/simple_main.py"
-  },
-  "source": "."
+  "sdk": "python",
+  "source": "./dagger-cli",
+  "dependencies": []
 }

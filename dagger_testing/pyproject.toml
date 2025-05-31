@@ -1,7 +1,0 @@
-[project]
-name = "mcp-testing-framework"
-version = "0.1.0"
-description = "MCP Testing Framework Dagger Module"
-dependencies = [
-    "dagger-io>=0.18.8",
-]
