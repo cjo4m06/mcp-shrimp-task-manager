@@ -414,14 +414,53 @@ if __name__ == "__main__":
         else:
             self.log(f"❌ {result.test_name}: {result.error_message}")
         
-        # Test 3: Core MCP tools (subset for CI speed)
-        core_tools = {
-            "plan_task": {"description": "CI/CD test plan"},
+        # Test 3: All 15 MCP tools (comprehensive testing)
+        all_tools = {
+            # Task Planning & Analysis
+            "plan_task": {"description": "CI/CD comprehensive test plan"},
+            "analyze_task": {
+                "summary": "Test task analysis", 
+                "initialConcept": "This is a test concept for analyzing a simple task implementation"
+            },
+            "reflect_task": {
+                "summary": "Test reflection", 
+                "analysis": "This is a comprehensive test analysis for reflection validation including technical details and implementation strategies"
+            },
+            
+            # Task Management
+            "split_tasks": {
+                "updateMode": "clearAllTasks",
+                "tasksRaw": '[{"name": "Test Task", "description": "CI test task", "implementationGuide": "Test implementation", "dependencies": [], "relatedFiles": [], "verificationCriteria": "Test verification"}]',
+                "globalAnalysisResult": "Test analysis result"
+            },
             "list_tasks": {"status": "all"},
-            "init_project_rules": {"random_string": "ci_test"}
+            "query_task": {"query": "test", "isId": False},
+            "delete_task": {"taskId": "test-uuid-that-does-not-exist"},  # This will fail gracefully
+            "clear_all_tasks": {"confirm": True},
+            "update_task": {"taskId": "test-uuid-that-does-not-exist", "name": "Updated Test"},  # This will fail gracefully
+            
+            # Task Execution & Verification  
+            "execute_task": {"taskId": "test-uuid-that-does-not-exist"},  # This will fail gracefully
+            "verify_task": {"taskId": "test-uuid-that-does-not-exist", "summary": "Test verification", "score": 85},  # This will fail gracefully
+            "get_task_detail": {"taskId": "test-uuid-that-does-not-exist"},  # This will fail gracefully
+            
+            # Advanced Features
+            "process_thought": {
+                "thought": "This is a test thought for CI validation",
+                "thought_number": 1,
+                "total_thoughts": 3,
+                "next_thought_needed": False,
+                "stage": "Analysis"
+            },
+            "init_project_rules": {"random_string": "ci_comprehensive_test"},
+            "research_mode": {
+                "topic": "CI/CD testing best practices",
+                "currentState": "Testing research mode functionality",
+                "nextSteps": "Validate research workflow integration"
+            }
         }
         
-        for tool_name, payload in core_tools.items():
+        for tool_name, payload in all_tools.items():
             result = await self.test_tool_response(tool_name, payload)
             self.results.append(result)
             if result.success:
