@@ -104,6 +104,15 @@ jobs:
       with:
         python-version: '3.11'
         
+    - name: Install MCP Testing Framework
+      run: |
+        echo "📦 Installing mcp-testing-framework..."
+        pip install mcp-testing-framework
+        echo "✅ MCP testing framework installed successfully"
+        
+    - name: Install Node.js dependencies
+      run: npm ci
+        
     - name: Build MCP Server
       run: |
         npm ci
