@@ -35,7 +35,7 @@ export const processThoughtSchema = z.object({
       message: "思維階段不能為空，請提供有效的思考階段",
     })
     .describe(
-      "思考階段，可以選擇的階段有：問題定義、收集資訊、研究、分析、綜合、結論、質疑、規劃"
+      "Thinking stage. Available stages include: Problem Definition, Information Gathering, Research, Analysis, Synthesis, Conclusion, Critical Questioning, and Planning."
     ),
   tags: z.array(z.string()).optional().describe("思維標籤，是一個陣列字串"),
   axioms_used: z

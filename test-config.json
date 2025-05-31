@@ -1,0 +1,192 @@
+{
+  "mcpServers": {
+    "shrimp-task-manager": {
+      "command": "node",
+      "args": ["dist/index.js"],
+      "env": {
+        "NODE_ENV": "test",
+        "LOG_LEVEL": "info"
+      }
+    }
+  },
+  "servers": {
+    "shrimp-task-manager": {
+      "command": "node",
+      "args": ["dist/index.js"],
+      "env": {
+        "NODE_ENV": "test",
+        "LOG_LEVEL": "info"
+      },
+      "timeout": 30,
+      "retry_attempts": 3
+    }
+  },
+  "testing": {
+    "timeout": 30,
+    "retries": 3,
+    "outputFormat": "table",
+    "functional": {
+      "enabled": true,
+      "test_tools": true,
+      "test_resources": true,
+      "test_prompts": true,
+      "timeout": 15,
+      "custom_tests": [
+        "server_startup",
+        "tool_discovery",
+        "task_management",
+        "research_mode",
+        "project_rules"
+      ]
+    },
+    "security": {
+      "enabled": true,
+      "test_authentication": true,
+      "test_authorization": true,
+      "test_input_validation": true,
+      "malicious_payloads": true,
+      "custom_security_tests": [
+        "input_validation",
+        "authentication",
+        "authorization",
+        "xss_prevention",
+        "injection_protection"
+      ]
+    },
+    "performance": {
+      "enabled": true,
+      "benchmark_tools": true,
+      "concurrent_connections": 5,
+      "test_duration": 60,
+      "memory_monitoring": true,
+      "resource_limits": {
+        "max_memory_mb": 512,
+        "max_cpu_percent": 75,
+        "max_response_time_ms": 2000
+      },
+      "benchmarks": {
+        "task_creation": 1000,
+        "task_retrieval": 500,
+        "research_mode": 2000
+      }
+    },
+    "integration": {
+      "enabled": true,
+      "test_interoperability": true,
+      "protocol_compliance": true,
+      "tests": [
+        "web_gui",
+        "task_workflow",
+        "project_initialization"
+      ]
+    },
+    "issue_detection": {
+      "enabled": true,
+      "auto_remediation": true,
+      "monitoring_interval": 10,
+      "health_checks": true
+    }
+  },
+  "testSuites": {
+    "functional": {
+      "enabled": true,
+      "tests": [
+        "server_startup",
+        "tool_discovery",
+        "task_management",
+        "research_mode",
+        "project_rules"
+      ]
+    },
+    "security": {
+      "enabled": true,
+      "tests": [
+        "input_validation",
+        "authentication",
+        "authorization",
+        "xss_prevention",
+        "injection_protection"
+      ]
+    },
+    "performance": {
+      "enabled": true,
+      "benchmarks": {
+        "task_creation": 1000,
+        "task_retrieval": 500,
+        "research_mode": 2000
+      },
+      "concurrency": 5,
+      "duration": 60
+    },
+    "integration": {
+      "enabled": true,
+      "tests": [
+        "web_gui",
+        "task_workflow",
+        "project_initialization"
+      ]
+    }
+  },
+  "reporting": {
+    "formats": ["json", "html", "table"],
+    "outputDir": "test-results",
+    "includeMetrics": true,
+    "includeLogs": true,
+    "format": "html",
+    "output_file": "test-report.html",
+    "include_charts": true,
+    "confidence_analysis": true,
+    "remediation_suggestions": true,
+    "performance_graphs": true,
+    "security_summary": true,
+    "save_results": true,
+    "export_formats": ["json", "csv", "xml", "table"]
+  },
+  "confidence": {
+    "functional": {
+      "threshold": 85,
+      "weight": 0.4
+    },
+    "security": {
+      "threshold": 90,
+      "weight": 0.3
+    },
+    "performance": {
+      "threshold": 80,
+      "weight": 0.2
+    },
+    "integration": {
+      "threshold": 85,
+      "weight": 0.1
+    }
+  },
+  "confidence_thresholds": {
+    "minimum_pass": 80,
+    "high_confidence": 95,
+    "security_minimum": 90,
+    "performance_minimum": 80,
+    "functional_minimum": 85,
+    "integration_minimum": 85
+  },
+  "optimization": {
+    "parallel_execution": true,
+    "max_concurrent_tests": 3,
+    "cache_test_results": true,
+    "cache_duration": 1800,
+    "reuse_connections": true
+  },
+  "notifications": {
+    "enabled": true,
+    "on_failure": true,
+    "on_success": false,
+    "confidence_threshold": 70,
+    "channels": ["console", "file"]
+  },
+  "debugging": {
+    "verbose_logging": false,
+    "save_debug_info": true,
+    "debug_output_dir": "test-results/debug",
+    "capture_network_traffic": false,
+    "profile_performance": true
+  }
+}

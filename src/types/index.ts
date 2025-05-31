@@ -1,9 +1,9 @@
 // 任務狀態枚舉：定義任務在工作流程中的當前階段
 export enum TaskStatus {
-  PENDING = "待處理", // 已創建但尚未開始執行的任務
-  IN_PROGRESS = "進行中", // 當前正在執行的任務
-  COMPLETED = "已完成", // 已成功完成並通過驗證的任務
-  BLOCKED = "被阻擋", // 由於依賴關係而暫時無法執行的任務
+  PENDING = "pending", // 已創建但尚未開始執行的任務
+  IN_PROGRESS = "in_progress", // 當前正在執行的任務
+  COMPLETED = "completed", // 已成功完成並通過驗證的任務
+  BLOCKED = "blocked", // 由於依賴關係而暫時無法執行的任務
 }
 
 // 任務依賴關係：定義任務之間的前置條件關係

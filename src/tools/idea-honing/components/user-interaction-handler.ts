@@ -14,13 +14,15 @@ import {
 } from './specification-manager.js';
 import {
   loadWorkflowState,
+  createWorkflowState,
   updateWorkflowPhase,
   markSectionCompleted,
   addQuestion,
   answerQuestion,
   createSession,
   endSession,
-  calculateOverallProgress
+  calculateOverallProgress,
+  getSessionsForSpecification
 } from './workflow-state-manager.js';
 import {
   getTasksForSpecification,
@@ -1169,8 +1171,12 @@ async function manageWorkflow(params: Record<string, any>): Promise<Response> {
         break;
 
       case 'pause':
-        // End the current session
-        await endSession(params.specId, 'User', { action: 'pause_workflow' });
+        // Get the most recent session and end it
+        const sessions = await getSessionsForSpecification(params.specId);
+        const activeSession = sessions.find(s => !s.endTime);
+        if (activeSession) {
+          await endSession(activeSession.id);
+        }
         message = `Paused workflow for specification: ${specification.title}`;
         break;
 
@@ -1195,7 +1201,11 @@ async function manageWorkflow(params: Record<string, any>): Promise<Response> {
       case 'status':
         // Calculate the overall progress
         const progress = await calculateOverallProgress(params.specId);
-        message = `Current workflow status: ${workflowState.currentPhase} (${progress}% complete)`;
+        if (workflowState) {
+          message = `Current workflow status: ${workflowState.currentPhase} (${progress}% complete)`;
+        } else {
+          message = `No workflow found for specification. Progress: ${progress}% complete`;
+        }
         break;
     }
 

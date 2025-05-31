@@ -69,21 +69,25 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // 新增：i18n 核心函數
-// 1. 語言檢測 (localStorage > navigator.language > 'en')
+// 1. 語言檢測 (URL 參數 > navigator.language > 'en')
 function detectLanguage() {
-  const savedLang = localStorage.getItem("lang");
-  if (savedLang && ["en", "zh-TW"].includes(savedLang)) {
-    // 確保保存的是有效語言
-    return savedLang;
+  // 1. 優先從 URL 參數讀取
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlLang = urlParams.get("lang");
+  if (urlLang && ["en", "zh-TW"].includes(urlLang)) {
+    return urlLang;
   }
-  // 檢查瀏覽器語言
+
+  // 2. 檢查瀏覽器語言（移除 localStorage 檢查）
   const browserLang = navigator.language || navigator.userLanguage;
   if (browserLang) {
     if (browserLang.toLowerCase().startsWith("zh-tw")) return "zh-TW";
     if (browserLang.toLowerCase().startsWith("zh")) return "zh-TW"; // 簡體也先 fallback 到繁體
     if (browserLang.toLowerCase().startsWith("en")) return "en";
   }
-  return "en"; // 預設
+
+  // 3. 預設值
+  return "en";
 }
 
 // 2. 異步加載翻譯文件
@@ -152,7 +156,6 @@ function applyTranslations() {
 async function initI18n() {
   currentLang = detectLanguage();
   console.log(`Initializing i18n with language: ${currentLang}`);
-  localStorage.setItem("lang", currentLang); // 確保 lang 被保存
   // << 新增：設置切換器的初始值 >>
   if (langSwitcher) {
     langSwitcher.value = currentLang;
@@ -169,7 +172,6 @@ function changeLanguage(lang) {
     lang = "en";
   }
   currentLang = lang;
-  localStorage.setItem("lang", lang);
   console.log(`Changing language to: ${currentLang}`);
   loadTranslations(currentLang)
     .then(() => {
@@ -585,47 +587,49 @@ function selectTask(taskId) {
     <div class="task-details-header">
       <h3 id="detail-name"></h3>
       <div class="task-meta">
-        <span>狀態: <span id="detail-status" class="task-status"></span></span>
+        <span>${translate(
+          "task_detail_status_label"
+        )} <span id="detail-status" class="task-status"></span></span>
       </div>
     </div>
     
     <!-- 新增：條件顯示 Summary -->
     <div class="task-details-section" id="detail-summary-section" style="display: none;">
-      <h4>完成摘要</h4>
+      <h4>${translate("task_detail_summary_title")}</h4>
       <p id="detail-summary"></p>
     </div>
     
     <div class="task-details-section">
-      <h4>任務描述</h4>
+      <h4>${translate("task_detail_description_title")}</h4>
       <p id="detail-description"></p>
     </div>
     
     <div class="task-details-section">
-      <h4>實現指南</h4>
+      <h4>${translate("task_detail_implementation_guide_title")}</h4>
       <pre id="detail-implementation-guide"></pre>
     </div>
     
     <div class="task-details-section">
-      <h4>驗證標準</h4>
+      <h4>${translate("task_detail_verification_criteria_title")}</h4>
       <p id="detail-verification-criteria"></p>
     </div>
     
     <div class="task-details-section">
-      <h4>依賴項 (前置任務)</h4>
+      <h4>${translate("task_detail_dependencies_title")}</h4>
       <div class="dependencies" id="detail-dependencies">
         <!-- Dependencies will be populated by JS -->
       </div>
     </div>
     
     <div class="task-details-section">
-      <h4>相關文件</h4>
+      <h4>${translate("task_detail_related_files_title")}</h4>
       <div class="related-files" id="detail-related-files">
         <!-- Related files will be populated by JS -->
       </div>
     </div>
 
     <div class="task-details-section">
-      <h4>備註</h4>
+      <h4>${translate("task_detail_notes_title")}</h4>
       <p id="detail-notes"></p>
     </div>
   `;
@@ -1037,10 +1041,13 @@ function ticked() {
 function getNodeColor(nodeData) {
   switch (nodeData.status) {
     case "已完成":
+    case "completed":
       return "var(--secondary-color)";
     case "進行中":
+    case "in_progress":
       return "var(--primary-color)";
     case "待處理":
+    case "pending":
       return "#f1c40f"; // 與進度條和狀態標籤一致
     default:
       return "#7f8c8d"; // 未知狀態
@@ -1085,12 +1092,14 @@ function updateProgressIndicator() {
   progressIndicator.style.display = "block"; // 確保顯示
 
   const completedTasks = tasks.filter(
-    (task) => task.status === "已完成"
+    (task) => task.status === "completed" || task.status === "已完成"
   ).length;
   const inProgressTasks = tasks.filter(
-    (task) => task.status === "進行中"
+    (task) => task.status === "in_progress" || task.status === "進行中"
   ).length;
-  const pendingTasks = tasks.filter((task) => task.status === "待處理").length;
+  const pendingTasks = tasks.filter(
+    (task) => task.status === "pending" || task.status === "待處理"
+  ).length;
 
   const completedPercent =
     totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;

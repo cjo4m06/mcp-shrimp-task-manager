@@ -177,7 +177,7 @@ export async function analyzeRepository(config: AnalysisConfig = {}): Promise<Co
         ],
         metadata: {
           authors: [],
-          status: 'draft',
+          status: 'draft' as const,
           tags: focusKeywords,
           relatedSpecs: []
         },

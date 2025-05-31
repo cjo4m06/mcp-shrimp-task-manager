@@ -2,6 +2,68 @@
 
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- **MCP Testing Framework Integration**: Comprehensive testing capabilities for quality assurance
+  - Functional testing for MCP server functionality and tool execution
+  - Security testing with authentication, authorization, and input validation
+  - Performance testing with response time benchmarking and resource monitoring
+  - Integration testing for end-to-end workflow validation
+- **Automated CI/CD Testing**: GitHub Actions workflow for continuous testing
+  - Multi-version Node.js testing (18, 20, 22)
+  - Automated test reporting with confidence scoring
+  - Issue detection and remediation suggestions
+- **Testing Scripts and Configuration**: 
+  - `test-config.json` for comprehensive test configuration
+  - `tests/run-tests.sh` automated testing script
+  - NPM scripts for different test types (`test:functional`, `test:security`, etc.)
+- **Testing Documentation**: Detailed testing guide and best practices
+
+### Enhanced
+
+- **Package.json**: Added testing scripts and improved test commands
+- **README.md**: Added comprehensive testing section with usage examples
+- **Project Structure**: Added testing infrastructure with proper organization
+
+## [1.0.19]
+
+### Added
+
+- Added research mode functionality for systematic programming research (5267fa4)
+- Added research mode prompts and templates for both English and Chinese (5267fa4)
+- Added comprehensive research mode documentation and usage guides (288bec9)
+
+### Changed
+
+- Enhanced README with research mode feature description and usage instructions (288bec9)
+- Updated Chinese documentation to include research mode functionality (288bec9)
+
+## [1.0.18]
+
+### Fixed
+
+- Fix #29: Removed unnecessary console.log outputs to reduce noise (7cf1a18)
+- Fix #28: Fixed WebGUI internationalization issues in task detail view (fd26bfa)
+
+### Changed
+
+- Enhanced WebGUI task detail view to use proper translation functions for all labels (fd26bfa)
+- Updated thought process stage description to use English for better consistency (fd26bfa)
+
+## [1.0.17]
+
+### Fixed
+
+- Fix #26: Fixed issue where task status was displayed in Chinese in WebGUI (16913ad)
+- Fix #26: Optimized WebGUI default language to change based on env TEMPLATES_USE setting (51436bb)
+
+### Changed
+
+- Updated .env.example to include language setting documentation (51436bb)
+- Enhanced WebGUI language handling logic for better internationalization support (51436bb)
+
 ## [1.0.16]
 
 ### Fixed

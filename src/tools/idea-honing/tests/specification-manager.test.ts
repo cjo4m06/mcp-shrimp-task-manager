@@ -4,11 +4,15 @@
  * This file contains tests for the Specification Manager component of the Idea Honing Tool.
  */
 
-import { expect } from 'chai';
+import { expect, use } from 'chai';
 import * as sinon from 'sinon';
+import sinonChai from 'sinon-chai';
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+
+// Use sinon-chai plugin
+use(sinonChai);
 
 // Import the component to test
 import {
@@ -24,6 +28,20 @@ import {
 import * as fileSystem from '../utils/file-system.js';
 import * as templateEngine from '../components/template-engine.js';
 import * as searchIndexer from '../utils/search-indexer.js';
+
+// Import Template interface
+interface Template {
+  name: string;
+  content: string;
+  sections: Array<{
+    id: string;
+    title: string;
+    placeholder: string;
+    required: boolean;
+    order: number;
+    condition?: string;
+  }>;
+}
 
 // Import models
 import {
@@ -43,7 +61,26 @@ describe('Specification Manager', () => {
   const sampleTitle = 'Test Specification';
   const sampleDescription = 'This is a test specification';
   const sampleAuthor = 'Test Author';
-  const sampleTemplate = '# {{title}}\n\n{{description}}\n\n## Requirements\n\n## Design\n\n## Implementation';
+  const sampleTemplate: Template = {
+    name: 'test-template',
+    content: '# {{title}}\n\n{{description}}\n\n## Requirements\n\n## Design\n\n## Implementation',
+    sections: [
+      {
+        id: 'overview',
+        title: 'Overview',
+        placeholder: 'Provide an overview',
+        required: true,
+        order: 1
+      },
+      {
+        id: 'requirements',
+        title: 'Requirements',
+        placeholder: 'List requirements',
+        required: true,
+        order: 2
+      }
+    ]
+  };
   
   const sampleSpecification: SpecificationDocument = {
     id: sampleSpecId,
@@ -91,7 +128,7 @@ describe('Specification Manager', () => {
     // Stub template engine operations
     sandbox.stub(templateEngine, 'loadTemplate').resolves(sampleTemplate);
     sandbox.stub(templateEngine, 'createSectionsFromTemplate').returns(sampleSpecification.sections);
-    sandbox.stub(templateEngine, 'renderTemplate').returns(sampleTemplate);
+    sandbox.stub(templateEngine, 'renderTemplate').returns(sampleTemplate.content);
     
     // Stub search indexer operations
     sandbox.stub(searchIndexer, 'indexSpecification').resolves();
@@ -158,7 +195,7 @@ describe('Specification Manager', () => {
       } catch (error) {
         // Verify that the error was thrown
         expect(error).to.be.an('error');
-        expect(error.message).to.include('Failed to create specification');
+        expect((error as Error).message).to.include('Failed to create specification');
       }
     });
   });
@@ -191,7 +228,7 @@ describe('Specification Manager', () => {
       } catch (error) {
         // Verify that the error was thrown
         expect(error).to.be.an('error');
-        expect(error.message).to.include('Failed to retrieve specification');
+        expect((error as Error).message).to.include('Failed to retrieve specification');
       }
     });
   });
@@ -220,7 +257,9 @@ describe('Specification Manager', () => {
       // Verify the result
       expect(result).to.be.an('object');
       expect(result.title).to.equal(updates.title);
-      expect(result.metadata.status).to.equal(updates.metadata.status);
+      if (updates.metadata?.status) {
+        expect(result.metadata.status).to.equal(updates.metadata.status);
+      }
       expect(result.version).to.equal(2); // Version should be incremented
       
       // Verify that the file system operations were called
@@ -288,7 +327,7 @@ describe('Specification Manager', () => {
       } catch (error) {
         // Verify that the error was thrown
         expect(error).to.be.an('error');
-        expect(error.message).to.include('Failed to rebuild search index');
+        expect((error as Error).message).to.include('Failed to rebuild search index');
       }
     });
   });
