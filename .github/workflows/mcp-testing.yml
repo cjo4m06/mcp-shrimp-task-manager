@@ -26,12 +26,23 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
         
+    - name: Verify Node.js Installation
+      run: |
+        which node
+        node --version
+        npm --version
+        
     - name: Install dependencies
       run: npm ci
       
     - name: Build server
       run: npm run build
       
+    - name: Verify Build Output
+      run: |
+        ls -la dist/
+        head -5 dist/index.js
+        
     - name: Setup Python for MCP Testing
       uses: actions/setup-python@v4
       with:
@@ -42,10 +53,20 @@ jobs:
         python -m pip install --upgrade pip
         pip install mcp==1.0.0
         
+    - name: Test Node.js Availability
+      run: |
+        echo "Node.js path: $(which node)"
+        echo "Node.js version: $(node --version)"
+        echo "Current PATH: $PATH"
+        
     - name: Run Comprehensive MCP Tests
       run: |
         echo "🧪 Running comprehensive MCP server tests..."
+        echo "Working directory: $(pwd)"
+        echo "Node.js available: $(which node)"
         python scripts/ci-test-mcp.py
+      env:
+        PATH: ${{ env.PATH }}
         
     - name: Upload Test Results
       if: always()
@@ -114,7 +135,7 @@ jobs:
     - name: Deployment Readiness Check
       run: |
         echo "🚀 DEPLOYMENT READINESS ASSESSMENT"
-        echo "=" * 50
+        echo "=================================================="
         echo "✅ All tests passed"
         echo "✅ Build artifacts verified"
         echo "✅ Integration tests completed" 
