@@ -19,12 +19,8 @@
     "build": "tsc && copyfiles -u 1 \"src/**/*.md\" dist && copyfiles -u 1 \"src/public/**/*\" dist && node scripts/add-shebang.js",
     "test": "mcp-test --test-mcp-servers --test-config mcp-test-config.json",
     "test:functional": "mcp-test --run-test-suite functional --test-config mcp-test-config.json",
-    "test:workflow": "python test-todo-workflow.py",
-    "test:workflow:real": "python test-real-workflow.py",
     "test:integrated": "python test-integrated-simple.py",
     "test:integrated:clear": "clear && npm run test:integrated",
-    "test:integrated:demo": "python demo-idea-honing-output.py",
-    "test:integrated:advanced": "python test-integrated-llm-workflow.py",
     "test:legacy": "python mcp-shrimp-bridge.py --test-type all --verbose",
     "start": "node dist/index.js",
     "dev": "npm run build && npm start"

@@ -21,8 +21,6 @@ npm run test:integrated:clear
 
 # Available testing options
 npm run test:integrated          # Standard comprehensive testing
-npm run test:integrated:demo     # Pure Idea Honing System demo  
-npm run test:integrated:advanced # With LLM integration
 ```
 
 ## 🎯 **Comprehensive Tool Coverage**
@@ -199,4 +197,4 @@ The integrated testing now provides **complete ecosystem validation**:
 
 ---
 
-**Usage**: `npm run test:integrated:clear` (comprehensive tool ecosystem testing) 
+**Usage**: `npm run test:integrated` or `npm run test:integrated:clear` (comprehensive tool ecosystem testing) 
