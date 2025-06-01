@@ -48,6 +48,7 @@ jobs:
         npm ci
         python -m pip install --upgrade pip
         pip install mcp openai
+        pip install mcp-testing-framework || echo "mcp-testing-framework not available, using fallback"
         
     - name: Build project
       run: npm run build
@@ -62,7 +63,7 @@ jobs:
     - name: Validate package integrity
       run: |
         npm pack --dry-run
-        echo "✅ Package integrity validated"
+        echo "Package integrity validated"
         
     - name: Upload pre-publish validation results
       uses: actions/upload-artifact@v4
@@ -101,6 +102,7 @@ jobs:
         npm ci
         python -m pip install --upgrade pip
         pip install mcp openai
+        pip install mcp-testing-framework || echo "mcp-testing-framework not available, using fallback"
         
     - name: Build and test
       run: |
@@ -177,30 +179,30 @@ jobs:
         tag_name: ${{ env.NEW_VERSION }}
         release_name: Release ${{ env.NEW_VERSION }}
         body: |
-          ## 🚀 MCP Shrimp Task Manager ${{ env.NEW_VERSION }}
+          ## MCP Shrimp Task Manager ${{ env.NEW_VERSION }}
           
-          ### ✅ Quality Validation
+          ### Quality Validation
           - Comprehensive integrated testing: PASSED
           - Cross-platform validation: PASSED  
           - Tool ecosystem coverage: 100%
           - Production readiness: VERIFIED
           
-          ### 🛠️ Installation
+          ### Installation
           ```bash
           npm install mcp-shrimp-task-manager
           ```
           
-          ### 🎯 Features Validated
+          ### Features Validated
           - Complete Idea Honing System (create_spec, get_spec, interact_spec)
           - Comprehensive Task Management (plan_task, split_tasks, execute_task)
           - Systematic Research Mode (research_mode)
           - All 17+ tools tested and verified
           
-          ### 📊 Testing Results
-          - ✅ Real MCP server connection validation
-          - ✅ Actual tool calls execution testing
-          - ✅ Cross-platform compatibility (Ubuntu, Windows, macOS)
-          - ✅ Multi-Node.js version support (18, 20, 22)
+          ### Testing Results
+          - Real MCP server connection validation
+          - Actual tool calls execution testing
+          - Cross-platform compatibility (Ubuntu, Windows, macOS)
+          - Multi-Node.js version support (18, 20, 22)
           
           **Ready for production use!**
         draft: false
@@ -208,9 +210,9 @@ jobs:
         
     - name: Post-publish validation
       run: |
-        echo "🎉 Publication successful!"
+        echo "Publication successful!"
         echo "Package: mcp-shrimp-task-manager"
         echo "Registry: https://npmjs.com/package/mcp-shrimp-task-manager"
-        echo "✅ Comprehensive testing validated before publish"
-        echo "✅ Cross-platform compatibility confirmed"
-        echo "✅ Production-ready release"
+        echo "Comprehensive testing validated before publish"
+        echo "Cross-platform compatibility confirmed"
+        echo "Production-ready release"

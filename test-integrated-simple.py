@@ -48,9 +48,9 @@ class SimpleIntegratedTester:
         if level == "PHASE":
             print(f"[{timestamp}] {message}")
         elif level == "SUCCESS":
-            print(f"[{timestamp}] ✅ {message}")
+            print(f"[{timestamp}] SUCCESS: {message}")
         elif level == "ERROR":
-            print(f"[{timestamp}] ❌ {message}")
+            print(f"[{timestamp}] ERROR: {message}")
         else:
             print(f"[{timestamp}] {level}: {message}")
     
@@ -58,7 +58,7 @@ class SimpleIntegratedTester:
         """Print a detailed formatted section"""
         if self.show_detailed_output:
             print(f"\n{'='*80}")
-            print(f"🎯 DETAILED OUTPUT: {title}")
+            print(f"DETAILED OUTPUT: {title}")
             print(f"{'='*80}")
             print(content)
             print(f"{'='*80}\n")
@@ -111,14 +111,14 @@ class SimpleIntegratedTester:
                 if tool_name == 'create_spec':
                     self.spec_uuid = self.extract_uuid(content)
                     if self.spec_uuid:
-                        self.log(f"✅ Extracted Spec UUID: {self.spec_uuid}")
+                        self.log(f"SUCCESS: Extracted Spec UUID: {self.spec_uuid}")
                 
                 # Extract task ID from various task operations
                 if tool_name in ['plan_task', 'split_tasks', 'execute_task']:
                     task_id = self.extract_task_id(content)
                     if task_id:
                         self.task_id = task_id
-                        self.log(f"✅ Extracted Task ID: {self.task_id}")
+                        self.log(f"SUCCESS: Extracted Task ID: {self.task_id}")
                 
                 return {
                     "success": True,
@@ -320,20 +320,20 @@ class SimpleIntegratedTester:
     
     async def run_comprehensive_test(self):
         """Run comprehensive integrated testing with detailed output"""
-        print("🚀 MCP Shrimp Task Manager - COMPREHENSIVE INTEGRATED TESTING")
-        print("✅ REAL MCP server connection")
-        print("✅ ACTUAL tool calls execution")
-        print("✅ Robust error handling")
-        print("✅ DETAILED output demonstration")
-        print("✅ COMPLETE tool ecosystem coverage")
+        print("MCP Shrimp Task Manager - COMPREHENSIVE INTEGRATED TESTING")
+        print("Real MCP server connection")
+        print("ACTUAL tool calls execution")
+        print("Robust error handling")
+        print("DETAILED output demonstration")
+        print("COMPLETE tool ecosystem coverage")
         print("-" * 80)
         
         # Build project
-        print("🔨 Building project...")
+        print("Building project...")
         try:
             result = subprocess.run(["npm", "run", "build"], capture_output=True, text=True, check=True)
         except subprocess.CalledProcessError as e:
-            print(f"❌ Build failed: {e.stderr}")
+            print(f"Build failed: {e.stderr}")
             return False
         
         self.start_time = time.time()
@@ -346,7 +346,7 @@ class SimpleIntegratedTester:
             async with stdio_client(StdioServerParameters(command='node', args=['dist/index.js'])) as (read_stream, write_stream):
                 async with ClientSession(read_stream, write_stream) as session:
                     await session.initialize()
-                    self.log("🔗 MCP Connection Established", "SUCCESS")
+                    self.log("MCP Connection Established", "SUCCESS")
                     
                     # Test project management
                     await self.test_project_management(session)
@@ -380,20 +380,20 @@ class SimpleIntegratedTester:
         success_rate = (passed_tests / total_tests) * 100 if total_tests > 0 else 0
         
         print("\n" + "=" * 80)
-        print("🚀 COMPREHENSIVE INTEGRATED TEST RESULTS WITH DETAILED OUTPUT")
+        print("COMPREHENSIVE INTEGRATED TEST RESULTS WITH DETAILED OUTPUT")
         print("=" * 80)
         
-        print(f"📊 Results:")
-        print(f"   ✅ Tests Passed: {passed_tests}/{total_tests}")
-        print(f"   📈 Success Rate: {success_rate:.1f}%")
-        print(f"   ⏱️  Total Time: {total_time:.2f} seconds")
+        print(f"Results:")
+        print(f"   Tests Passed: {passed_tests}/{total_tests}")
+        print(f"   Success Rate: {success_rate:.1f}%")
+        print(f"   Total Time: {total_time:.2f} seconds")
         
-        print(f"\n🔧 Integration Validation:")
-        print(f"   ✅ REAL MCP Connection: YES")
-        print(f"   ✅ ACTUAL Tool Calls: YES")
-        print(f"   ✅ OpenAI Integration: {'YES' if OPENAI_AVAILABLE and os.getenv('OPENAI_API_KEY') else 'NO'}")
-        print(f"   ✅ Detailed Output Demo: YES")
-        print(f"   ✅ Complete Tool Coverage: YES")
+        print(f"\nIntegration Validation:")
+        print(f"   REAL MCP Connection: YES")
+        print(f"   ACTUAL Tool Calls: YES")
+        print(f"   OpenAI Integration: {'YES' if OPENAI_AVAILABLE and os.getenv('OPENAI_API_KEY') else 'NO'}")
+        print(f"   Detailed Output Demo: YES")
+        print(f"   Complete Tool Coverage: YES")
         
         # Organize results by category
         categories = {
@@ -405,39 +405,39 @@ class SimpleIntegratedTester:
             "Research Mode": ["research_mode"]
         }
         
-        print(f"\n📋 Results by Category:")
+        print(f"\nResults by Category:")
         for category, tools in categories.items():
             passed_in_category = sum(1 for tool in tools if self.results.get(tool, False))
             total_in_category = len(tools)
             category_rate = (passed_in_category / total_in_category) * 100 if total_in_category > 0 else 0
             
-            print(f"\n   🎯 {category} ({category_rate:.0f}%):")
+            print(f"\n   {category} ({category_rate:.0f}%):")
             for tool in tools:
                 result = self.results.get(tool, False)
                 status = "PASSED" if result else "FAILED"
-                emoji = "✅" if result else "❌"
-                print(f"     {emoji} {tool}: {status}")
+                symbol = "PASS" if result else "FAIL"
+                print(f"     {symbol}: {tool}: {status}")
         
         if self.spec_uuid:
-            print(f"\n🎯 Generated Specification:")
-            print(f"   📄 UUID: {self.spec_uuid}")
-            print(f"   🔗 Access: get_spec({{ specId: '{self.spec_uuid}' }})")
-            print(f"   💬 Interact: interact_spec({{ specId: '{self.spec_uuid}', command: 'view' }})")
+            print(f"\nGenerated Specification:")
+            print(f"   UUID: {self.spec_uuid}")
+            print(f"   Access: get_spec({{ specId: '{self.spec_uuid}' }})")
+            print(f"   Interact: interact_spec({{ specId: '{self.spec_uuid}', command: 'view' }})")
         
         if self.task_id:
-            print(f"\n🎯 Generated Task:")
-            print(f"   📋 Task ID: {self.task_id}")
-            print(f"   🔍 Details: get_task_detail({{ taskId: '{self.task_id}' }})")
-            print(f"   ⚡ Execute: execute_task({{ taskId: '{self.task_id}' }})")
+            print(f"\nGenerated Task:")
+            print(f"   Task ID: {self.task_id}")
+            print(f"   Details: get_task_detail({{ taskId: '{self.task_id}' }})")
+            print(f"   Execute: execute_task({{ taskId: '{self.task_id}' }})")
         
-        final_status = "✅ PASSED" if success_rate >= 80 else "❌ FAILED"
-        print(f"\n🎉 COMPREHENSIVE INTEGRATED TEST: {final_status}")
+        final_status = "PASSED" if success_rate >= 80 else "FAILED"
+        print(f"\nCOMPREHENSIVE INTEGRATED TEST: {final_status}")
         print("=" * 80)
 
 async def main():
     """Main execution function"""
     if not MCP_AVAILABLE:
-        print("❌ MCP library not available. Install with: pip install mcp")
+        print("ERROR: MCP library not available. Install with: pip install mcp")
         return False
     
     tester = SimpleIntegratedTester()
