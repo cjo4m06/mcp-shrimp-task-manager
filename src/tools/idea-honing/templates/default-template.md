@@ -8,65 +8,57 @@ This specification document outlines the design and implementation details for {
 
 ## Functional Requirements
 
-List the specific capabilities and behaviors that the feature must provide:
+The specific capabilities and behaviors that the feature must provide:
 
--
--
--
+{functionalRequirements}
 
 ## Non-Functional Requirements
 
-List requirements related to quality attributes such as performance, security, usability, etc.:
+Requirements related to quality attributes such as performance, security, usability, etc.:
 
--
--
--
+{nonFunctionalRequirements}
 
 ## Technical Design
 
-### Architecture
-
-Describe the high-level architecture and how this feature fits into the existing system:
-
-### Components
-
-List the main components that will be created or modified:
-
-### Data Flow
-
-Describe how data flows through the system with this feature:
+{technicalDesign}
 
 ### API Design {if: hasAPI}
 
 Document the API endpoints, parameters, and responses:
 
+- **Authentication**: Secure API access with proper authentication mechanisms
+- **Rate Limiting**: Implement appropriate rate limits for API endpoints
+- **Error Handling**: Consistent error response format and status codes
+- **Documentation**: OpenAPI/Swagger documentation for all endpoints
+- **Versioning**: API versioning strategy for backward compatibility
+
 ### Database Changes {if: hasDatabase}
 
 Describe any changes to the database schema:
 
+- **Schema Updates**: New tables, columns, or indexes required
+- **Data Migration**: Migration strategy for existing data
+- **Performance**: Database query optimization and indexing
+- **Backup Strategy**: Data backup and recovery procedures
+- **Security**: Database access controls and encryption
+
 ## Acceptance Criteria
 
-List specific, testable criteria that must be met for this feature to be considered complete:
+Specific, testable criteria that must be met for this feature to be considered complete:
 
--
--
--
+{acceptanceCriteria}
 
 ## Implementation Constraints
 
-List any constraints or limitations that must be considered during implementation:
+Constraints or limitations that must be considered during implementation:
 
--
--
--
+{implementationConstraints}
 
 ## Open Questions
 
-List any unresolved questions or decisions that need to be made:
+Unresolved questions or decisions that need to be made:
 
--
--
--
+{openQuestions}
 
 ## Related Files/Context
 

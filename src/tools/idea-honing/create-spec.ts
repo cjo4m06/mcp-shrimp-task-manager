@@ -94,9 +94,231 @@ function formatAnalysisResult(result: any): string {
   return text;
 }
 
+/**
+ * Generates intelligent content for specification sections based on input description
+ * 
+ * @param title - Title of the specification
+ * @param description - Detailed description provided by user
+ * @returns Object containing generated content for each section
+ */
+function generateIntelligentContent(title: string, description: string): Record<string, string> {
+  // Extract key features and requirements from the description
+  const features = extractFeatures(description);
+  const requirements = extractRequirements(description);
+  
+  return {
+    functionalRequirements: generateFunctionalRequirements(description, features),
+    nonFunctionalRequirements: generateNonFunctionalRequirements(description),
+    technicalDesign: generateTechnicalDesign(description, features),
+    acceptanceCriteria: generateAcceptanceCriteria(description, features),
+    implementationConstraints: generateImplementationConstraints(description),
+    openQuestions: generateOpenQuestions(description, title)
+  };
+}
+
+/**
+ * Extracts key features from description
+ */
+function extractFeatures(description: string): string[] {
+  const features: string[] = [];
+  const featureKeywords = ['featuring', 'include', 'with', 'support', 'provide', 'enable', 'allow'];
+  
+  // Look for feature-indicating patterns
+  const sentences = description.split(/[.!?]+/);
+  for (const sentence of sentences) {
+    const lowerSentence = sentence.toLowerCase();
+    if (featureKeywords.some(keyword => lowerSentence.includes(keyword))) {
+      // Extract potential features
+      const words = sentence.split(',').map(s => s.trim()).filter(s => s.length > 0);
+      features.push(...words);
+    }
+  }
+  
+  return features.slice(0, 8); // Limit to top 8 features
+}
+
+/**
+ * Extracts requirements from description
+ */
+function extractRequirements(description: string): string[] {
+  const requirements: string[] = [];
+  const requirementKeywords = ['must', 'should', 'require', 'need', 'essential', 'critical'];
+  
+  const sentences = description.split(/[.!?]+/);
+  for (const sentence of sentences) {
+    const lowerSentence = sentence.toLowerCase();
+    if (requirementKeywords.some(keyword => lowerSentence.includes(keyword))) {
+      requirements.push(sentence.trim());
+    }
+  }
+  
+  return requirements;
+}
+
+/**
+ * Generates functional requirements based on description
+ */
+function generateFunctionalRequirements(description: string, features: string[]): string {
+  const baseRequirements = [
+    "Core functionality implementation with user-friendly interface",
+    "Data persistence and state management",
+    "Error handling and validation mechanisms",
+    "Integration with existing system components"
+  ];
+  
+  // Add feature-specific requirements
+  const featureRequirements = features.map(feature => 
+    `${feature.charAt(0).toUpperCase() + feature.slice(1)} implementation and management`
+  ).slice(0, 4);
+  
+  const allRequirements = [...featureRequirements, ...baseRequirements].slice(0, 6);
+  
+  return allRequirements.map(req => `- **${req}**`).join('\n');
+}
+
+/**
+ * Generates non-functional requirements
+ */
+function generateNonFunctionalRequirements(description: string): string {
+  const requirements = [
+    "**Performance**: Response times under 200ms for core operations",
+    "**Scalability**: Support for concurrent users and growing data volumes", 
+    "**Security**: Authentication, authorization, and data protection",
+    "**Usability**: Intuitive interface with accessibility compliance",
+    "**Reliability**: 99.9% uptime with graceful error handling",
+    "**Maintainability**: Clean code architecture with comprehensive documentation"
+  ];
+  
+  // Add domain-specific requirements based on description
+  if (description.toLowerCase().includes('real-time')) {
+    requirements.unshift("**Real-time Performance**: Sub-100ms latency for live updates");
+  }
+  if (description.toLowerCase().includes('mobile')) {
+    requirements.push("**Mobile Compatibility**: Responsive design for all device types");
+  }
+  if (description.toLowerCase().includes('api')) {
+    requirements.push("**API Performance**: RESTful API with proper rate limiting");
+  }
+  
+  return requirements.slice(0, 6).map(req => `- ${req}`).join('\n');
+}
+
+/**
+ * Generates technical design content
+ */
+function generateTechnicalDesign(description: string, features: string[]): string {
+  let design = `### Architecture\n\n`;
+  design += `The ${description.includes('platform') ? 'platform' : 'system'} follows a modular architecture with clear separation of concerns:\n\n`;
+  design += `- **Frontend Layer**: User interface and experience components\n`;
+  design += `- **Business Logic Layer**: Core functionality and business rules\n`;
+  design += `- **Data Layer**: Database and storage management\n`;
+  design += `- **Integration Layer**: External service connections and APIs\n\n`;
+  
+  design += `### Components\n\n`;
+  design += `Key components to be implemented or modified:\n\n`;
+  
+  // Generate component list based on features
+  const components = [
+    "Main application controller and routing",
+    "User interface components and views", 
+    "Data models and validation logic",
+    "Service layer for business operations",
+    "Database access and ORM integration"
+  ];
+  
+  if (features.some(f => f.toLowerCase().includes('auth'))) {
+    components.push("Authentication and authorization service");
+  }
+  if (features.some(f => f.toLowerCase().includes('api'))) {
+    components.push("API endpoints and middleware");
+  }
+  
+  design += components.slice(0, 6).map(comp => `- **${comp}**`).join('\n');
+  design += `\n\n### Data Flow\n\n`;
+  design += `1. **User Input**: Interface captures user interactions and data\n`;
+  design += `2. **Validation**: Input validation and sanitization\n`;
+  design += `3. **Processing**: Business logic execution and data transformation\n`;
+  design += `4. **Storage**: Database operations and state persistence\n`;
+  design += `5. **Response**: Result formatting and user feedback\n`;
+  
+  return design;
+}
+
+/**
+ * Generates acceptance criteria
+ */
+function generateAcceptanceCriteria(description: string, features: string[]): string {
+  const baseCriteria = [
+    "**Functionality**: All core features work as specified without errors",
+    "**User Experience**: Interface is intuitive and responsive across devices",
+    "**Performance**: System meets specified performance benchmarks",
+    "**Testing**: All unit, integration, and user acceptance tests pass",
+    "**Documentation**: Complete technical and user documentation provided",
+    "**Deployment**: Successfully deployed to production environment"
+  ];
+  
+  // Add feature-specific criteria
+  const featureCriteria = features.slice(0, 2).map(feature => 
+    `**${feature.charAt(0).toUpperCase() + feature.slice(1)}**: Feature is fully implemented and tested`
+  );
+  
+  const allCriteria = [...featureCriteria, ...baseCriteria].slice(0, 6);
+  return allCriteria.map(criteria => `- ${criteria}`).join('\n');
+}
+
+/**
+ * Generates implementation constraints
+ */
+function generateImplementationConstraints(description: string): string {
+  const constraints = [
+    "**Technology Stack**: Must use existing project technologies and frameworks",
+    "**Timeline**: Implementation must fit within project schedule constraints",
+    "**Resources**: Development team capacity and skill set limitations",
+    "**Budget**: Cost limitations for external services and tools",
+    "**Compatibility**: Backward compatibility with existing system versions"
+  ];
+  
+  // Add domain-specific constraints
+  if (description.toLowerCase().includes('security')) {
+    constraints.unshift("**Security Compliance**: Must meet industry security standards");
+  }
+  if (description.toLowerCase().includes('performance')) {
+    constraints.push("**Performance Standards**: Must not degrade existing system performance");
+  }
+  
+  return constraints.slice(0, 5).map(constraint => `- ${constraint}`).join('\n');
+}
+
+/**
+ * Generates open questions
+ */
+function generateOpenQuestions(description: string, title: string): string {
+  const questions = [
+    `What are the specific user personas and use cases for ${title}?`,
+    "How should the feature integrate with existing authentication systems?",
+    "What are the data retention and privacy requirements?",
+    "Are there any third-party service dependencies to consider?",
+    "What are the monitoring and analytics requirements?",
+    "How should error scenarios and edge cases be handled?"
+  ];
+  
+  // Add domain-specific questions
+  if (description.toLowerCase().includes('api')) {
+    questions.push("What API rate limits and versioning strategy should be implemented?");
+  }
+  if (description.toLowerCase().includes('real-time')) {
+    questions.push("What is the acceptable latency for real-time features?");
+  }
+  
+  return questions.slice(0, 5).map(q => `- ${q}`).join('\n');
+}
+
 export async function createSpec(params: z.infer<typeof createSpecSchema>) {
   try {
     const { title, description, scope, template } = params;
+
+    // **ENHANCED: Generate intelligent content for each section**
+    const intelligentContent = generateIntelligentContent(title, description);
 
     // Analyze the codebase
     let analysisResult;
@@ -132,11 +354,18 @@ export async function createSpec(params: z.infer<typeof createSpecSchema>) {
       "", // Default feature ID
       {
         scope: scope || "Full codebase",
-        hasAPI: false, // Default value for conditional sections
-        hasDatabase: false, // Default value for conditional sections
+        hasAPI: description.toLowerCase().includes('api') || description.toLowerCase().includes('endpoint'),
+        hasDatabase: description.toLowerCase().includes('database') || description.toLowerCase().includes('storage') || description.toLowerCase().includes('persist'),
         relatedFiles: analysisResult ?
           analysisResult.impactedFiles.map(file => `- ${file.path}: ${file.reason}`).join('\n') :
-          'No related files identified.'
+          'No related files identified.',
+        // **NEW: Add intelligent content to template data**
+        functionalRequirements: intelligentContent.functionalRequirements,
+        nonFunctionalRequirements: intelligentContent.nonFunctionalRequirements,
+        technicalDesign: intelligentContent.technicalDesign,
+        acceptanceCriteria: intelligentContent.acceptanceCriteria,
+        implementationConstraints: intelligentContent.implementationConstraints,
+        openQuestions: intelligentContent.openQuestions
       }
     );
 
@@ -203,18 +432,23 @@ export async function createSpec(params: z.infer<typeof createSpecSchema>) {
       console.error('Error creating workflow state:', error);
     }
 
-    // **UPDATED: Store dev_spec.md in MCP server data directory**
+    // **UPDATED: Store dev_spec.md in MCP server data directory AND project root**
     try {
       const devSpecContent = generateDevSpecMarkdown(specification, analysisText);
       
-      // Store in MCP server's data directory instead of current working directory
+      // Store in MCP server's data directory for UUID-based access
       const dataDir = path.join(process.cwd(), 'data', 'specifications');
       await fs.mkdir(dataDir, { recursive: true });
       
       const devSpecPath = path.join(dataDir, `${specification.id}.md`);
       await fs.writeFile(devSpecPath, devSpecContent, 'utf-8');
       
+      // ALSO store as dev_spec.md in project root for developer convenience
+      const rootDevSpecPath = path.join(process.cwd(), 'dev_spec.md');
+      await fs.writeFile(rootDevSpecPath, devSpecContent, 'utf-8');
+      
       console.log(`Generated dev_spec.md stored at: ${devSpecPath}`);
+      console.log(`Developer convenience copy created at: ${rootDevSpecPath}`);
     } catch (error) {
       console.error('Error storing dev_spec.md file:', error);
     }
