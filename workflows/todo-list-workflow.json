@@ -1,0 +1,293 @@
+{
+  "name": "TodoList End-to-End Workflow",
+  "description": "Complete workflow testing from raw idea to implemented todo-list application using Idea Honing System + Task Management",
+  "version": "1.0.0",
+  "workflow": {
+    "phases": [
+      {
+        "phase": "1_idea_specification",
+        "name": "Idea Honing - Specification Creation",
+        "description": "Transform raw todo-list idea into structured specification",
+        "steps": [
+          {
+            "step": "create_specification",
+            "tool": "create_spec",
+            "input": {
+              "title": "Modern React Todo List Application",
+              "description": "Create a modern, responsive todo list application with React, featuring task creation, editing, deletion, status management (pending/completed), priority levels, due dates, categories, and local storage persistence. Include search/filter functionality and a clean, intuitive UI.",
+              "scope": "src/",
+              "template": "react-app"
+            },
+            "expected_outputs": [
+              "specification_uuid",
+              "structured_document",
+              "implementation_foundation"
+            ],
+            "validation": {
+              "uuid_format": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+              "file_creation": "data/specifications/{uuid}.md"
+            }
+          }
+        ]
+      },
+      {
+        "phase": "2_specification_management",
+        "name": "Specification Retrieval and Management", 
+        "description": "Test specification access and management tools",
+        "depends_on": ["1_idea_specification"],
+        "steps": [
+          {
+            "step": "retrieve_specification",
+            "tool": "get_spec",
+            "input": {
+              "specId": "{from_previous:specification_uuid}",
+              "format": "markdown"
+            },
+            "expected_outputs": [
+              "complete_specification_document",
+              "metadata",
+              "structured_sections"
+            ]
+          },
+          {
+            "step": "interact_with_specification",
+            "tool": "interact_spec", 
+            "input": {
+              "specId": "{from_previous:specification_uuid}",
+              "command": "view"
+            },
+            "expected_outputs": [
+              "formatted_specification",
+              "progress_indicators",
+              "management_options"
+            ]
+          }
+        ]
+      },
+      {
+        "phase": "3_task_planning",
+        "name": "Task Planning and Analysis",
+        "description": "Plan implementation tasks based on specification",
+        "depends_on": ["2_specification_management"],
+        "steps": [
+          {
+            "step": "plan_implementation_tasks",
+            "tool": "plan_task",
+            "input": {
+              "description": "Implement the Modern React Todo List Application based on the created specification. Focus on component architecture, state management, and user interface implementation.",
+              "existingTasksReference": false
+            },
+            "expected_outputs": [
+              "task_plan",
+              "implementation_strategy",
+              "technical_analysis"
+            ]
+          },
+          {
+            "step": "analyze_task_requirements",
+            "tool": "analyze_task",
+            "input": {
+              "summary": "React Todo List Implementation",
+              "initialConcept": "Build a modern React todo application with full CRUD operations, filtering, and persistence using modern React patterns including hooks, context, and functional components."
+            },
+            "expected_outputs": [
+              "technical_analysis",
+              "architecture_recommendations",
+              "implementation_approach"
+            ]
+          }
+        ]
+      },
+      {
+        "phase": "4_task_decomposition",
+        "name": "Task Splitting and Organization",
+        "description": "Break down high-level tasks into manageable subtasks",
+        "depends_on": ["3_task_planning"],
+        "steps": [
+          {
+            "step": "split_into_subtasks",
+            "tool": "split_tasks",
+            "input": {
+              "updateMode": "clearAllTasks",
+              "globalAnalysisResult": "React Todo List Application with modern architecture, component-based design, state management, and persistent storage",
+              "tasksRaw": [
+                {
+                  "name": "Setup React Project Structure",
+                  "description": "Initialize React project with TypeScript, configure build tools, and establish project structure with components, hooks, and utilities directories",
+                  "implementationGuide": "Use Create React App with TypeScript template, configure ESLint and Prettier, create folder structure for components, hooks, types, and utilities",
+                  "dependencies": [],
+                  "relatedFiles": [
+                    {"path": "package.json", "type": "CREATE", "description": "Project dependencies and scripts"},
+                    {"path": "src/App.tsx", "type": "CREATE", "description": "Main application component"},
+                    {"path": "src/types/Todo.ts", "type": "CREATE", "description": "TypeScript type definitions"}
+                  ],
+                  "verificationCriteria": "Project builds successfully, TypeScript compilation works, folder structure is organized"
+                },
+                {
+                  "name": "Implement Todo Data Models",
+                  "description": "Create TypeScript interfaces and types for todo items, including task properties, status enums, and data validation",
+                  "implementationGuide": "Define Todo interface with id, title, description, completed status, priority, dueDate, category properties. Create enums for Priority and Category",
+                  "dependencies": ["Setup React Project Structure"],
+                  "relatedFiles": [
+                    {"path": "src/types/Todo.ts", "type": "TO_MODIFY", "description": "Todo interface and related types"},
+                    {"path": "src/types/enums.ts", "type": "CREATE", "description": "Priority and Category enums"}
+                  ],
+                  "verificationCriteria": "TypeScript types compile correctly, all todo properties are properly typed, enums are exported and usable"
+                },
+                {
+                  "name": "Create Todo Management Components",
+                  "description": "Build React components for displaying, creating, editing, and deleting todo items with proper state management",
+                  "implementationGuide": "Create TodoItem, TodoList, TodoForm components using functional components and hooks. Implement add, edit, delete, and toggle completion functionality",
+                  "dependencies": ["Implement Todo Data Models"],
+                  "relatedFiles": [
+                    {"path": "src/components/TodoItem.tsx", "type": "CREATE", "description": "Individual todo item component"},
+                    {"path": "src/components/TodoList.tsx", "type": "CREATE", "description": "List of todo items"},
+                    {"path": "src/components/TodoForm.tsx", "type": "CREATE", "description": "Form for creating/editing todos"}
+                  ],
+                  "verificationCriteria": "Components render correctly, state updates work, CRUD operations function properly"
+                },
+                {
+                  "name": "Implement Local Storage Persistence",
+                  "description": "Add local storage functionality to persist todo data between browser sessions",
+                  "implementationGuide": "Create custom hook useLocalStorage for managing todo data persistence. Implement save/load functionality with error handling and data validation",
+                  "dependencies": ["Create Todo Management Components"],
+                  "relatedFiles": [
+                    {"path": "src/hooks/useLocalStorage.ts", "type": "CREATE", "description": "Custom hook for local storage management"},
+                    {"path": "src/utils/storage.ts", "type": "CREATE", "description": "Storage utility functions"}
+                  ],
+                  "verificationCriteria": "Data persists between page reloads, error handling works for invalid data, performance is acceptable"
+                }
+              ]
+            },
+            "expected_outputs": [
+              "task_list",
+              "dependency_graph",
+              "implementation_roadmap"
+            ]
+          }
+        ]
+      },
+      {
+        "phase": "5_task_execution",
+        "name": "Task Execution and Implementation",
+        "description": "Execute individual tasks and validate completion", 
+        "depends_on": ["4_task_decomposition"],
+        "steps": [
+          {
+            "step": "list_available_tasks",
+            "tool": "list_tasks",
+            "input": {
+              "status": "pending"
+            },
+            "expected_outputs": [
+              "task_list",
+              "status_overview",
+              "priority_order"
+            ]
+          },
+          {
+            "step": "execute_first_task",
+            "tool": "execute_task",
+            "input": {
+              "taskId": "{from_task_list:first_pending_task_id}"
+            },
+            "expected_outputs": [
+              "implementation_guidance",
+              "step_by_step_instructions",
+              "completion_criteria"
+            ]
+          },
+          {
+            "step": "verify_task_completion",
+            "tool": "verify_task",
+            "input": {
+              "taskId": "{from_previous:task_id}",
+              "score": 85,
+              "summary": "Task completed successfully with proper React project structure, TypeScript configuration, and organized folder hierarchy. All build tools are configured and project compiles without errors."
+            },
+            "expected_outputs": [
+              "verification_score",
+              "completion_status",
+              "quality_assessment"
+            ]
+          }
+        ]
+      },
+      {
+        "phase": "6_workflow_validation",
+        "name": "Complete Workflow Validation",
+        "description": "Validate the entire workflow and data flow between tools",
+        "depends_on": ["5_task_execution"],
+        "steps": [
+          {
+            "step": "query_completed_tasks",
+            "tool": "query_task",
+            "input": {
+              "query": "React Todo",
+              "page": 1,
+              "pageSize": 10
+            },
+            "expected_outputs": [
+              "task_search_results",
+              "completion_statistics",
+              "workflow_progress"
+            ]
+          },
+          {
+            "step": "get_task_details",
+            "tool": "get_task_detail",
+            "input": {
+              "taskId": "{from_previous:first_task_id}"
+            },
+            "expected_outputs": [
+              "complete_task_information",
+              "implementation_details", 
+              "verification_results"
+            ]
+          },
+          {
+            "step": "specification_progress_check",
+            "tool": "interact_spec",
+            "input": {
+              "specId": "{from_phase_1:specification_uuid}",
+              "command": "progress"
+            },
+            "expected_outputs": [
+              "implementation_progress",
+              "completion_percentage",
+              "remaining_work"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "validation_criteria": {
+    "data_flow": {
+      "specification_uuid_propagation": "UUID from create_spec should flow through get_spec, interact_spec, and final progress check",
+      "task_id_propagation": "Task IDs should flow between task creation, execution, and verification",
+      "state_consistency": "Server should maintain consistent state across all tool invocations"
+    },
+    "error_handling": {
+      "invalid_uuid": "System should handle invalid UUIDs gracefully",
+      "missing_tasks": "System should provide helpful messages for missing tasks",
+      "dependency_violations": "Task dependencies should be enforced properly"
+    },
+    "performance": {
+      "response_times": "All tool invocations should complete within 5 seconds",
+      "memory_usage": "Server should not leak memory during extended workflows",
+      "concurrent_operations": "Multiple workflow steps should not interfere with each other"
+    },
+    "integration": {
+      "tool_chaining": "Output from one tool should be usable as input to subsequent tools",
+      "data_persistence": "Data should persist correctly throughout the workflow",
+      "workflow_completion": "Complete workflow should execute from start to finish successfully"
+    }
+  },
+  "success_metrics": {
+    "completion_rate": "100% of workflow steps should complete successfully",
+    "data_integrity": "All data should flow correctly between tools",
+    "performance": "Workflow should complete within 60 seconds total",
+    "error_recovery": "System should handle and recover from expected error conditions"
+  }
+} 

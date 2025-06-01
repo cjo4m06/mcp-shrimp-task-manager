@@ -1,34 +1,62 @@
 {
-  "name": "mcp-shrimp-task-manager",
-  "version": "1.0.19",
-  "description": "Shrimp Task Manager is a task tool built for AI Agents, emphasizing chain-of-thought, reflection, and style consistency. It converts natural language into structured dev tasks with dependency tracking and iterative refinement, enabling agent-like developer behavior in reasoning AI systems",
+  "name": "@tosin2013/mcp-shrimp-task-manager",
+  "version": "1.1.4",
+  "description": "Enhanced MCP Shrimp Task Manager with comprehensive LLM integration. A task management tool built for AI Agents, emphasizing chain-of-thought, reflection, and style consistency. Features real GPT-4 ↔ MCP tools communication, comprehensive testing pipeline, and methodological pragmatism approach to systematic verification.",
   "main": "dist/index.js",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cjo4m06/mcp-shrimp-task-manager"
+    "url": "https://github.com/tosin2013/mcp-shrimp-task-manager"
   },
   "bugs": {
-    "url": "https://github.com/cjo4m06/mcp-shrimp-task-manager/issues"
+    "url": "https://github.com/tosin2013/mcp-shrimp-task-manager/issues"
   },
-  "homepage": "https://cjo4m06.github.io/mcp-shrimp-task-manager",
+  "homepage": "https://tosin2013.github.io/mcp-shrimp-task-manager",
   "bin": {
     "mcp-shrimp-task-manager": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc && copyfiles -u 1 \"src/**/*.md\" dist && copyfiles -u 1 \"src/public/**/*\" dist && node scripts/add-shebang.js",
-    "dev": "ts-node src/index.ts",
+    "test": "mcp-test --test-mcp-servers --test-config mcp-test-config.json",
+    "test:functional": "mcp-test --run-test-suite functional --test-config mcp-test-config.json",
+    "test:integrated": "python test-integrated-simple.py",
+    "test:integrated:clear": "clear && npm run test:integrated",
+    "test:complete": "echo '\n=== COMPREHENSIVE TOOL TESTING (17/17 tools) ===' && npm run test:integrated && echo '\n=== PROFESSIONAL MCP VALIDATION (4 core tests) ===' && npm test",
+    "test:legacy": "python mcp-shrimp-bridge.py --test-type all --verbose",
     "start": "node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "npm run build && npm start"
   },
   "keywords": [
     "mcp",
     "task-manager",
     "agent",
-    "workflow"
+    "workflow",
+    "llm",
+    "gpt-4",
+    "openai",
+    "model-context-protocol",
+    "ai-agent",
+    "task-planning",
+    "reflection",
+    "chain-of-thought",
+    "systematic-verification",
+    "methodological-pragmatism",
+    "integration-testing",
+    "enhanced-fork"
   ],
-  "author": "",
+  "author": "Tosin Akinosho <tosin@example.com>",
   "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "package.json"
+  ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "dotenv": "^16.5.0",
@@ -39,10 +67,18 @@
     "zod-to-json-schema": "^3.24.5"
   },
   "devDependencies": {
+    "@dagger.io/dagger": "^0.18.9",
+    "@types/chai": "^5.2.2",
     "@types/express": "^5.0.1",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^20.8.2",
+    "@types/sinon": "^17.0.4",
+    "@types/sinon-chai": "^4.0.0",
     "@types/uuid": "^9.0.6",
+    "chai": "^5.2.0",
     "copyfiles": "^2.4.1",
+    "sinon": "^20.0.0",
+    "sinon-chai": "^4.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.2.2"
   }

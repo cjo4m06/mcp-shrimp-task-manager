@@ -47,8 +47,16 @@ import {
   processThoughtSchema,
   initProjectRules,
   initProjectRulesSchema,
+  // Idea Honing Tool
+  createSpec,
+  createSpecSchema,
+  interactSpec,
+  interactSpecSchema,
+  ideaHoningTools,
   researchMode,
   researchModeSchema,
+  getSpec,
+  getSpecSchema,
 } from "./tools/index.js";
 
 async function main() {
@@ -292,6 +300,8 @@ async function main() {
             ),
             inputSchema: zodToJsonSchema(initProjectRulesSchema),
           },
+          // Add Idea Honing Tool
+          ...ideaHoningTools,
           {
             name: "research_mode",
             description: loadPromptFromTemplate(
@@ -445,6 +455,16 @@ async function main() {
               return await processThought(parsedArgs.data);
             case "init_project_rules":
               return await initProjectRules();
+            case "create_spec":
+              parsedArgs = await createSpecSchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await createSpec(parsedArgs.data);
             case "research_mode":
               parsedArgs = await researchModeSchema.safeParseAsync(
                 request.params.arguments
@@ -455,6 +475,26 @@ async function main() {
                 );
               }
               return await researchMode(parsedArgs.data);
+            case "interact_spec":
+              parsedArgs = await interactSpecSchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await interactSpec(parsedArgs.data);
+            case "get_spec":
+              parsedArgs = await getSpecSchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await getSpec(parsedArgs.data);
             default:
               throw new Error(`Tool ${request.params.name} does not exist`);
           }
