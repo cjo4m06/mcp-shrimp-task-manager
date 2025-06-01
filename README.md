@@ -55,13 +55,20 @@ The Idea Honing System transforms raw ideas into structured specifications throu
 
 ### **Core Capabilities:**
 
-#### 🔧 **`create_spec` Tool**
-Transforms raw ideas into comprehensive development specifications:
+#### 🎯 **`create_spec` Tool**
+Transforms raw ideas into structured specifications with comprehensive codebase analysis:
 
-- **Deep Codebase Analysis**: Automatically analyzes relevant code files and structure
-- **Project Rule Integration**: Incorporates existing project standards and conventions
-- **Structured Documentation**: Generates `dev_spec.md` files with complete implementation guidance
+- **Deep Codebase Analysis**: Analyzes repository structure, dependencies, and patterns
+- **Project Rules Integration**: Incorporates existing project standards automatically  
+- **Structured Documentation**: Generates complete `dev_spec.md` files with implementation guidance
+- **UUID-Based Storage**: Maintains specifications in system storage for interactive management
+- **Task Integration**: Automatically creates foundation for task planning workflow
 - **Scope-Aware Processing**: Optional scope limitation for focused analysis
+
+**Enhanced Features:**
+- **Local File Generation**: Creates `dev_spec.md` in current directory for immediate review
+- **Interactive Management**: Provides UUID for specification management via `interact_spec`
+- **Complete Workflow Integration**: Seamlessly connects to task planning system
 
 **Usage Example:**
 ```
@@ -73,21 +80,60 @@ create_spec({
 })
 ```
 
-#### 📋 **`interact_spec` Tool**
-Provides interactive management of created specifications:
+**Output:**
+- **`dev_spec.md`**: Complete specification document in current directory
+- **UUID Storage**: Specification stored with unique ID for system integration
+- **Task Foundation**: Initial planning task created automatically
 
-- **Specification Viewing**: Display existing specifications with formatted output
+#### 📋 **`interact_spec` Tool**
+Provides comprehensive interactive management of created specifications:
+
+- **Specification Viewing**: Display existing specifications with enhanced formatting
 - **Dynamic Editing**: Modify specifications through natural language commands
 - **Workflow Management**: Track specification status and implementation progress
+- **Progress Tracking**: Visual progress indicators with status-based guidance
+- **Task Integration**: View and manage associated implementation tasks
 - **Command Interface**: Flexible command system for specification manipulation
 
-**Usage Example:**
+**Enhanced Features:**
+- **UUID-Based Access**: Direct specification access using unique identifiers
+- **Enhanced Formatting**: Rich, structured output with tables and progress bars
+- **Troubleshooting Guidance**: Built-in help and error resolution suggestions
+- **Local File Integration**: References to `dev_spec.md` for complete workflow
+
+**Usage Examples:**
 ```
+// View complete specification
 interact_spec({
-  specId: "auth-system-spec", // optional
-  command: "show implementation checklist"
+  specId: "uuid-from-create-spec",
+  command: "view"
+})
+
+// Check implementation progress
+interact_spec({
+  specId: "uuid-from-create-spec", 
+  command: "progress"
+})
+
+// Edit a specific section
+interact_spec({
+  specId: "uuid-from-create-spec",
+  command: "edit overview Updated overview content here"
+})
+
+// Get help and available commands
+interact_spec({
+  command: "help"
 })
 ```
+
+**Available Commands:**
+- `view`: Display complete specification with metadata
+- `edit <section> <content>`: Modify specific sections
+- `progress`: Check implementation progress with visual indicators
+- `tasks`: View associated implementation tasks
+- `help`: Get detailed command documentation
+- `list`: Display available specifications
 
 ### **Methodological Benefits:**
 

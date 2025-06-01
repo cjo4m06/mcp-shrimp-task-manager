@@ -13,6 +13,8 @@ import { analyzeRepository } from "./components/codebase-analyzer.js";
 import { generateRuleSuggestions, applyRulesToSpecification } from "./components/project-rules-integrator.js";
 import { storeSpecificationInTaskMemory, createTaskFromSpecification } from "./components/task-memory-connector.js";
 import { createWorkflowState, createSession } from "./components/workflow-state-manager.js";
+import fs from 'fs/promises';
+import path from 'path';
 
 /**
  * Main function for creating a specification document
@@ -201,6 +203,16 @@ export async function createSpec(params: z.infer<typeof createSpecSchema>) {
       console.error('Error creating workflow state:', error);
     }
 
+    // **NEW: Generate dev_spec.md file in current directory**
+    try {
+      const devSpecContent = generateDevSpecMarkdown(specification, analysisText);
+      const devSpecPath = path.join(process.cwd(), 'dev_spec.md');
+      await fs.writeFile(devSpecPath, devSpecContent, 'utf-8');
+      console.log(`Generated dev_spec.md file at: ${devSpecPath}`);
+    } catch (error) {
+      console.error('Error generating dev_spec.md file:', error);
+    }
+
     // Count the number of rule suggestions
     let ruleCount = 0;
     for (const section of specification.sections) {
@@ -224,7 +236,8 @@ export async function createSpec(params: z.infer<typeof createSpecSchema>) {
                 `- **ID**: ${specification.id}\n` +
                 `- **Version**: ${specification.version}\n` +
                 `- **Created**: ${specification.createdAt.toISOString().split('T')[0]}\n` +
-                `- **Status**: ${specification.metadata.status}\n\n` +
+                `- **Status**: ${specification.metadata.status}\n` +
+                `- **Local File**: \`dev_spec.md\` (generated in current directory)\n\n` +
                 `The specification contains the following sections:\n\n` +
                 `${specification.sections.map(section => `- ${section.title}`).join('\n')}\n\n` +
                 `## Codebase Analysis Results\n\n` +
@@ -248,7 +261,13 @@ export async function createSpec(params: z.infer<typeof createSpecSchema>) {
                   `The current workflow phase is 'analysis'.\n\n` :
                   ''
                 }` +
-                `You can now use this specification as a foundation for task planning and implementation.`
+                `## Files Generated\n\n` +
+                `- **\`dev_spec.md\`**: Complete specification document in current directory\n` +
+                `- **UUID Storage**: Full specification stored with ID ${specification.id} for system integration\n\n` +
+                `You can now:\n` +
+                `1. Review the \`dev_spec.md\` file for complete specification details\n` +
+                `2. Use \`interact_spec\` with ID ${specification.id} for interactive management\n` +
+                `3. Use \`plan_task\` to create implementation tasks based on this specification`
         },
       ],
     };
@@ -264,4 +283,56 @@ export async function createSpec(params: z.infer<typeof createSpecSchema>) {
       ],
     };
   }
+}
+
+/**
+ * Generates a complete dev_spec.md markdown file from a specification
+ * 
+ * @param specification - The specification document
+ * @param analysisText - The codebase analysis results text
+ * @returns Formatted markdown content for dev_spec.md
+ */
+function generateDevSpecMarkdown(specification: any, analysisText: string): string {
+  const sections = specification.sections || [];
+  let content = `# ${specification.title}\n\n`;
+  
+  // Add metadata
+  content += `## Specification Metadata\n\n`;
+  content += `- **ID**: \`${specification.id}\`\n`;
+  content += `- **Version**: ${specification.version}\n`;
+  content += `- **Status**: ${specification.metadata?.status || 'draft'}\n`;
+  content += `- **Created**: ${specification.createdAt.toISOString().split('T')[0]}\n`;
+  content += `- **Updated**: ${specification.updatedAt.toISOString().split('T')[0]}\n`;
+  content += `- **Authors**: ${specification.metadata?.authors?.join(', ') || 'AI Assistant'}\n\n`;
+  
+  // Add analysis results
+  if (analysisText && analysisText.trim()) {
+    content += `## Codebase Analysis\n\n`;
+    content += `${analysisText}\n\n`;
+  }
+  
+  // Add all sections from the specification
+  for (const section of sections) {
+    content += `## ${section.title}\n\n`;
+    content += `${section.content}\n\n`;
+  }
+  
+  // Add UUID reference for interactive commands
+  content += `---\n\n`;
+  content += `## Interactive Management\n\n`;
+  content += `This specification can be managed interactively using:\n\n`;
+  content += `\`\`\`\n`;
+  content += `interact_spec({\n`;
+  content += `  specId: "${specification.id}",\n`;
+  content += `  command: "view"  // or "edit", "progress", "tasks", etc.\n`;
+  content += `})\n`;
+  content += `\`\`\`\n\n`;
+  content += `**Available Commands:**\n`;
+  content += `- \`view\`: Display the complete specification\n`;
+  content += `- \`edit <section> <content>\`: Edit a specific section\n`;
+  content += `- \`progress\`: Check implementation progress\n`;
+  content += `- \`tasks\`: View related tasks\n`;
+  content += `- \`help\`: Get detailed command help\n\n`;
+  
+  return content;
 }

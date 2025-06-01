@@ -4,6 +4,39 @@
 
 ## [Unreleased]
 
+## [1.1.1] - 2024-12-19
+
+### Enhanced - Idea Honing System Improvements 🎯
+
+- **Enhanced `create_spec` Tool**: Now generates `dev_spec.md` files in current directory
+  - **Local File Generation**: Creates complete specification document as `dev_spec.md` for immediate review
+  - **UUID Integration**: Maintains system storage with unique identifiers for interactive management
+  - **Enhanced Output**: Improved feedback with file generation confirmation and usage guidance
+  - **Complete Workflow**: Seamless integration between local files and system management
+
+- **Enhanced `interact_spec` Tool**: Comprehensive interactive specification management
+  - **UUID-Based Access**: Direct specification retrieval using unique identifiers from `create_spec`
+  - **Enhanced Formatting**: Rich, structured output with tables, progress bars, and visual indicators
+  - **Improved Error Handling**: Better troubleshooting guidance and error resolution suggestions
+  - **Progress Tracking**: Visual progress indicators with status-based implementation guidance
+  - **Local File Integration**: References to `dev_spec.md` for complete development workflow
+
+- **Documentation Updates**: Enhanced README with detailed usage examples and command documentation
+
+### Technical Improvements
+
+- **File System Integration**: Dual storage system (local + UUID-based) for optimal workflow
+- **Enhanced Error Architecture**: Methodical error handling with user-friendly guidance
+- **Command Interface**: Comprehensive command system with help and troubleshooting features
+- **Workflow Continuity**: Seamless transition between specification creation and task planning
+
+### User Experience
+
+- **Immediate Accessibility**: `dev_spec.md` files provide instant access to specification content
+- **Interactive Management**: UUID-based system enables sophisticated specification workflows
+- **Visual Feedback**: Progress bars, status indicators, and structured formatting
+- **Comprehensive Help**: Built-in guidance and troubleshooting for all operations
+
 ## [1.1.0] - 2024-12-19
 
 ### Added - Major Feature Release 🚀
