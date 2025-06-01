@@ -64,5 +64,8 @@ data/*.json
 data/*/*.json
 data/*
 
+# Test artifacts and working files
+kanbn/
+
 # Cursor AI 生成的暫存檔案
 .cursor/tmp/ mcp-client-cli/
