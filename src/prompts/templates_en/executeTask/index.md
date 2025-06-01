@@ -24,6 +24,8 @@
 
 ## Execution Steps
 
+{{include:shared/projectContextCheck.md}}
+
 1. **Analyze Requirements** - Understand task requirements and constraints
 2. **Design Solution** - Develop implementation plan and testing strategy
 3. **Implement Solution** - Execute according to plan, handle edge cases

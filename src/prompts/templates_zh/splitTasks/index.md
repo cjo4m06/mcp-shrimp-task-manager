@@ -1,5 +1,7 @@
 ## 任務拆分 - {updateMode} 模式
 
+{{include:shared/projectContextCheck.md}}
+
 ## 拆分策略
 
 1. **按功能分解** - 獨立可測試的子功能，明確輸入輸出

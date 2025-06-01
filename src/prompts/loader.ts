@@ -74,6 +74,56 @@ export function generatePrompt(
 }
 
 /**
+ * 處理模板包含指令
+ * @param content 模板內容
+ * @param templateDir 模板目錄路徑
+ * @returns 處理後的內容
+ */
+function processTemplateIncludes(content: string, templateDir: string): string {
+  // 匹配 {{include:shared/filename.md}} 格式
+  return content.replace(/\{\{include:(.+?)\}\}/g, (match, includePath) => {
+    try {
+      // 找到模板集的根目錄（templates_en 或 templates_zh）
+      const templateSetRoot = findTemplateSetRoot(templateDir);
+      const includeFile = path.join(templateSetRoot, includePath);
+
+      if (fs.existsSync(includeFile)) {
+        const includeContent = fs.readFileSync(includeFile, 'utf-8');
+        // 遞歸處理包含的文件中的包含指令
+        return processTemplateIncludes(includeContent, templateSetRoot);
+      } else {
+        console.warn(`Include file not found: ${includeFile}`);
+        return `<!-- Include file not found: ${includePath} -->`;
+      }
+    } catch (error) {
+      console.error(`Error processing include ${includePath}:`, error);
+      return `<!-- Error processing include: ${includePath} -->`;
+    }
+  });
+}
+
+/**
+ * 找到模板集的根目錄
+ * @param templateDir 當前模板目錄
+ * @returns 模板集根目錄路徑
+ */
+function findTemplateSetRoot(templateDir: string): string {
+  let currentDir = templateDir;
+
+  // 向上查找直到找到 templates_en 或 templates_zh 目錄
+  while (currentDir && currentDir !== path.dirname(currentDir)) {
+    const dirName = path.basename(currentDir);
+    if (dirName.startsWith('templates_')) {
+      return currentDir;
+    }
+    currentDir = path.dirname(currentDir);
+  }
+
+  // 如果沒找到，返回原始目錄
+  return templateDir;
+}
+
+/**
  * 從模板載入 prompt
  * @param templatePath 相對於模板集根目錄的模板路徑 (e.g., 'chat/basic.md')
  * @returns 模板內容
@@ -134,5 +184,10 @@ export function loadPromptFromTemplate(templatePath: string): string {
   }
 
   // 5. 讀取找到的文件
-  return fs.readFileSync(finalPath, "utf-8");
+  let content = fs.readFileSync(finalPath, "utf-8");
+
+  // 6. 處理模板包含（{{include:shared/filename.md}}）
+  content = processTemplateIncludes(content, path.dirname(finalPath));
+
+  return content;
 }

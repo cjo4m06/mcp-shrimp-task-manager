@@ -1,1 +1,1 @@
-Clear incomplete tasks and reset the task list
+Clear all incomplete tasks and reset the task list. This operation removes all in-progress and pending tasks from the system while preserving completed task records to maintain system integrity. A backup is automatically created before execution.

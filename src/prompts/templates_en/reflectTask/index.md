@@ -1,5 +1,9 @@
 ## Reflection Results
 
+**Task Summary:** {summary}
+
+**Technical Analysis:** {analysis}
+
 After receiving the solution and suggestions, conduct self-reflection and final confirmation, and submit the final results:
 
 1. **Requirements Alignment Check**

@@ -3,6 +3,9 @@ import { loadPromptFromTemplate } from "./prompts/loader.js";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { zodToJsonSchema } from "zod-to-json-schema";
+import { getProjectDataDir } from "./utils/pathManager.js";
+import { setServerInstance } from "./utils/serverInstance.js";
+import { log } from "./utils/logger.js";
 import {
   CallToolRequest,
   CallToolRequestSchema,
@@ -49,13 +52,54 @@ import {
   initProjectRulesSchema,
   researchMode,
   researchModeSchema,
+  getProjectContext,
+  getProjectContextSchema,
+  analyzeWorkingDirectory,
+  analyzeWorkingDirectorySchema,
+  setProjectWorkingDirectory,
+  setProjectWorkingDirectorySchema,
+  diagnoseMcpEnvironment,
+  diagnoseMcpEnvironmentSchema,
+  viewRealtimeLogs,
+  viewRealtimeLogsSchema,
+  resetProjectDetection,
+  resetProjectDetectionSchema,
+  showPathStatus,
+  showPathStatusSchema,
+  validateProjectIsolation,
+  validateProjectIsolationSchema,
 } from "./tools/index.js";
 
 async function main() {
   try {
+    // 确保关键环境变量有默认值
+    if (!process.env.PROJECT_AUTO_DETECT) {
+      process.env.PROJECT_AUTO_DETECT = 'true';
+    }
+    if (!process.env.TEMPLATES_USE) {
+      process.env.TEMPLATES_USE = 'zh';
+    }
+
+    // 初始化日志系统
+    await log.init();
+    log.info("System", "MCP Shrimp Task Manager 启动", {
+      version: "1.0.19",
+      nodeVersion: process.version,
+      platform: process.platform,
+      env: {
+        ENABLE_GUI: process.env.ENABLE_GUI,
+        PROJECT_AUTO_DETECT: process.env.PROJECT_AUTO_DETECT,
+        DATA_DIR: process.env.DATA_DIR,
+        TEMPLATES_USE: process.env.TEMPLATES_USE,
+        LOG_LEVEL: process.env.LOG_LEVEL,
+        LOG_TO_CONSOLE: process.env.LOG_TO_CONSOLE,
+      }
+    });
+
     const ENABLE_GUI = process.env.ENABLE_GUI === "true";
 
     if (ENABLE_GUI) {
+      log.info("GUI", "启用Web GUI模式");
       // 創建 Express 應用
       const app = express();
 
@@ -82,8 +126,18 @@ async function main() {
       const __filename = fileURLToPath(import.meta.url);
       const __dirname = path.dirname(__filename);
       const publicPath = path.join(__dirname, "public");
-      const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
+
+      // 獲取項目感知的數據目錄
+      const DATA_DIR = await getProjectDataDir();
       const TASKS_FILE_PATH = path.join(DATA_DIR, "tasks.json"); // 提取檔案路徑
+
+      // 设置项目特定的日志目录
+      await log.setProjectDir(DATA_DIR);
+
+      log.info("GUI", "数据目录配置", {
+        projectDataDir: DATA_DIR,
+        tasksFile: TASKS_FILE_PATH
+      });
 
       app.use(express.static(publicPath));
 
@@ -127,9 +181,14 @@ async function main() {
 
       // 獲取可用埠
       const port = await getPort();
+      log.info("GUI", `获取到可用端口: ${port}`);
 
       // 啟動 HTTP 伺服器
       const httpServer = app.listen(port, () => {
+        log.info("GUI", `HTTP服务器启动成功`, {
+          port,
+          url: `http://localhost:${port}`
+        });
         // 在伺服器啟動後開始監聽檔案變化
         try {
           // 檢查檔案是否存在，如果不存在則不監聽 (避免 watch 報錯)
@@ -180,7 +239,15 @@ async function main() {
       process.on("SIGTERM", shutdownHandler);
     }
 
+    // 在非GUI模式下也设置项目特定的日志目录
+    if (!ENABLE_GUI) {
+      const projectDataDir = await getProjectDataDir();
+      await log.setProjectDir(projectDataDir);
+      log.info("System", "项目数据目录配置", { projectDataDir });
+    }
+
     // 創建MCP服務器
+    log.info("MCP", "创建MCP服务器");
     const server = new Server(
       {
         name: "Shrimp Task Manager",
@@ -189,11 +256,19 @@ async function main() {
       {
         capabilities: {
           tools: {},
+          roots: {
+            listChanged: true,
+          },
         },
       }
     );
 
+    // 設置全局服務器實例，供項目檢測使用
+    setServerInstance(server);
+    log.info("MCP", "设置全局服务器实例完成");
+
     server.setRequestHandler(ListToolsRequestSchema, async () => {
+      log.debug("MCP", "收到工具列表请求");
       return {
         tools: [
           {
@@ -299,6 +374,62 @@ async function main() {
             ),
             inputSchema: zodToJsonSchema(researchModeSchema),
           },
+          {
+            name: "get_project_context",
+            description: loadPromptFromTemplate(
+              "toolsDescription/getProjectContext.md"
+            ),
+            inputSchema: zodToJsonSchema(getProjectContextSchema),
+          },
+          {
+            name: "analyze_working_directory",
+            description: loadPromptFromTemplate(
+              "toolsDescription/analyzeWorkingDirectory.md"
+            ),
+            inputSchema: zodToJsonSchema(analyzeWorkingDirectorySchema),
+          },
+          {
+            name: "set_project_working_directory",
+            description: loadPromptFromTemplate(
+              "toolsDescription/setProjectWorkingDirectory.md"
+            ),
+            inputSchema: zodToJsonSchema(setProjectWorkingDirectorySchema),
+          },
+          {
+            name: "diagnose_mcp_environment",
+            description: loadPromptFromTemplate(
+              "toolsDescription/diagnoseMcpEnvironment.md"
+            ),
+            inputSchema: zodToJsonSchema(diagnoseMcpEnvironmentSchema),
+          },
+          {
+            name: "view_realtime_logs",
+            description: loadPromptFromTemplate(
+              "toolsDescription/viewRealtimeLogs.md"
+            ),
+            inputSchema: zodToJsonSchema(viewRealtimeLogsSchema),
+          },
+          {
+            name: "reset_project_detection",
+            description: loadPromptFromTemplate(
+              "toolsDescription/resetProjectDetection.md"
+            ),
+            inputSchema: zodToJsonSchema(resetProjectDetectionSchema),
+          },
+          {
+            name: "show_path_status",
+            description: loadPromptFromTemplate(
+              "toolsDescription/showPathStatus.md"
+            ),
+            inputSchema: zodToJsonSchema(showPathStatusSchema),
+          },
+          {
+            name: "validate_project_isolation",
+            description: loadPromptFromTemplate(
+              "toolsDescription/validateProjectIsolation.md"
+            ),
+            inputSchema: zodToJsonSchema(validateProjectIsolationSchema),
+          },
         ],
       };
     });
@@ -306,6 +437,11 @@ async function main() {
     server.setRequestHandler(
       CallToolRequestSchema,
       async (request: CallToolRequest) => {
+        const startTime = Date.now();
+        log.info("MCP", `收到工具调用请求: ${request.params.name}`, {
+          toolName: request.params.name,
+        });
+
         try {
           if (!request.params.arguments) {
             throw new Error("No arguments provided");
@@ -455,12 +591,99 @@ async function main() {
                 );
               }
               return await researchMode(parsedArgs.data);
+            case "get_project_context":
+              parsedArgs = await getProjectContextSchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await getProjectContext(parsedArgs.data);
+            case "analyze_working_directory":
+              parsedArgs = await analyzeWorkingDirectorySchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await analyzeWorkingDirectory(parsedArgs.data);
+            case "set_project_working_directory":
+              parsedArgs = await setProjectWorkingDirectorySchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await setProjectWorkingDirectory(parsedArgs.data);
+            case "diagnose_mcp_environment":
+              parsedArgs = await diagnoseMcpEnvironmentSchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await diagnoseMcpEnvironment(parsedArgs.data);
+            case "view_realtime_logs":
+              parsedArgs = await viewRealtimeLogsSchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await viewRealtimeLogs(parsedArgs.data);
+            case "reset_project_detection":
+              parsedArgs = await resetProjectDetectionSchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await resetProjectDetection(parsedArgs.data);
+            case "show_path_status":
+              parsedArgs = await showPathStatusSchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await showPathStatus(parsedArgs.data);
+            case "validate_project_isolation":
+              parsedArgs = await validateProjectIsolationSchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await validateProjectIsolation(parsedArgs.data);
             default:
               throw new Error(`Tool ${request.params.name} does not exist`);
           }
         } catch (error) {
-          const errorMsg =
-            error instanceof Error ? error.message : String(error);
+          const duration = Date.now() - startTime;
+          const errorMsg = error instanceof Error ? error.message : String(error);
+
+          log.error("MCP", `工具调用失败: ${request.params.name}`, error as Error, {
+            toolName: request.params.name,
+            duration,
+            arguments: request.params.arguments,
+          });
+
           return {
             content: [
               {
@@ -469,14 +692,41 @@ async function main() {
               },
             ],
           };
+        } finally {
+          const duration = Date.now() - startTime;
+          log.debug("MCP", `工具调用完成: ${request.params.name}`, {
+            toolName: request.params.name,
+            duration: `${duration}ms`,
+          });
         }
       }
     );
 
     // 建立連接
+    log.info("MCP", "建立MCP连接");
     const transport = new StdioServerTransport();
     await server.connect(transport);
+    log.info("MCP", "MCP服务器连接成功，开始监听请求");
+
+    // 注册进程退出清理
+    const cleanup = () => {
+      log.info("Server", "正在清理资源...");
+      // 获取logger实例并清理
+      import("./utils/logger.js").then(({ logger }) => {
+        logger.cleanup();
+      }).catch(() => {});
+    };
+
+    process.on('SIGINT', cleanup);
+    process.on('SIGTERM', cleanup);
+    process.on('exit', cleanup);
+
   } catch (error) {
+    log.error("System", "系统启动失败", error as Error);
+    // 获取logger实例并清理
+    import("./utils/logger.js").then(({ logger }) => {
+      logger.cleanup();
+    }).catch(() => {});
     process.exit(1);
   }
 }

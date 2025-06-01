@@ -1,5 +1,13 @@
 ## 代碼庫分析
 
+{{include:shared/projectContextCheck.md}}
+
+**任務摘要:** {summary}
+
+**初步構想:** {initialConcept}
+
+{iterationPrompt}
+
 接收到初步方案後，依序完成下列檢查與優化，並在最後呼叫 `reflect_task` 工具：
 
 1. **結構完整性檢查**
@@ -13,7 +21,7 @@
 2. **重複功能偵測與共用判斷**
 
    - 使用精確的搜尋策略：
-     - 使用 `codebase_search`、`read_file`或其他類斯工具搜尋類似功能實現
+     - 使用 `codebase_search`、`read_file` 或其他類似工具搜尋類似功能實現
      - 分析關鍵組件和工具類的用途與職責
    - 檢查方案中功能是否與現有程式或其他模組重疊
    - 如重疊，判斷：

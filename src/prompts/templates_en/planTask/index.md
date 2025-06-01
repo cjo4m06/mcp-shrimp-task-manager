@@ -1,5 +1,7 @@
 ## Task Analysis
 
+{{include:shared/projectContextCheck.md}}
+
 You must complete the following sub-steps in sequence, and at the end call the `analyze_task` tool to pass the preliminary design solution to the next stage.
 
 1. **Analysis Purpose**
