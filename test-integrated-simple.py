@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Simplified Integrated LLM + MCP Real Workflow Testing
 ✅ Connects to real MCP server
@@ -20,6 +21,17 @@ import re
 import platform
 from pathlib import Path
 from typing import Dict, List, Optional, Any
+
+# Set UTF-8 encoding for Windows compatibility
+if platform.system() == "Windows":
+    try:
+        import locale
+        import codecs
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+        sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+    except:
+        # Fallback: just ensure we don't crash on encoding issues
+        pass
 
 try:
     from mcp import ClientSession, StdioServerParameters
@@ -46,6 +58,15 @@ def get_node_command():
         return "node.exe"
     return "node"
 
+def safe_print(message: str):
+    """Print message with encoding safety for Windows"""
+    try:
+        print(message)
+    except UnicodeEncodeError:
+        # Fallback: remove any problematic characters
+        ascii_message = message.encode('ascii', 'ignore').decode('ascii')
+        print(ascii_message)
+
 class SimpleIntegratedTester:
     """Simplified integrated testing with robust error handling and comprehensive tool coverage"""
     
@@ -60,22 +81,22 @@ class SimpleIntegratedTester:
         """Enhanced logging with timestamps"""
         timestamp = time.strftime("%H:%M:%S")
         if level == "PHASE":
-            print(f"[{timestamp}] {message}")
+            safe_print(f"[{timestamp}] {message}")
         elif level == "SUCCESS":
-            print(f"[{timestamp}] SUCCESS: {message}")
+            safe_print(f"[{timestamp}] SUCCESS: {message}")
         elif level == "ERROR":
-            print(f"[{timestamp}] ERROR: {message}")
+            safe_print(f"[{timestamp}] ERROR: {message}")
         else:
-            print(f"[{timestamp}] {level}: {message}")
+            safe_print(f"[{timestamp}] {level}: {message}")
     
     def print_detailed_section(self, title: str, content: str):
         """Print a detailed formatted section"""
         if self.show_detailed_output:
-            print(f"\n{'='*80}")
-            print(f"DETAILED OUTPUT: {title}")
-            print(f"{'='*80}")
-            print(content)
-            print(f"{'='*80}\n")
+            safe_print(f"\n{'='*80}")
+            safe_print(f"DETAILED OUTPUT: {title}")
+            safe_print(f"{'='*80}")
+            safe_print(content)
+            safe_print(f"{'='*80}\n")
     
     def extract_uuid(self, text: str) -> str:
         """Extract UUID from text"""
@@ -304,7 +325,7 @@ class SimpleIntegratedTester:
                 # Extract task ID from split_tasks output
                 delete_task_id = self.extract_task_id(delete_test_split['content'])
                 if delete_task_id:
-                    self.log(f"✅ Created deletable test task: {delete_task_id}")
+                    self.log(f"SUCCESS: Created deletable test task: {delete_task_id}")
                     delete_result = await self.test_tool(session, 'delete_task', {
                         "taskId": delete_task_id
                     })
@@ -334,14 +355,14 @@ class SimpleIntegratedTester:
     
     async def run_comprehensive_test(self):
         """Run comprehensive integrated testing with detailed output"""
-        print("MCP Shrimp Task Manager - COMPREHENSIVE INTEGRATED TESTING")
-        print("Real MCP server connection")
-        print("ACTUAL tool calls execution")
-        print("Robust error handling")
-        print("DETAILED output demonstration")
-        print("COMPLETE tool ecosystem coverage")
-        print(f"Platform: {platform.system()} {platform.release()}")
-        print("-" * 80)
+        safe_print("MCP Shrimp Task Manager - COMPREHENSIVE INTEGRATED TESTING")
+        safe_print("Real MCP server connection")
+        safe_print("ACTUAL tool calls execution")
+        safe_print("Robust error handling")
+        safe_print("DETAILED output demonstration")
+        safe_print("COMPLETE tool ecosystem coverage")
+        safe_print(f"Platform: {platform.system()} {platform.release()}")
+        safe_print("-" * 80)
         
         # Check if we're in GitHub Actions or if dist already exists
         is_github_actions = os.getenv('GITHUB_ACTIONS') == 'true'
@@ -351,7 +372,7 @@ class SimpleIntegratedTester:
             self.log("Running in GitHub Actions with pre-built dist/ - skipping build step")
         else:
             # Build project with cross-platform compatibility
-            print("Building project...")
+            safe_print("Building project...")
             try:
                 npm_cmd = get_npm_command()
                 self.log(f"Using npm command: {npm_cmd}")
@@ -434,21 +455,21 @@ class SimpleIntegratedTester:
         total_tests = len(self.results)
         success_rate = (passed_tests / total_tests) * 100 if total_tests > 0 else 0
         
-        print("\n" + "=" * 80)
-        print("COMPREHENSIVE INTEGRATED TEST RESULTS WITH DETAILED OUTPUT")
-        print("=" * 80)
+        safe_print("\n" + "=" * 80)
+        safe_print("COMPREHENSIVE INTEGRATED TEST RESULTS WITH DETAILED OUTPUT")
+        safe_print("=" * 80)
         
-        print(f"Results:")
-        print(f"   Tests Passed: {passed_tests}/{total_tests}")
-        print(f"   Success Rate: {success_rate:.1f}%")
-        print(f"   Total Time: {total_time:.2f} seconds")
+        safe_print(f"Results:")
+        safe_print(f"   Tests Passed: {passed_tests}/{total_tests}")
+        safe_print(f"   Success Rate: {success_rate:.1f}%")
+        safe_print(f"   Total Time: {total_time:.2f} seconds")
         
-        print(f"\nIntegration Validation:")
-        print(f"   REAL MCP Connection: YES")
-        print(f"   ACTUAL Tool Calls: YES")
-        print(f"   OpenAI Integration: {'YES' if OPENAI_AVAILABLE and os.getenv('OPENAI_API_KEY') else 'NO'}")
-        print(f"   Detailed Output Demo: YES")
-        print(f"   Complete Tool Coverage: YES")
+        safe_print(f"\nIntegration Validation:")
+        safe_print(f"   REAL MCP Connection: YES")
+        safe_print(f"   ACTUAL Tool Calls: YES")
+        safe_print(f"   OpenAI Integration: {'YES' if OPENAI_AVAILABLE and os.getenv('OPENAI_API_KEY') else 'NO'}")
+        safe_print(f"   Detailed Output Demo: YES")
+        safe_print(f"   Complete Tool Coverage: YES")
         
         # Organize results by category
         categories = {
@@ -460,39 +481,39 @@ class SimpleIntegratedTester:
             "Research Mode": ["research_mode"]
         }
         
-        print(f"\nResults by Category:")
+        safe_print(f"\nResults by Category:")
         for category, tools in categories.items():
             passed_in_category = sum(1 for tool in tools if self.results.get(tool, False))
             total_in_category = len(tools)
             category_rate = (passed_in_category / total_in_category) * 100 if total_in_category > 0 else 0
             
-            print(f"\n   {category} ({category_rate:.0f}%):")
+            safe_print(f"\n   {category} ({category_rate:.0f}%):")
             for tool in tools:
                 result = self.results.get(tool, False)
                 status = "PASSED" if result else "FAILED"
                 symbol = "PASS" if result else "FAIL"
-                print(f"     {symbol}: {tool}: {status}")
+                safe_print(f"     {symbol}: {tool}: {status}")
         
         if self.spec_uuid:
-            print(f"\nGenerated Specification:")
-            print(f"   UUID: {self.spec_uuid}")
-            print(f"   Access: get_spec({{ specId: '{self.spec_uuid}' }})")
-            print(f"   Interact: interact_spec({{ specId: '{self.spec_uuid}', command: 'view' }})")
+            safe_print(f"\nGenerated Specification:")
+            safe_print(f"   UUID: {self.spec_uuid}")
+            safe_print(f"   Access: get_spec({{ specId: '{self.spec_uuid}' }})")
+            safe_print(f"   Interact: interact_spec({{ specId: '{self.spec_uuid}', command: 'view' }})")
         
         if self.task_id:
-            print(f"\nGenerated Task:")
-            print(f"   Task ID: {self.task_id}")
-            print(f"   Details: get_task_detail({{ taskId: '{self.task_id}' }})")
-            print(f"   Execute: execute_task({{ taskId: '{self.task_id}' }})")
+            safe_print(f"\nGenerated Task:")
+            safe_print(f"   Task ID: {self.task_id}")
+            safe_print(f"   Details: get_task_detail({{ taskId: '{self.task_id}' }})")
+            safe_print(f"   Execute: execute_task({{ taskId: '{self.task_id}' }})")
         
         final_status = "PASSED" if success_rate >= 80 else "FAILED"
-        print(f"\nCOMPREHENSIVE INTEGRATED TEST: {final_status}")
-        print("=" * 80)
+        safe_print(f"\nCOMPREHENSIVE INTEGRATED TEST: {final_status}")
+        safe_print("=" * 80)
 
 async def main():
     """Main execution function"""
     if not MCP_AVAILABLE:
-        print("ERROR: MCP library not available. Install with: pip install mcp")
+        safe_print("ERROR: MCP library not available. Install with: pip install mcp")
         return False
     
     tester = SimpleIntegratedTester()
