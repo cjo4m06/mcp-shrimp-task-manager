@@ -7,6 +7,7 @@ Simplified Integrated LLM + MCP Real Workflow Testing
 ✅ Robust error handling
 ✅ Detailed output demonstration
 ✅ COMPREHENSIVE tool coverage
+✅ Cross-platform compatibility (Windows, macOS, Linux)
 """
 
 import asyncio
@@ -16,6 +17,7 @@ import subprocess
 import sys
 import time
 import re
+import platform
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
@@ -31,6 +33,18 @@ try:
     OPENAI_AVAILABLE = True
 except ImportError:
     OPENAI_AVAILABLE = False
+
+def get_npm_command():
+    """Get the correct npm command for the current platform"""
+    if platform.system() == "Windows":
+        return "npm.cmd"
+    return "npm"
+
+def get_node_command():
+    """Get the correct node command for the current platform"""
+    if platform.system() == "Windows":
+        return "node.exe"
+    return "node"
 
 class SimpleIntegratedTester:
     """Simplified integrated testing with robust error handling and comprehensive tool coverage"""
@@ -326,24 +340,63 @@ class SimpleIntegratedTester:
         print("Robust error handling")
         print("DETAILED output demonstration")
         print("COMPLETE tool ecosystem coverage")
+        print(f"Platform: {platform.system()} {platform.release()}")
         print("-" * 80)
         
-        # Build project
-        print("Building project...")
-        try:
-            result = subprocess.run(["npm", "run", "build"], capture_output=True, text=True, check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"Build failed: {e.stderr}")
+        # Check if we're in GitHub Actions or if dist already exists
+        is_github_actions = os.getenv('GITHUB_ACTIONS') == 'true'
+        dist_exists = Path('dist').exists() and Path('dist/index.js').exists()
+        
+        if is_github_actions and dist_exists:
+            self.log("Running in GitHub Actions with pre-built dist/ - skipping build step")
+        else:
+            # Build project with cross-platform compatibility
+            print("Building project...")
+            try:
+                npm_cmd = get_npm_command()
+                self.log(f"Using npm command: {npm_cmd}")
+                
+                # Use shell=True on Windows for better compatibility
+                use_shell = platform.system() == "Windows"
+                
+                result = subprocess.run(
+                    [npm_cmd, "run", "build"], 
+                    capture_output=True, 
+                    text=True, 
+                    check=True,
+                    shell=use_shell,
+                    timeout=120  # 2 minute timeout
+                )
+                self.log("Build completed successfully")
+            except subprocess.CalledProcessError as e:
+                self.log(f"Build failed with exit code {e.returncode}", "ERROR")
+                self.log(f"STDOUT: {e.stdout}", "ERROR")
+                self.log(f"STDERR: {e.stderr}", "ERROR")
+                return False
+            except subprocess.TimeoutExpired:
+                self.log("Build timeout after 2 minutes", "ERROR")
+                return False
+            except FileNotFoundError as e:
+                self.log(f"npm command not found: {e}", "ERROR")
+                self.log("Please ensure npm is installed and in PATH", "ERROR")
+                return False
+        
+        # Verify dist/index.js exists
+        if not Path('dist/index.js').exists():
+            self.log("dist/index.js not found - build may have failed", "ERROR")
             return False
         
         self.start_time = time.time()
         
         if not MCP_AVAILABLE:
-            print("❌ MCP client library not available")
+            self.log("MCP client library not available", "ERROR")
             return False
         
         try:
-            async with stdio_client(StdioServerParameters(command='node', args=['dist/index.js'])) as (read_stream, write_stream):
+            node_cmd = get_node_command()
+            self.log(f"Starting MCP server with: {node_cmd}")
+            
+            async with stdio_client(StdioServerParameters(command=node_cmd, args=['dist/index.js'])) as (read_stream, write_stream):
                 async with ClientSession(read_stream, write_stream) as session:
                     await session.initialize()
                     self.log("MCP Connection Established", "SUCCESS")
@@ -370,6 +423,8 @@ class SimpleIntegratedTester:
                     
         except Exception as e:
             self.log(f"Integration test failed: {e}", "ERROR")
+            import traceback
+            self.log(f"Traceback: {traceback.format_exc()}", "ERROR")
             return False
     
     async def generate_comprehensive_results(self):
