@@ -1,0 +1,31 @@
+{
+  "specId": "40dd90f9-bcb9-4dc0-9807-9ae6109ddae7",
+  "currentPhase": "analysis",
+  "completedSections": [],
+  "pendingQuestions": [],
+  "analysisResults": {
+    "affectedComponents": [
+      {
+        "name": "mcp-shrimp-task-manager",
+        "path": "",
+        "description": "Component based on directory structure",
+        "impactLevel": "low"
+      }
+    ],
+    "impactedFiles": [],
+    "dependencies": [],
+    "projectRules": [],
+    "suggestedQuestions": [
+      "Which of the 1 identified components will be most affected by this change?",
+      "Are there any components missing from the analysis that should be considered?",
+      "What existing files will need to be modified for this feature?",
+      "What dependencies will this feature have on existing code?",
+      "Are there any project rules or guidelines that should be considered for this implementation?",
+      "What are the potential risks or challenges in implementing this feature?",
+      "Are there any performance considerations for this implementation?",
+      "What testing approach would be most appropriate for this feature?"
+    ],
+    "analysisConfidence": 0.7
+  },
+  "lastActive": "2025-06-01T17:10:24.249Z"
+}

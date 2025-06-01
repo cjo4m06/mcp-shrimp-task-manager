@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "shrimp-task-manager": {
+      "command": "node",
+      "args": ["dist/index.js"],
+      "env": {
+        "NODE_ENV": "test",
+        "LOG_LEVEL": "info"
+      }
+    }
+  },
+  "systemPrompt": "You are testing the MCP Shrimp Task Manager with enhanced Idea Honing System, Research Mode, and comprehensive task management capabilities."
+}

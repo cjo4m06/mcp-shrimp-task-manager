@@ -724,106 +724,82 @@ For the best experience, we recommend using the following models:
 
 Due to differences in training methods and understanding capabilities across models, using other models might lead to varying results for the same prompts. This project has been optimized for Claude 3.7 and Gemini 2.5.
 
-## 🧪 Testing & Quality Assurance
+## 🧪 Testing
 
-Shrimp Task Manager includes a comprehensive testing framework that validates all aspects of the MCP server functionality:
-
-### 🔬 **Testing Architecture**
-
-Our testing framework provides multiple layers of validation:
-
-- **Build Validation**: Ensures compilation integrity and artifact correctness
-- **Server Functionality**: Tests MCP server startup and communication
-- **Tool Response Testing**: Validates actual tool responses and functionality
-- **Integration Testing**: Multi-tool workflow validation
-- **Cross-Platform Testing**: Node.js 18, 20, 22 on multiple platforms
-
-### 📊 **Current Test Status**
-
-**Latest Results:**
-- ✅ **Success Rate**: 100% (5/5 core tests passing)
-- ✅ **Response Quality**: 2,000-5,000 character detailed responses
-- ✅ **Performance**: Sub-second tool response times
-- ✅ **Reliability**: Production-ready stability
-
-### 🚀 **Quick Testing**
+### Professional MCP Testing (Recommended)
+Using the industry-standard `mcp-test` framework for comprehensive validation:
 
 ```bash
-# Local comprehensive testing
-python scripts/ci-test-mcp.py
+# Complete test suite
+npm test
 
-# View detailed tool responses
-python show_tool_responses.py
+# Functional testing
+npm run test:functional
 
-# Full testing suite with detailed analysis
-source .venv/bin/activate
-python dagger_enhanced/test_tool_responses.py
+# List all available tools
+mcp-test --list-tools --test-config mcp-test-config.json
 ```
 
-### 🔄 **CI/CD Integration**
+### Integrated LLM + MCP Real Testing (NEW ✨)
+**Complete end-to-end validation with all three critical components:**
 
-Automated testing runs on every push via GitHub Actions:
-
-```yaml
-# Triggered on push to main, develop, mods branches
-# Tests across Node.js 18, 20, 22 on Ubuntu
-# Includes deployment readiness assessment
-```
-
-**Test Workflow:**
-1. **Build & Startup**: Validates compilation and server initialization
-2. **Core Tools**: Tests `plan_task`, `list_tasks`, `init_project_rules`
-3. **Integration**: Extended workflow validation on main branch
-4. **Deployment**: Production readiness assessment
-
-### 📋 **Test Coverage**
-
-| Test Category | Coverage | Description |
-|---------------|----------|-------------|
-| **Build Artifacts** | ✅ 100% | File existence, size validation, shebang checking |
-| **Server Startup** | ✅ 100% | Cross-platform startup testing (macOS/Linux) |
-| **Tool Responses** | ✅ 87.5% | 7/8 tools with rich, detailed responses |
-| **Integration** | ✅ 100% | Multi-tool workflow validation |
-| **Performance** | ✅ 100% | Sub-second response times |
-
-### 🛠️ **Testing Framework Features**
-
-- **Cross-Platform Support**: Handles macOS and Linux environments
-- **Structured Logging**: Timestamped, categorized test output
-- **JSON Results**: Machine-readable test results for CI integration
-- **Error Analysis**: Detailed error reporting with context
-- **Performance Metrics**: Response time and duration tracking
-
-### 📈 **Quality Metrics**
-
-**Response Quality Analysis:**
-- `plan_task`: 4,847 chars - Comprehensive planning framework
-- `init_project_rules`: 5,285 chars - Complete project standards guide
-- `list_tasks`: 64 chars - Clean system notifications
-- Average response time: <300ms per tool
-
-**Known Issues:**
-- `process_thought`: TaskGroup asyncio conflict (framework-level, not implementation)
-
-### 🔧 **Development Testing**
-
-For development and debugging:
+✅ **Real MCP server connection**  
+✅ **Actual tool calls execution**  
+✅ **OpenAI LLM integration**  
 
 ```bash
-# Test specific tools
-python -c "
-import asyncio
-from scripts.ci_test_mcp import CIMCPTester
-from pathlib import Path
-tester = CIMCPTester(Path.cwd())
-asyncio.run(tester.test_tool_response('plan_task', {'description': 'test'}))
-"
+# Run integrated testing (requires OPENAI_API_KEY)
+npm run test:integrated
 
-# Generate test reports
-python scripts/ci-test-mcp.py > test-output.log
+# Automatically validates:
+# - Live MCP protocol communication
+# - Real tool execution with data persistence  
+# - GPT-4 analysis of actual results
+# - Complete workflow from idea to implementation
 ```
 
-**Testing Confidence Score: 97%** - High confidence based on comprehensive validation framework demonstrating production-ready MCP server with sophisticated task management capabilities.
+**What makes this special:**
+- **True Integration**: Not just connectivity testing, but complete workflow validation
+- **Dual Validation**: Both tool execution success + LLM analysis quality
+- **Real Data**: Tools create actual specifications and tasks that persist
+- **AI Enhancement**: GPT-4 provides intelligent analysis of real tool outputs
+- **Graceful Fallback**: Works with or without OpenAI API access
+
+**Expected Results:**
+```
+🚀 INTEGRATED LLM + MCP REAL WORKFLOW TEST RESULTS
+📊 Integration Results:
+   ✅ Tests Passed: 4/4
+   📈 Success Rate: 100.0%
+   🎯 Avg LLM Confidence: 85.0%
+
+🔧 Real Integration Validation:
+   ✅ REAL MCP Server Connection: YES
+   ✅ ACTUAL Tool Calls: YES (executed 4 real tools)
+   ✅ OpenAI LLM Integration: YES
+   ✅ End-to-End Pipeline: YES (complete workflow)
+```
+
+### End-to-End Workflow Testing
+Validates complete development workflows combining multiple tool invocations:
+
+```bash
+# Mock workflow simulation
+npm run test:workflow
+
+# Real MCP protocol testing  
+npm run test:workflow:real
+```
+
+### Legacy Testing Infrastructure
+For development and debugging purposes:
+
+```bash
+# Comprehensive testing with methodological pragmatism
+npm run test:legacy
+```
+
+**See [INTEGRATED_TESTING_SOLUTION.md](INTEGRATED_TESTING_SOLUTION.md) for complete technical documentation.**
 
 ## Star History
 

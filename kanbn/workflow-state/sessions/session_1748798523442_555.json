@@ -1,0 +1,19 @@
+{
+  "id": "session_1748798523442_555",
+  "userId": "AI Assistant",
+  "startTime": "2025-06-01T17:22:03.442Z",
+  "specId": "b8bcfdfb-9d35-4d34-8de9-03a3a5e1e266",
+  "progress": 0,
+  "metadata": {
+    "source": "create_spec",
+    "initialKeywords": [
+      "dagger",
+      "client",
+      "integration",
+      "kanbn",
+      "server"
+    ],
+    "hasAnalysisResults": true,
+    "hasRuleSuggestions": false
+  }
+}
