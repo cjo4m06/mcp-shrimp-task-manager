@@ -44,9 +44,16 @@ export const interactSpecSchema = z.object({
     .describe("Command to execute"),
 });
 
+// Define the schema for the get_spec command
+export const getSpecSchema = z.object({
+  specId: z.string().describe("The UUID of the specification to retrieve"),
+  format: z.enum(["markdown", "json", "summary"]).optional().default("markdown").describe("Output format: markdown (full content), json (structured data), or summary (brief overview)")
+});
+
 // Export the command functions
 export { createSpec } from "./create-spec.js";
 export { interactSpec } from "./interact-spec.js";
+export { getSpec } from "./get-spec.js";
 
 // Export the schema for use in the main MCP server configuration
 export const ideaHoningTools = [
@@ -59,5 +66,10 @@ export const ideaHoningTools = [
     name: "interact_spec",
     description: "Interact with a specification through commands for viewing, editing, and managing workflow.",
     inputSchema: zodToJsonSchema(interactSpecSchema),
+  },
+  {
+    name: "get_spec",
+    description: "Retrieve and read a stored specification document from the MCP server's data directory using its UUID.",
+    inputSchema: zodToJsonSchema(getSpecSchema),
   },
 ];

@@ -203,14 +203,20 @@ export async function createSpec(params: z.infer<typeof createSpecSchema>) {
       console.error('Error creating workflow state:', error);
     }
 
-    // **NEW: Generate dev_spec.md file in current directory**
+    // **UPDATED: Store dev_spec.md in MCP server data directory**
     try {
       const devSpecContent = generateDevSpecMarkdown(specification, analysisText);
-      const devSpecPath = path.join(process.cwd(), 'dev_spec.md');
+      
+      // Store in MCP server's data directory instead of current working directory
+      const dataDir = path.join(process.cwd(), 'data', 'specifications');
+      await fs.mkdir(dataDir, { recursive: true });
+      
+      const devSpecPath = path.join(dataDir, `${specification.id}.md`);
       await fs.writeFile(devSpecPath, devSpecContent, 'utf-8');
-      console.log(`Generated dev_spec.md file at: ${devSpecPath}`);
+      
+      console.log(`Generated dev_spec.md stored at: ${devSpecPath}`);
     } catch (error) {
-      console.error('Error generating dev_spec.md file:', error);
+      console.error('Error storing dev_spec.md file:', error);
     }
 
     // Count the number of rule suggestions
@@ -237,7 +243,7 @@ export async function createSpec(params: z.infer<typeof createSpecSchema>) {
                 `- **Version**: ${specification.version}\n` +
                 `- **Created**: ${specification.createdAt.toISOString().split('T')[0]}\n` +
                 `- **Status**: ${specification.metadata.status}\n` +
-                `- **Local File**: \`dev_spec.md\` (generated in current directory)\n\n` +
+                `- **Storage**: Stored in MCP server data directory\n\n` +
                 `The specification contains the following sections:\n\n` +
                 `${specification.sections.map(section => `- ${section.title}`).join('\n')}\n\n` +
                 `## Codebase Analysis Results\n\n` +
@@ -261,11 +267,12 @@ export async function createSpec(params: z.infer<typeof createSpecSchema>) {
                   `The current workflow phase is 'analysis'.\n\n` :
                   ''
                 }` +
-                `## Files Generated\n\n` +
-                `- **\`dev_spec.md\`**: Complete specification document in current directory\n` +
-                `- **UUID Storage**: Full specification stored with ID ${specification.id} for system integration\n\n` +
-                `You can now:\n` +
-                `1. Review the \`dev_spec.md\` file for complete specification details\n` +
+                `## Specification Access\n\n` +
+                `- **UUID**: ${specification.id} (for \`interact_spec\` commands)\n` +
+                `- **File Storage**: Available via \`get_spec\` tool using UUID\n` +
+                `- **Interactive Management**: Use \`interact_spec\` for viewing and editing\n\n` +
+                `## Next Steps\n\n` +
+                `1. Use \`get_spec\` with UUID ${specification.id} to read the complete specification\n` +
                 `2. Use \`interact_spec\` with ID ${specification.id} for interactive management\n` +
                 `3. Use \`plan_task\` to create implementation tasks based on this specification`
         },

@@ -100,9 +100,13 @@ export async function interactSpec(params: z.infer<typeof interactSpecSchema>) {
         
         // Add reference information
         responseText += `---\n\n`;
-        responseText += `## Local File Integration\n\n`;
-        responseText += `This specification is also available as \`dev_spec.md\` in your project directory `;
-        responseText += `(if generated using create_spec).\n\n`;
+        responseText += `## Specification Access\n\n`;
+        responseText += `This specification is stored in the MCP server's data directory `;
+        responseText += `and can be accessed using the \`get_spec\` tool with UUID \`${spec.id}\`.\n\n`;
+        responseText += `**Access Methods:**\n`;
+        responseText += `- \`get_spec({ specId: "${spec.id}", format: "markdown" })\` - Complete document\n`;
+        responseText += `- \`get_spec({ specId: "${spec.id}", format: "summary" })\` - Brief overview\n`;
+        responseText += `- \`get_spec({ specId: "${spec.id}", format: "json" })\` - Structured data\n\n`;
         responseText += `**Next Steps:**\n`;
         responseText += `- Use \`plan_task\` to create implementation tasks\n`;
         responseText += `- Use \`interact_spec\` with \`edit\` command to modify sections\n`;

@@ -55,6 +55,8 @@ import {
   ideaHoningTools,
   researchMode,
   researchModeSchema,
+  getSpec,
+  getSpecSchema,
 } from "./tools/index.js";
 
 async function main() {
@@ -483,6 +485,16 @@ async function main() {
                 );
               }
               return await interactSpec(parsedArgs.data);
+            case "get_spec":
+              parsedArgs = await getSpecSchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await getSpec(parsedArgs.data);
             default:
               throw new Error(`Tool ${request.params.name} does not exist`);
           }

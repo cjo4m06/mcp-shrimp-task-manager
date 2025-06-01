@@ -60,14 +60,14 @@ Transforms raw ideas into structured specifications with comprehensive codebase 
 
 - **Deep Codebase Analysis**: Analyzes repository structure, dependencies, and patterns
 - **Project Rules Integration**: Incorporates existing project standards automatically  
-- **Structured Documentation**: Generates complete `dev_spec.md` files with implementation guidance
-- **UUID-Based Storage**: Maintains specifications in system storage for interactive management
+- **Structured Documentation**: Generates complete specification files with implementation guidance
+- **UUID-Based Storage**: Stores specifications in MCP server data directory for persistent access
 - **Task Integration**: Automatically creates foundation for task planning workflow
 - **Scope-Aware Processing**: Optional scope limitation for focused analysis
 
 **Enhanced Features:**
-- **Local File Generation**: Creates `dev_spec.md` in current directory for immediate review
-- **Interactive Management**: Provides UUID for specification management via `interact_spec`
+- **Persistent Storage**: Specifications stored in `data/specifications/{uuid}.md` format
+- **Interactive Management**: Provides UUID for specification management via `interact_spec` and `get_spec`
 - **Complete Workflow Integration**: Seamlessly connects to task planning system
 
 **Usage Example:**
@@ -81,9 +81,49 @@ create_spec({
 ```
 
 **Output:**
-- **`dev_spec.md`**: Complete specification document in current directory
-- **UUID Storage**: Specification stored with unique ID for system integration
+- **UUID Storage**: Specification stored with unique ID in MCP server data directory
 - **Task Foundation**: Initial planning task created automatically
+- **Access Instructions**: Clear guidance on using `get_spec` and `interact_spec`
+
+#### 📖 **`get_spec` Tool**
+Retrieves and displays stored specification documents using UUID references:
+
+- **UUID-Based Access**: Direct retrieval using specification identifiers from `create_spec`
+- **Multiple Output Formats**: Support for markdown (complete), json (structured), and summary formats
+- **Persistent Storage**: Accesses specifications from MCP server's secure data directory
+- **Format Flexibility**: Choose appropriate format based on use case and context
+
+**Enhanced Features:**
+- **Comprehensive Validation**: UUID format validation with helpful error messages
+- **Smart Error Handling**: Clear troubleshooting guidance for missing specifications
+- **Rich Formatting**: Enhanced output with metadata, sections, and access information
+- **Integration Ready**: Seamless compatibility with `interact_spec` and task management tools
+
+**Usage Examples:**
+```
+// Retrieve complete specification document
+get_spec({
+  specId: "32b80802-89fb-4b57-bb5b-757561c27a05",
+  format: "markdown" // complete document
+})
+
+// Get quick overview
+get_spec({
+  specId: "32b80802-89fb-4b57-bb5b-757561c27a05", 
+  format: "summary" // brief overview with sections list
+})
+
+// Structured data for processing
+get_spec({
+  specId: "32b80802-89fb-4b57-bb5b-757561c27a05",
+  format: "json" // structured data format
+})
+```
+
+**Available Formats:**
+- `markdown`: Complete specification document with full content
+- `summary`: Brief overview with metadata and section list
+- `json`: Structured data format for programmatic access
 
 #### 📋 **`interact_spec` Tool**
 Provides comprehensive interactive management of created specifications:
@@ -99,7 +139,7 @@ Provides comprehensive interactive management of created specifications:
 - **UUID-Based Access**: Direct specification access using unique identifiers
 - **Enhanced Formatting**: Rich, structured output with tables and progress bars
 - **Troubleshooting Guidance**: Built-in help and error resolution suggestions
-- **Local File Integration**: References to `dev_spec.md` for complete workflow
+- **Integration References**: Automatic references to `get_spec` for document retrieval
 
 **Usage Examples:**
 ```
@@ -134,6 +174,22 @@ interact_spec({
 - `tasks`: View associated implementation tasks
 - `help`: Get detailed command documentation
 - `list`: Display available specifications
+
+### **Complete Workflow Architecture:**
+
+The Idea Honing System provides a complete development workflow:
+
+```
+Raw Idea → create_spec → get_spec/interact_spec → plan_task → Implementation
+```
+
+**Step-by-Step Process:**
+1. **`create_spec`**: Transform idea into structured specification with UUID
+2. **`get_spec`**: Retrieve and review complete specification document
+3. **`interact_spec`**: Manage workflow, track progress, edit sections
+4. **`plan_task`**: Create implementation tasks based on specification
+5. **`split_tasks`**: Break down into manageable work items
+6. **`execute_task`**: Implement with specification-guided context
 
 ### **Methodological Benefits:**
 
@@ -637,6 +693,7 @@ After configuration, you can use the following tools:
 | **Solution Assessment**      | `reflect_task`       | Reflect and improve solution concepts            |
 | **Research & Investigation** | `research_mode`      | Enter systematic technical research mode         |
 | **Idea Honing**              | `create_spec`        | Transform raw ideas into structured specifications with codebase analysis |
+|                              | `get_spec`           | Retrieve and read stored specification documents using UUID |
 |                              | `interact_spec`      | Interact with specifications through commands for viewing, editing, and workflow management |
 | **Project Management**       | `init_project_rules` | Initialize or update project standards and rules |
 | **Task Management**          | `split_tasks`        | Break tasks into subtasks                        |
