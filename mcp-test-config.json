@@ -9,5 +9,132 @@
       }
     }
   },
-  "systemPrompt": "You are testing the MCP Shrimp Task Manager with enhanced Idea Honing System, Research Mode, and comprehensive task management capabilities."
+  "systemPrompt": "You are testing the MCP Shrimp Task Manager with enhanced Idea Honing System, Research Mode, and comprehensive task management capabilities.",
+  "testSuites": {
+    "comprehensive": {
+      "description": "Comprehensive tool testing across all categories",
+      "tests": [
+        {
+          "name": "project_management_tools",
+          "description": "Test project management capabilities",
+          "tools": [
+            {
+              "name": "init_project_rules",
+              "params": { "random_string": "comprehensive_testing_init" },
+              "expectedOutputs": ["Project rules initialized", "standards", "guidelines"]
+            }
+          ]
+        },
+        {
+          "name": "idea_honing_system",
+          "description": "Test complete Idea Honing System workflow",
+          "tools": [
+            {
+              "name": "create_spec",
+              "params": {
+                "title": "Real-Time Collaboration Platform Test",
+                "description": "Test specification creation with comprehensive analysis",
+                "scope": "src/test/",
+                "template": "basic"
+              },
+              "expectedOutputs": ["Specification Created", "UUID", "Codebase Analysis"]
+            },
+            {
+              "name": "get_spec",
+              "params": { "format": "summary" },
+              "expectedOutputs": ["Specification Summary", "ID", "Status"]
+            },
+            {
+              "name": "interact_spec",
+              "params": { "command": "help" },
+              "expectedOutputs": ["Available commands", "view", "edit", "progress"]
+            }
+          ]
+        },
+        {
+          "name": "task_management",
+          "description": "Test comprehensive task management workflow",
+          "tools": [
+            {
+              "name": "plan_task",
+              "params": {
+                "description": "Implement user authentication system with JWT tokens and OAuth2 integration"
+              },
+              "expectedOutputs": ["Task planning", "analysis", "workflow"]
+            },
+            {
+              "name": "split_tasks",
+              "params": {
+                "updateMode": "clearAllTasks",
+                "tasksRaw": "[{\"name\": \"Test Task\", \"description\": \"Simple test task for validation\", \"implementationGuide\": \"Basic implementation\", \"dependencies\": [], \"relatedFiles\": [], \"verificationCriteria\": \"Task works correctly\"}]",
+                "globalAnalysisResult": "Test task creation for validation"
+              },
+              "expectedOutputs": ["Task Splitting", "Task List", "ID"]
+            },
+            {
+              "name": "list_tasks",
+              "params": { "status": "all" },
+              "expectedOutputs": ["task", "status", "progress"]
+            },
+            {
+              "name": "query_task",
+              "params": { "query": "test", "page": 1, "pageSize": 5 },
+              "expectedOutputs": ["search", "results", "task"]
+            },
+            {
+              "name": "get_task_detail",
+              "params": {},
+              "expectedOutputs": ["Task details", "implementation", "verification"]
+            }
+          ]
+        },
+        {
+          "name": "task_execution",
+          "description": "Test task execution and verification workflow",
+          "tools": [
+            {
+              "name": "execute_task",
+              "params": {},
+              "expectedOutputs": ["execution", "task", "implementation"]
+            },
+            {
+              "name": "verify_task",
+              "params": { "score": 85, "summary": "Test task verification completed successfully" },
+              "expectedOutputs": ["verification", "completed", "score"]
+            },
+            {
+              "name": "delete_task",
+              "params": {},
+              "expectedOutputs": ["deleted", "removed", "task"]
+            }
+          ]
+        },
+        {
+          "name": "research_mode",
+          "description": "Test systematic research capabilities",
+          "tools": [
+            {
+              "name": "research_mode",
+              "params": {
+                "topic": "React vs Vue.js performance comparison",
+                "currentState": "Initial framework comparison research",
+                "nextSteps": "Analyze performance benchmarks and metrics"
+              },
+              "expectedOutputs": ["research", "topic", "analysis"]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "globalSettings": {
+    "timeout": 30000,
+    "retries": 2,
+    "failFast": false,
+    "verbose": true,
+    "confidence": {
+      "minimum": 75,
+      "target": 90
+    }
+  }
 }

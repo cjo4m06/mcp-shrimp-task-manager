@@ -21,6 +21,7 @@
     "test:functional": "mcp-test --run-test-suite functional --test-config mcp-test-config.json",
     "test:integrated": "python test-integrated-simple.py",
     "test:integrated:clear": "clear && npm run test:integrated",
+    "test:complete": "echo '\n=== COMPREHENSIVE TOOL TESTING (17/17 tools) ===' && npm run test:integrated && echo '\n=== PROFESSIONAL MCP VALIDATION (4 core tests) ===' && npm test",
     "test:legacy": "python mcp-shrimp-bridge.py --test-type all --verbose",
     "start": "node dist/index.js",
     "dev": "npm run build && npm start"
