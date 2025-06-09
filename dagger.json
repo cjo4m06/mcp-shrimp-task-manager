@@ -1,0 +1,6 @@
+{
+  "name": "mcp-shrimp-task-manager",
+  "sdk": "python",
+  "source": "./dagger-cli",
+  "dependencies": []
+}
