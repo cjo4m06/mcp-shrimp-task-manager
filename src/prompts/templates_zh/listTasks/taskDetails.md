@@ -6,8 +6,8 @@
 
 {complatedSummary}
 
-**依賴:** {dependencies}
+**依赖:** {dependencies}
 
-**創建時間:** {createAt}
+**创建时间:** {createAt}
 
 {complatedAt}

@@ -1,1 +1,1 @@
-- **相關文件:** {fileType} ({fileCount} 個): {filesList}
+- **相关文件:** {fileType} ({fileCount} 个): {filesList}

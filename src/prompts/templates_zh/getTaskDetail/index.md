@@ -1,10 +1,10 @@
-## 任務完整詳情
+## 任务完整详情
 
 ### {name}
 
 **ID:** `{id}`
 
-**狀態:** {status}
+**状态:** {status}
 
 **描述:**{description}
 
@@ -18,8 +18,8 @@
 
 {relatedFilesTemplate}
 
-**創建時間:** {createdTime}
+**创建时间:** {createdTime}
 
-**更新時間:** {updatedTime}
+**更新时间:** {updatedTime}
 
 {complatedSummaryTemplate}

@@ -1,1 +1,1 @@
-需要更多思考，繼續使用 「process_thought」 工具思考找尋答案
+需要更多思考，继续使用 「process_thought」 工具思考找寻答案

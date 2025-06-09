@@ -1,52 +1,52 @@
-[English](../en/prompt-customization.md) | [中文](../zh/prompt-customization.md)
+[English](../en/prompt-customization.md) | [简体中文](../zh/prompt-customization.md)
 
-# Prompt 自定義指南
+# Prompt 自定义指南
 
 ## 概述
 
-本系統允許用戶透過環境變數自定義各個工具函式的指導內容（prompt）。這提供了高度的彈性，使您能夠根據特定需求調整 AI 助手的行為表現，而不需要修改程式碼。有兩種自定義方式：
+本系统允许用户透过环境变数自定义各个工具函式的指导内容（prompt）。这提供了高度的弹性，使您能够根据特定需求调整 AI 助手的行为表现，而不需要修改程式码。有两种自定义方式：
 
-1. **覆蓋模式**：完全取代原本的 prompt
-2. **追加模式**：在原有 prompt 的基礎上增加新內容
+1. **覆盖模式**：完全取代原本的 prompt
+2. **追加模式**：在原有 prompt 的基础上增加新内容
 
-## 環境變數命名規則
+## 环境变数命名规则
 
-- 覆蓋模式：`MCP_PROMPT_[FUNCTION_NAME]`
+- 覆盖模式：`MCP_PROMPT_[FUNCTION_NAME]`
 - 追加模式：`MCP_PROMPT_[FUNCTION_NAME]_APPEND`
 
-其中 `[FUNCTION_NAME]` 是工具函式的名稱，大寫形式。例如，對於任務規劃功能 `planTask`，相應的環境變數名稱為 `MCP_PROMPT_PLAN_TASK`。
+其中 `[FUNCTION_NAME]` 是工具函式的名称，大写形式。例如，对于任务规划功能 `planTask`，相应的环境变数名称为 `MCP_PROMPT_PLAN_TASK`。
 
-## 多語言提示詞模板支持
+## 多语言提示词模板支持
 
-蝦米任務管理器支持多種語言的提示詞模板，可通過 `TEMPLATES_USE` 環境變數設置：
+虾米任务管理器支持多种语言的提示词模板，可通过 `TEMPLATES_USE` 环境变数设置：
 
-- 當前支持的語言：`en`（英文）和 `zh`（繁體中文）
-- 默認為 `en`（英文）
+- 当前支持的语言：`en`（英文）和 `zh`（繁体中文）
+- 默认为 `en`（英文）
 
-### 切換語言
+### 切换语言
 
-在 `mcp.json` 配置中設置：
+在 `mcp.json` 配置中设置：
 
 ```json
 "env": {
-  "TEMPLATES_USE": "zh"  // 使用繁體中文模板
+  "TEMPLATES_USE": "zh"  // 使用繁体中文模板
 }
 ```
 
-或在 `.env` 文件中設置：
+或在 `.env` 文件中设置：
 
 ```
 TEMPLATES_USE=zh
 ```
 
-### 自定義模板
+### 自定义模板
 
-您可以創建自己的模板集：
+您可以创建自己的模板集：
 
-1. 將現有模板集（如 `src/prompts/templates_en` 或 `src/prompts/templates_zh`）複製到 `DATA_DIR` 指定的目錄
-2. 重命名複製的目錄（例如：`my_templates`）
+1. 将现有模板集（如 `src/prompts/templates_en` 或 `src/prompts/templates_zh`）复制到 `DATA_DIR` 指定的目录
+2. 重命名复制的目录（例如：`my_templates`）
 3. 修改模板文件以符合您的需求
-4. 將 `TEMPLATES_USE` 環境變數設置為您的模板目錄名稱：
+4. 将 `TEMPLATES_USE` 环境变数设置为您的模板目录名称：
 
 ```json
 "env": {
@@ -55,47 +55,47 @@ TEMPLATES_USE=zh
 }
 ```
 
-系統將優先使用您的自定義模板，如果找不到特定模板文件，會回退到內置的英文模板。
+系统将优先使用您的自定义模板，如果找不到特定模板文件，会回退到内置的英文模板。
 
 ## 支援的工具函式
 
-系統中的所有主要功能都支援透過環境變數自定義 prompt：
+系统中的所有主要功能都支援透过环境变数自定义 prompt：
 
-| 功能名稱           | 環境變數前綴                    | 說明           |
+| 功能名称           | 环境变数前缀                    | 说明           |
 | ------------------ | ------------------------------- | -------------- |
-| `planTask`         | `MCP_PROMPT_PLAN_TASK`          | 任務規劃       |
-| `analyzeTask`      | `MCP_PROMPT_ANALYZE_TASK`       | 任務分析       |
-| `reflectTask`      | `MCP_PROMPT_REFLECT_TASK`       | 方案評估       |
-| `splitTasks`       | `MCP_PROMPT_SPLIT_TASKS`        | 任務拆分       |
-| `executeTask`      | `MCP_PROMPT_EXECUTE_TASK`       | 任務執行       |
-| `verifyTask`       | `MCP_PROMPT_VERIFY_TASK`        | 任務驗證       |
-| `listTasks`        | `MCP_PROMPT_LIST_TASKS`         | 列出任務       |
-| `queryTask`        | `MCP_PROMPT_QUERY_TASK`         | 查詢任務       |
-| `getTaskDetail`    | `MCP_PROMPT_GET_TASK_DETAIL`    | 獲取任務詳情   |
-| `processThought`   | `MCP_PROMPT_PROCESS_THOUGHT`    | 思維鏈處理     |
-| `initProjectRules` | `MCP_PROMPT_INIT_PROJECT_RULES` | 初始化專案規則 |
+| `planTask`         | `MCP_PROMPT_PLAN_TASK`          | 任务规划       |
+| `analyzeTask`      | `MCP_PROMPT_ANALYZE_TASK`       | 任务分析       |
+| `reflectTask`      | `MCP_PROMPT_REFLECT_TASK`       | 方案评估       |
+| `splitTasks`       | `MCP_PROMPT_SPLIT_TASKS`        | 任务拆分       |
+| `executeTask`      | `MCP_PROMPT_EXECUTE_TASK`       | 任务执行       |
+| `verifyTask`       | `MCP_PROMPT_VERIFY_TASK`        | 任务验证       |
+| `listTasks`        | `MCP_PROMPT_LIST_TASKS`         | 列出任务       |
+| `queryTask`        | `MCP_PROMPT_QUERY_TASK`         | 查询任务       |
+| `getTaskDetail`    | `MCP_PROMPT_GET_TASK_DETAIL`    | 获取任务详情   |
+| `processThought`   | `MCP_PROMPT_PROCESS_THOUGHT`    | 思维链处理     |
+| `initProjectRules` | `MCP_PROMPT_INIT_PROJECT_RULES` | 初始化专案规则 |
 
-## 環境變數配置方法
+## 环境变数配置方法
 
-有兩種主要的配置方式：
+有两种主要的配置方式：
 
-### 1. 透過 `.env` 文件設置環境變數
+### 1. 透过 `.env` 文件设置环境变数
 
-1. 在專案根目錄複製 `.env.example` 改名為 `.env` 文件
-2. 添加所需的環境變數配置
-3. 應用程式啟動時會自動載入這些環境變數
+1. 在专案根目录复制 `.env.example` 改名为 `.env` 文件
+2. 添加所需的环境变数配置
+3. 应用程式启动时会自动载入这些环境变数
 
 ```
-# .env 文件範例
-MCP_PROMPT_PLAN_TASK=自定義的 prompt 內容
-MCP_PROMPT_ANALYZE_TASK=自定義的分析 prompt 內容
+# .env 文件范例
+MCP_PROMPT_PLAN_TASK=自定义的 prompt 内容
+MCP_PROMPT_ANALYZE_TASK=自定义的分析 prompt 内容
 ```
 
-> 注意：確保 `.env` 文件在版本控制中被忽略（添加到 `.gitignore`），特別是當它包含敏感信息時。
+> 注意：确保 `.env` 文件在版本控制中被忽略（添加到 `.gitignore`），特别是当它包含敏感信息时。
 
-### 2. 直接在 mcp.json 配置文件中設置
+### 2. 直接在 mcp.json 配置文件中设置
 
-您也可以直接在 Cursor IDE 的 `mcp.json` 配置文件中設置環境變數，這樣無需另外創建 `.env` 文件：
+您也可以直接在 Cursor IDE 的 `mcp.json` 配置文件中设置环境变数，这样无需另外创建 `.env` 文件：
 
 ```json
 {
@@ -105,191 +105,191 @@ MCP_PROMPT_ANALYZE_TASK=自定義的分析 prompt 內容
       "args": ["/path/to/mcp-shrimp-task-manager/dist/index.js"],
       "env": {
         "DATA_DIR": "/path/to/project/data",
-        "MCP_PROMPT_PLAN_TASK": "自定義的任務規劃提示詞",
-        "MCP_PROMPT_EXECUTE_TASK_APPEND": "額外的任務執行指導"
+        "MCP_PROMPT_PLAN_TASK": "自定义的任务规划提示词",
+        "MCP_PROMPT_EXECUTE_TASK_APPEND": "额外的任务执行指导"
       }
     }
   }
 }
 ```
 
-這種方式的優點是可以將提示詞配置與其他 MCP 配置放在一起管理，特別適合需要針對不同專案使用不同提示詞的情況。
+这种方式的优点是可以将提示词配置与其他 MCP 配置放在一起管理，特别适合需要针对不同专案使用不同提示词的情况。
 
-## 使用範例
+## 使用范例
 
-### 覆蓋模式範例
-
-```
-# .env 文件中完全替換 PLAN_TASK 的 prompt
-MCP_PROMPT_PLAN_TASK=## 自定義任務規劃\n\n請根據以下資訊規劃任務：\n\n{description}\n\n要求：{requirements}\n
-```
-
-或在 mcp.json 中配置：
-
-```json
-"env": {
-  "MCP_PROMPT_PLAN_TASK": "## 自定義任務規劃\n\n請根據以下資訊規劃任務：\n\n{description}\n\n要求：{requirements}\n"
-}
-```
-
-### 追加模式範例
+### 覆盖模式范例
 
 ```
-# .env 文件中在 PLAN_TASK 原有 prompt 後追加內容
-MCP_PROMPT_PLAN_TASK_APPEND=\n\n## 額外指導\n\n請特別注意以下事項：\n1. 優先考慮任務間的依賴關係\n2. 盡量減少任務耦合度
+# .env 文件中完全替换 PLAN_TASK 的 prompt
+MCP_PROMPT_PLAN_TASK=## 自定义任务规划\n\n请根据以下资讯规划任务：\n\n{description}\n\n要求：{requirements}\n
 ```
 
 或在 mcp.json 中配置：
 
 ```json
 "env": {
-  "MCP_PROMPT_PLAN_TASK_APPEND": "\n\n## 額外指導\n\n請特別注意以下事項：\n1. 優先考慮任務間的依賴關係\n2. 盡量減少任務耦合度"
+  "MCP_PROMPT_PLAN_TASK": "## 自定义任务规划\n\n请根据以下资讯规划任务：\n\n{description}\n\n要求：{requirements}\n"
 }
 ```
 
-## 動態參數支援
+### 追加模式范例
 
-自定義 prompt 也可以使用定義的動態參數，方式是使用 `{paramName}` 語法。系統會在處理時將這些佔位符替換為實際的參數值。
+```
+# .env 文件中在 PLAN_TASK 原有 prompt 后追加内容
+MCP_PROMPT_PLAN_TASK_APPEND=\n\n## 额外指导\n\n请特别注意以下事项：\n1. 优先考虑任务间的依赖关系\n2. 尽量减少任务耦合度
+```
 
-各個函式支援的參數如下：
+或在 mcp.json 中配置：
 
-### planTask 支援的參數
+```json
+"env": {
+  "MCP_PROMPT_PLAN_TASK_APPEND": "\n\n## 额外指导\n\n请特别注意以下事项：\n1. 优先考虑任务间的依赖关系\n2. 尽量减少任务耦合度"
+}
+```
 
-- `{description}` - 任務描述
-- `{requirements}` - 任務要求
-- `{existingTasksReference}` - 是否參考現有任務
-- `{completedTasks}` - 已完成任務列表
-- `{pendingTasks}` - 待處理任務列表
-- `{memoryDir}` - 任務記憶儲存目錄
+## 动态参数支援
 
-### analyzeTask 支援的參數
+自定义 prompt 也可以使用定义的动态参数，方式是使用 `{paramName}` 语法。系统会在处理时将这些占位符替换为实际的参数值。
 
-- `{summary}` - 任務摘要
+各个函式支援的参数如下：
+
+### planTask 支援的参数
+
+- `{description}` - 任务描述
+- `{requirements}` - 任务要求
+- `{existingTasksReference}` - 是否参考现有任务
+- `{completedTasks}` - 已完成任务列表
+- `{pendingTasks}` - 待处理任务列表
+- `{memoryDir}` - 任务记忆储存目录
+
+### analyzeTask 支援的参数
+
+- `{summary}` - 任务摘要
 - `{initialConcept}` - 初始概念
-- `{previousAnalysis}` - 先前分析結果
+- `{previousAnalysis}` - 先前分析结果
 
-### reflectTask 支援的參數
+### reflectTask 支援的参数
 
-- `{summary}` - 任務摘要
-- `{analysis}` - 分析結果
+- `{summary}` - 任务摘要
+- `{analysis}` - 分析结果
 
-### splitTasks 支援的參數
+### splitTasks 支援的参数
 
 - `{updateMode}` - 更新模式
-- `{createdTasks}` - 創建的任務
-- `{allTasks}` - 所有任務
+- `{createdTasks}` - 创建的任务
+- `{allTasks}` - 所有任务
 
-### executeTask 支援的參數
+### executeTask 支援的参数
 
-- `{task}` - 任務詳情
-- `{complexityAssessment}` - 複雜度評估結果
-- `{relatedFilesSummary}` - 相關文件摘要
-- `{dependencyTasks}` - 依賴任務
-- `{potentialFiles}` - 可能相關的文件
+- `{task}` - 任务详情
+- `{complexityAssessment}` - 复杂度评估结果
+- `{relatedFilesSummary}` - 相关文件摘要
+- `{dependencyTasks}` - 依赖任务
+- `{potentialFiles}` - 可能相关的文件
 
-### verifyTask 支援的參數
+### verifyTask 支援的参数
 
-- `{task}` - 任務詳情
+- `{task}` - 任务详情
 
-### listTasks 支援的參數
+### listTasks 支援的参数
 
-- `{status}` - 任務狀態
-- `{tasks}` - 按狀態分組的任務
-- `{allTasks}` - 所有任務
+- `{status}` - 任务状态
+- `{tasks}` - 按状态分组的任务
+- `{allTasks}` - 所有任务
 
-### queryTask 支援的參數
+### queryTask 支援的参数
 
-- `{query}` - 查詢內容
-- `{isId}` - 是否為 ID 查詢
-- `{tasks}` - 查詢結果
-- `{totalTasks}` - 總結果數
-- `{page}` - 當前頁碼
-- `{pageSize}` - 每頁大小
-- `{totalPages}` - 總頁數
+- `{query}` - 查询内容
+- `{isId}` - 是否为 ID 查询
+- `{tasks}` - 查询结果
+- `{totalTasks}` - 总结果数
+- `{page}` - 当前页码
+- `{pageSize}` - 每页大小
+- `{totalPages}` - 总页数
 
-### getTaskDetail 支援的參數
+### getTaskDetail 支援的参数
 
-- `{taskId}` - 任務 ID
-- `{task}` - 任務詳情
-- `{error}` - 錯誤信息（如有）
+- `{taskId}` - 任务 ID
+- `{task}` - 任务详情
+- `{error}` - 错误信息（如有）
 
-## 進階自定義案例
+## 进阶自定义案例
 
-### 示例 1：添加品牌客製化提示
+### 示例 1：添加品牌客制化提示
 
-假設您想要在所有任務執行指南中添加公司特定的品牌資訊和指導原則：
-
-```
-# 在 .env 文件中配置
-MCP_PROMPT_EXECUTE_TASK_APPEND=\n\n## 公司特定指南\n\n在執行任務時，請遵循以下原則：\n1. 保持代碼與公司風格指南一致\n2. 所有新功能必須有對應的單元測試\n3. 文檔必須使用公司標準模板\n4. 確保所有用戶界面元素符合品牌設計規範
-```
-
-### 示例 2：調整任務分析風格
-
-假設您想要讓任務分析更加偏向安全性考量：
+假设您想要在所有任务执行指南中添加公司特定的品牌资讯和指导原则：
 
 ```
 # 在 .env 文件中配置
-MCP_PROMPT_ANALYZE_TASK=## 安全導向任務分析\n\n請針對以下任務進行全面的安全分析：\n\n**任務摘要:**\n{summary}\n\n**初步概念:**\n{initialConcept}\n\n在分析過程中，請特別關注：\n1. 代碼注入風險\n2. 權限管理問題\n3. 資料驗證和清理\n4. 第三方依賴的安全風險\n5. 配置錯誤的可能性\n\n每個潛在問題請提供：\n- 問題描述\n- 影響程度（低/中/高）\n- 建議的解決方案\n\n{previousAnalysis}
+MCP_PROMPT_EXECUTE_TASK_APPEND=\n\n## 公司特定指南\n\n在执行任务时，请遵循以下原则：\n1. 保持代码与公司风格指南一致\n2. 所有新功能必须有对应的单元测试\n3. 文档必须使用公司标准模板\n4. 确保所有用户界面元素符合品牌设计规范
+```
+
+### 示例 2：调整任务分析风格
+
+假设您想要让任务分析更加偏向安全性考量：
+
+```
+# 在 .env 文件中配置
+MCP_PROMPT_ANALYZE_TASK=## 安全导向任务分析\n\n请针对以下任务进行全面的安全分析：\n\n**任务摘要:**\n{summary}\n\n**初步概念:**\n{initialConcept}\n\n在分析过程中，请特别关注：\n1. 代码注入风险\n2. 权限管理问题\n3. 资料验证和清理\n4. 第三方依赖的安全风险\n5. 配置错误的可能性\n\n每个潜在问题请提供：\n- 问题描述\n- 影响程度（低/中/高）\n- 建议的解决方案\n\n{previousAnalysis}
 ```
 
 或在 mcp.json 中配置：
 
 ```json
 "env": {
-  "MCP_PROMPT_ANALYZE_TASK": "## 安全導向任務分析\n\n請針對以下任務進行全面的安全分析：\n\n**任務摘要:**\n{summary}\n\n**初步概念:**\n{initialConcept}\n\n在分析過程中，請特別關注：\n1. 代碼注入風險\n2. 權限管理問題\n3. 資料驗證和清理\n4. 第三方依賴的安全風險\n5. 配置錯誤的可能性\n\n每個潛在問題請提供：\n- 問題描述\n- 影響程度（低/中/高）\n- 建議的解決方案\n\n{previousAnalysis}"
+  "MCP_PROMPT_ANALYZE_TASK": "## 安全导向任务分析\n\n请针对以下任务进行全面的安全分析：\n\n**任务摘要:**\n{summary}\n\n**初步概念:**\n{initialConcept}\n\n在分析过程中，请特别关注：\n1. 代码注入风险\n2. 权限管理问题\n3. 资料验证和清理\n4. 第三方依赖的安全风险\n5. 配置错误的可能性\n\n每个潜在问题请提供：\n- 问题描述\n- 影响程度（低/中/高）\n- 建议的解决方案\n\n{previousAnalysis}"
 }
 ```
 
-### 示例 3：簡化任務列表顯示
+### 示例 3：简化任务列表显示
 
-如果您覺得默認任務列表過於詳細，可以簡化顯示：
+如果您觉得默认任务列表过于详细，可以简化显示：
 
 ```
 # 在 .env 文件中配置
-MCP_PROMPT_LIST_TASKS=# 任務概覽\n\n## 待處理任務\n{tasks.pending}\n\n## 進行中任務\n{tasks.in_progress}\n\n## 已完成任務\n{tasks.completed}
+MCP_PROMPT_LIST_TASKS=# 任务概览\n\n## 待处理任务\n{tasks.pending}\n\n## 进行中任务\n{tasks.in_progress}\n\n## 已完成任务\n{tasks.completed}
 ```
 
 或在 mcp.json 中配置：
 
 ```json
 "env": {
-  "MCP_PROMPT_LIST_TASKS": "# 任務概覽\n\n## 待處理任務\n{tasks.pending}\n\n## 進行中任務\n{tasks.in_progress}\n\n## 已完成任務\n{tasks.completed}"
+  "MCP_PROMPT_LIST_TASKS": "# 任务概览\n\n## 待处理任务\n{tasks.pending}\n\n## 进行中任务\n{tasks.in_progress}\n\n## 已完成任务\n{tasks.completed}"
 }
 ```
 
-## 最佳實踐
+## 最佳实践
 
-1. **逐步調整**：從小的變更開始，確保每次修改後系統仍能正常工作。
+1. **逐步调整**：从小的变更开始，确保每次修改后系统仍能正常工作。
 
-2. **保存配置**：將有效的環境變數配置保存到專案的 `.env.example` 文件中，方便團隊成員參考。
+2. **保存配置**：将有效的环境变数配置保存到专案的 `.env.example` 文件中，方便团队成员参考。
 
-3. **注意格式**：確保 prompt 中的換行和格式正確，特別是使用引號包裹的環境變數。
+3. **注意格式**：确保 prompt 中的换行和格式正确，特别是使用引号包裹的环境变数。
 
-4. **測試驗證**：在不同的場景下測試自定義的 prompt，確保它們在各種情況下都能正常工作。
+4. **测试验证**：在不同的场景下测试自定义的 prompt，确保它们在各种情况下都能正常工作。
 
-5. **考慮任務流**：修改 prompt 時考慮整個任務流程，確保不同階段的 prompt 保持一致性。
+5. **考虑任务流**：修改 prompt 时考虑整个任务流程，确保不同阶段的 prompt 保持一致性。
 
 ## 故障排除
 
-- **環境變數未生效**：確保您已經正確設置環境變數，並在設置後重新啟動應用程式。
+- **环境变数未生效**：确保您已经正确设置环境变数，并在设置后重新启动应用程式。
 
-- **格式問題**：檢查環境變數中的換行符號和特殊字符是否正確轉義。
+- **格式问题**：检查环境变数中的换行符号和特殊字符是否正确转义。
 
-- **參數替換失敗**：確保您使用的參數名稱與系統支援的一致，包括大小寫。
+- **参数替换失败**：确保您使用的参数名称与系统支援的一致，包括大小写。
 
-- **還原默認設置**：如果自定義的 prompt 導致問題，可以刪除相應的環境變數恢復默認設置。
+- **还原默认设置**：如果自定义的 prompt 导致问题，可以删除相应的环境变数恢复默认设置。
 
-## 附錄：默認 Prompt 參考
+## 附录：默认 Prompt 参考
 
-為幫助您更好地自定義 prompt，這裡提供了部分系統默認 prompt 的參考。您可以在這些基礎上進行修改或擴展：
+为帮助您更好地自定义 prompt，这里提供了部分系统默认 prompt 的参考。您可以在这些基础上进行修改或扩展：
 
-### planTask 默認 prompt 示例
+### planTask 默认 prompt 示例
 
 ```
-## 任務規劃指南
+## 任务规划指南
 
-基於以下描述和要求，請制定一個詳細的任務計劃：
+基于以下描述和要求，请制定一个详细的任务计划：
 
 描述：
 {description}
@@ -300,4 +300,4 @@ MCP_PROMPT_LIST_TASKS=# 任務概覽\n\n## 待處理任務\n{tasks.pending}\n\n#
 ...
 ```
 
-> 注意：完整的默認 prompt 內容可在專案的 `src/prompts/templates` 目錄下查看相應的模板文件。
+> 注意：完整的默认 prompt 内容可在专案的 `src/prompts/templates` 目录下查看相应的模板文件。

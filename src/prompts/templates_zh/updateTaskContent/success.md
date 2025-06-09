@@ -1,9 +1,9 @@
-### 更新後的任務詳情
+### 更新后的任务详情
 
-- **名稱:** {taskName}
+- **名称:** {taskName}
 - **描述:** {taskDescription}
   {taskNotes}
-- **狀態:** {taskStatus}
-- **更新時間:** {taskUpdatedAt}
+- **状态:** {taskStatus}
+- **更新时间:** {taskUpdatedAt}
 
 {filesContent}
