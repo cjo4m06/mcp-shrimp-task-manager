@@ -1,5 +1,7 @@
 ## Thought {thoughtNumber}/{totalThoughts} - {stage}
 
+{{include:shared/documentationPathGuidance.md}}
+
 {thought}
 
 **Tags:** {tags}

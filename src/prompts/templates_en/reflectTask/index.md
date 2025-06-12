@@ -1,5 +1,11 @@
 ## Reflection Results
 
+{{include:shared/documentationPathGuidance.md}}
+
+**Task Summary:** {summary}
+
+**Technical Analysis:** {analysis}
+
 After receiving the solution and suggestions, conduct self-reflection and final confirmation, and submit the final results:
 
 1. **Requirements Alignment Check**

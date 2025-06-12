@@ -1,5 +1,7 @@
 ## Task Splitting - {updateMode} Mode
 
+{{include:shared/projectContextCheck.md}}
+
 ## Splitting Strategy
 
 1. **Functional Decomposition** - Independent testable sub-functions with clear inputs and outputs

@@ -1,5 +1,15 @@
 ## Codebase Analysis
 
+{{include:shared/projectContextCheck.md}}
+{{include:shared/mcpToolsTrigger.md}}
+{{include:shared/documentationPathGuidance.md}}
+
+**Task Summary:** {summary}
+
+**Initial Concept:** {initialConcept}
+
+{iterationPrompt}
+
 After receiving the initial solution, complete the following checks and optimizations in sequence, and call the `reflect_task` tool at the end:
 
 1. **Structural Integrity Check**

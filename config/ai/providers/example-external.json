@@ -1,0 +1,60 @@
+{
+  "id": "example-external",
+  "name": "Example External AI Provider",
+  "description": "Example configuration for an external AI provider",
+  "enabled": false,
+  "priority": 10,
+  "apiEndpoint": "https://api.example.com/v1",
+  "models": {
+    "default": "example-model-v1",
+    "available": [
+      "example-model-v1",
+      "example-model-v2",
+      "example-model-large"
+    ],
+    "configs": {
+      "example-model-v1": {
+        "name": "Example Model V1",
+        "maxTokens": 4000,
+        "capabilities": ["general", "analysis"],
+        "costMultiplier": 1.0
+      },
+      "example-model-v2": {
+        "name": "Example Model V2",
+        "maxTokens": 8000,
+        "capabilities": ["general", "analysis", "coding"],
+        "costMultiplier": 1.5
+      },
+      "example-model-large": {
+        "name": "Example Large Model",
+        "maxTokens": 16000,
+        "capabilities": ["general", "analysis", "coding", "research"],
+        "costMultiplier": 3.0
+      }
+    }
+  },
+  "limits": {
+    "requestsPerMinute": 60,
+    "requestsPerDay": 1000,
+    "maxTokens": 16000
+  },
+  "pricing": {
+    "inputCostPer1kTokens": 0.01,
+    "outputCostPer1kTokens": 0.03
+  },
+  "settings": {
+    "timeout": 30000,
+    "retryCount": 3,
+    "retryDelay": 1000
+  },
+  "notes": [
+    "This is an example configuration file for external AI providers",
+    "To use this provider:",
+    "1. Set enabled to true",
+    "2. Add 'example-external' to the enabledProviders array in ai-config.json",
+    "3. Set the API key via environment variable: AI_EXAMPLE_EXTERNAL_API_KEY",
+    "4. Optionally set custom endpoint via: AI_EXAMPLE_EXTERNAL_ENDPOINT",
+    "API keys and sensitive information should never be stored in configuration files",
+    "Use environment variables for all sensitive configuration"
+  ]
+}

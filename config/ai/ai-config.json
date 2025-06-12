@@ -1,0 +1,36 @@
+{
+  "version": "1.0.0",
+  "description": "AI Provider Management Configuration",
+  "defaultProvider": "current-ai",
+  "enabledProviders": [
+    "current-ai"
+  ],
+  "fallbackStrategy": "priority",
+  "globalOptions": {
+    "maxTokens": 4000,
+    "temperature": 0.7,
+    "timeout": 30000,
+    "retryCount": 2,
+    "stream": false
+  },
+  "costControl": {
+    "dailyCostLimit": 10.0,
+    "monthlyCostLimit": 100.0,
+    "warningThreshold": 0.8
+  },
+  "monitoring": {
+    "enableUsageStats": true,
+    "enablePerformanceMonitoring": true,
+    "logLevel": "info"
+  },
+  "settings": {
+    "description": "This configuration prioritizes the current AI execution environment",
+    "usage": "The system will use the AI currently executing unless explicitly configured otherwise",
+    "notes": [
+      "The 'current-ai' provider represents the AI currently running this system",
+      "Additional providers can be added to the enabledProviders array",
+      "Cost limits are optional and can be disabled by setting them to 0",
+      "Monitoring can be disabled by setting enableUsageStats and enablePerformanceMonitoring to false"
+    ]
+  }
+}

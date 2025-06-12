@@ -1,20 +1,17 @@
-import { z } from "zod";
-import { UUID_V4_REGEX } from "../../utils/regex.js";
-import {
-  getTaskById,
-  deleteTask as modelDeleteTask,
-} from "../../models/taskModel.js";
-import { TaskStatus } from "../../types/index.js";
-import { getDeleteTaskPrompt } from "../../prompts/index.js";
+import { z } from 'zod';
+import { UUID_V4_REGEX } from '../../utils/regex.js';
+import { getTaskById, deleteTask as modelDeleteTask } from '../../models/taskModel.js';
+import { TaskStatus } from '../../types/index.js';
+import { getDeleteTaskPrompt } from '../../prompts/index.js';
 
 // 刪除任務工具
 export const deleteTaskSchema = z.object({
   taskId: z
     .string()
     .regex(UUID_V4_REGEX, {
-      message: "任務ID格式無效，請提供有效的UUID v4格式",
+      message: '任務ID格式無效，請提供有效的UUID v4格式',
     })
-    .describe("待刪除任務的唯一標識符，必須是系統中存在且未完成的任務ID"),
+    .describe('待刪除任務的唯一標識符，必須是系統中存在且未完成的任務ID'),
 });
 
 export async function deleteTask({ taskId }: z.infer<typeof deleteTaskSchema>) {
@@ -24,7 +21,7 @@ export async function deleteTask({ taskId }: z.infer<typeof deleteTaskSchema>) {
     return {
       content: [
         {
-          type: "text" as const,
+          type: 'text' as const,
           text: getDeleteTaskPrompt({ taskId }),
         },
       ],
@@ -36,7 +33,7 @@ export async function deleteTask({ taskId }: z.infer<typeof deleteTaskSchema>) {
     return {
       content: [
         {
-          type: "text" as const,
+          type: 'text' as const,
           text: getDeleteTaskPrompt({ taskId, task, isTaskCompleted: true }),
         },
       ],
@@ -49,7 +46,7 @@ export async function deleteTask({ taskId }: z.infer<typeof deleteTaskSchema>) {
   return {
     content: [
       {
-        type: "text" as const,
+        type: 'text' as const,
         text: getDeleteTaskPrompt({
           taskId,
           task,

@@ -2,6 +2,98 @@
 
 # Changelog
 
+## [1.1.0] - 2025-01-07
+
+### Added
+
+- Added reset button and thumbnail view
+- Enhanced interaction between dependency graph and task list, making the dependency graph respond to filtering and task list selection
+- **📁 Documentation Path Management System**: Comprehensive structured document organization inspired by claude-task-master
+  - **Structured Directory Hierarchy**: Organized document storage with project-specific paths for analysis, reflection, research, and team collaboration
+  - **Automatic Path Management**: AI assistants automatically use correct paths when creating documents
+  - **Security Features**: Path validation prevents traversal attacks, reserved name checking, and cross-platform compatibility
+  - **Document Classification**: Clear guidelines for organizing documents by type (project, PRD, tasks, analysis, reflection, research, team)
+  - **Role-based Organization**: Task documents organized by role (frontend, backend, qa, devops, design)
+- **🔧 New MCP Tool**: `get_documentation_path` for obtaining project-specific documentation storage paths
+  - **Parameter Validation**: Comprehensive input validation with Zod schema
+  - **Multi-level Subdirectories**: Support for complex directory structures like `tasks/completed` and `team/knowledge-base`
+  - **Automatic Directory Creation**: Creates necessary directory structures on first access
+  - **Detailed Response Format**: Returns complete path information with usage guidance
+- **📚 Enhanced Documentation**: Comprehensive guides and updated project documentation
+  - **Documentation Management Guide**: Detailed guide for using the new documentation system
+  - **Updated README**: Added documentation management features to main and Chinese README
+  - **Template Integration**: Updated prompt templates to include documentation path guidance
+  - **Usage Examples**: Clear examples for different document types and use cases
+- **🧠 Team Collaboration Memory System**: Complete team memory system with intelligent knowledge sharing and collaboration optimization
+  - **TaskMemoryManager**: Individual task memory with execution context, decision tracking, and knowledge extraction
+  - **TeamMemoryManager**: Team-level knowledge sharing, collaboration pattern learning, and collective intelligence
+  - **DynamicTaskAdjuster**: Intelligent task insertion with context awareness and dependency resolution
+- **🔧 5 New MCP Tools**: Advanced team collaboration tools integrated into the MCP server
+  - `insertTaskDynamically`: Smart task insertion with priority and dependency management
+  - `shareTeamKnowledge`: Team knowledge sharing with role-based distribution
+  - `analyzeTeamCollaboration`: Team performance analytics and improvement recommendations
+  - `recordTaskMemory`: Comprehensive task execution memory recording
+  - `retrieveTeamInsights`: Intelligent team insights and pattern recognition
+- **📊 Advanced Data Architecture**: Project-aware data storage with complete isolation
+  - Individual memory directories: contexts, knowledge, decisions, discoveries, checkpoints
+  - Team memory directories: shared knowledge, collaboration patterns, learning records
+  - Automatic directory creation and management
+- **🎯 Intelligent Features**: Context-aware task management and team optimization
+  - Execution context tracking with step-by-step recording
+  - Decision path analysis and impact assessment
+  - Knowledge extraction and automatic categorization
+  - Collaboration pattern learning and recommendation
+  - Dynamic task priority adjustment based on context
+
+### Changed
+
+- Removed initial animation of dependency graph to avoid animation jumps
+- Optimized initial state of dependency graph
+
+### Enhanced
+
+- **🧪 Testing Suite**: Comprehensive unit tests for documentation path management
+  - **PathManager Tests**: 15 test cases covering basic functionality, caching, cross-platform compatibility, and error handling
+  - **MCP Tool Tests**: 19 test cases covering parameter validation, security checks, return formats, and edge cases
+  - **Security Validation**: Tests for path traversal prevention, filename validation, and subdirectory safety
+  - **Cross-platform Testing**: Ensures consistent behavior across Windows, macOS, and Linux
+- **🎯 Prompt Templates**: Enhanced AI guidance for documentation management
+  - **Shared Template**: Created `documentationPathGuidance.md` for consistent path management across all templates
+  - **Template Updates**: Updated `analyzeTask`, `reflectTask`, `researchMode`, and `processThought` templates
+  - **Bilingual Support**: Complete Chinese and English template coverage
+  - **Professional Terminology**: Refined prompts with professional terminology for improved AI accuracy
+- **🏗️ System Architecture**: Improved path management and validation
+  - **Enhanced PathManager**: Added `getDocumentationDir()` method with automatic directory creation
+  - **Security Improvements**: Robust validation for filenames and subdirectory names
+  - **Multi-level Path Support**: Support for complex directory structures while maintaining security
+  - **Template Integrity**: Updated template integrity tests to include new shared templates
+- **📚 Documentation**: Comprehensive documentation for team collaboration features
+  - Added `docs/TEAM_MEMORY_FEATURES.md` with detailed feature overview
+  - Updated README with new intelligence and memory capabilities
+  - Added team collaboration examples and usage guides
+- **🧪 Testing**: Robust testing suite for memory system components
+  - TaskMemoryManager: 12/12 tests passing (100% coverage)
+  - MCP Server Integration: 8/8 tests passing (100% coverage)
+  - Comprehensive unit tests for all memory components
+- **🏗️ Architecture**: Modular and extensible system design
+  - Type-safe TypeScript implementation with complete type definitions
+  - Clean separation of concerns between individual and team memory
+  - Extensible plugin architecture for future enhancements
+
+### Technical Highlights
+
+- **🔒 Security First**: Comprehensive security validation prevents path traversal and injection attacks
+- **📁 Organized Structure**: Clear document hierarchy inspired by industry best practices
+- **🚀 Automatic Management**: AI assistants automatically use correct paths without manual intervention
+- **🌐 Cross-platform**: Consistent behavior across all major operating systems
+- **📊 Team Collaboration**: Structured paths for team knowledge sharing and collaboration
+- **🔄 Integration**: Seamless integration with existing task management workflows
+- **🚀 Performance**: Optimized memory management with intelligent caching
+- **🔒 Data Safety**: Complete data isolation between projects and team contexts
+- **📈 Scalability**: Designed to handle large teams and complex project hierarchies
+- **🔄 Real-time**: Live collaboration pattern learning and adaptation
+- **💡 Intelligence**: Machine learning-ready architecture for future AI enhancements
+
 ## [1.0.20]
 
 ### Added

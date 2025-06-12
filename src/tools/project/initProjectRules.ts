@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { getInitProjectRulesPrompt } from "../../prompts/index.js";
+import { z } from 'zod';
+import { getInitProjectRulesPrompt } from '../../prompts/index.js';
 
 // 定義schema
 export const initProjectRulesSchema = z.object({});
@@ -17,18 +17,18 @@ export async function initProjectRules() {
     return {
       content: [
         {
-          type: "text" as const,
+          type: 'text' as const,
           text: promptContent,
         },
       ],
     };
   } catch (error) {
     // 錯誤處理
-    const errorMessage = error instanceof Error ? error.message : "未知錯誤";
+    const errorMessage = error instanceof Error ? error.message : '未知錯誤';
     return {
       content: [
         {
-          type: "text" as const,
+          type: 'text' as const,
           text: `初始化專案規範時發生錯誤: ${errorMessage}`,
         },
       ],

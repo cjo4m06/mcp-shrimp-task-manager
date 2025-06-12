@@ -1,5 +1,9 @@
 ## 任務分析
 
+{{include:shared/projectContextCheck.md}}
+{{include:shared/mcpToolsTrigger.md}}
+{{include:shared/teamCollaborationTrigger.md}}
+
 你必須依序完成以下子步驟，並在最後呼叫 `analyze_task` 工具，將初步設計方案傳遞給下一階段。
 
 1. **分析目的**

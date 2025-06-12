@@ -53,6 +53,7 @@ coverage/
 data/*.json
 data/*/*.json
 data/*
+.shrim-config.json
 
 # Cursor AI 生成的暫存檔案
 .cursor/tmp/ 

@@ -1,0 +1,21 @@
+{
+  "useCurrentAI": true,
+  "currentAIId": "current-execution-ai",
+  "currentAIName": "Current Execution AI",
+  "capabilities": [
+    "general",
+    "analysis",
+    "generation",
+    "coding",
+    "research",
+    "task-management",
+    "chain-execution"
+  ],
+  "description": "Configuration for using the AI currently executing this system",
+  "notes": [
+    "This is the default configuration that uses the current AI execution environment",
+    "When useCurrentAI is true, the system will delegate AI tasks to the current execution context",
+    "This provides seamless integration without requiring external API keys or configurations",
+    "To use external AI providers, set useCurrentAI to false and configure specific providers"
+  ]
+}

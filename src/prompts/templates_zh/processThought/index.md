@@ -1,5 +1,7 @@
 ## 思維 {thoughtNumber}/{totalThoughts} - {stage}
 
+{{include:shared/documentationPathGuidance.md}}
+
 {thought}
 
 **標籤:** {tags}

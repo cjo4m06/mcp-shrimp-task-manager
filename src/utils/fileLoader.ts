@@ -1,4 +1,4 @@
-import { RelatedFile, RelatedFileType } from "../types/index.js";
+import { RelatedFile, RelatedFileType } from '../types/index.js';
 
 /**
  * 生成任務相關文件的內容摘要
@@ -19,12 +19,12 @@ export async function loadTaskRelatedFiles(
 ): Promise<{ content: string; summary: string }> {
   if (!relatedFiles || relatedFiles.length === 0) {
     return {
-      content: "",
-      summary: "無相關文件",
+      content: '',
+      summary: '無相關文件',
     };
   }
 
-  let totalContent = "";
+  let totalContent = '';
   let filesSummary = `## 相關文件內容摘要 (共 ${relatedFiles.length} 個文件)\n\n`;
   let totalLength = 0;
 
@@ -37,9 +37,7 @@ export async function loadTaskRelatedFiles(
     [RelatedFileType.OTHER]: 5,
   };
 
-  const sortedFiles = [...relatedFiles].sort(
-    (a, b) => priorityOrder[a.type] - priorityOrder[b.type]
-  );
+  const sortedFiles = [...relatedFiles].sort((a, b) => priorityOrder[a.type] - priorityOrder[b.type]);
 
   // 處理每個文件
   for (const file of sortedFiles) {
@@ -52,18 +50,12 @@ export async function loadTaskRelatedFiles(
     const fileInfo = generateFileInfo(file);
 
     // 添加到總內容
-    const fileHeader = `\n### ${file.type}: ${file.path}${
-      file.description ? ` - ${file.description}` : ""
-    }${
-      file.lineStart && file.lineEnd
-        ? ` (行 ${file.lineStart}-${file.lineEnd})`
-        : ""
+    const fileHeader = `\n### ${file.type}: ${file.path}${file.description ? ` - ${file.description}` : ''}${
+      file.lineStart && file.lineEnd ? ` (行 ${file.lineStart}-${file.lineEnd})` : ''
     }\n\n`;
 
-    totalContent += fileHeader + "```\n" + fileInfo + "\n```\n\n";
-    filesSummary += `- **${file.path}**${
-      file.description ? ` - ${file.description}` : ""
-    } (${fileInfo.length} 字符)\n`;
+    totalContent += fileHeader + '```\n' + fileInfo + '\n```\n\n';
+    filesSummary += `- **${file.path}**${file.description ? ` - ${file.description}` : ''} (${fileInfo.length} 字符)\n`;
 
     totalLength += fileInfo.length + fileHeader.length + 8; // 8 for "```\n" and "\n```"
   }

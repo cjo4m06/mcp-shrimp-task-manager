@@ -1,0 +1,88 @@
+{
+  "version": "1.0.0",
+  "description": "Enhanced Prompt System Configuration",
+  "categories": {
+    "task-management": {
+      "id": "task-management",
+      "name": {
+        "en": "Task Management",
+        "zh": "任务管理"
+      },
+      "description": {
+        "en": "Prompts for task planning, execution, and management",
+        "zh": "用于任务规划、执行和管理的提示词"
+      },
+      "prompts": ["plan-task", "analyze-task", "execute-task", "verify-task", "split-tasks"],
+      "enabled": true
+    },
+    "project-analysis": {
+      "id": "project-analysis",
+      "name": {
+        "en": "Project Analysis",
+        "zh": "项目分析"
+      },
+      "description": {
+        "en": "Prompts for project structure analysis and code review",
+        "zh": "用于项目结构分析和代码审查的提示词"
+      },
+      "prompts": ["analyze-codebase", "review-architecture", "assess-complexity"],
+      "enabled": true
+    },
+    "research": {
+      "id": "research",
+      "name": {
+        "en": "Research & Investigation",
+        "zh": "研究调查"
+      },
+      "description": {
+        "en": "Prompts for research, investigation, and knowledge gathering",
+        "zh": "用于研究、调查和知识收集的提示词"
+      },
+      "prompts": ["research-mode", "gather-information", "analyze-findings"],
+      "enabled": true
+    }
+  },
+  "chains": {
+    "full-development-cycle": {
+      "id": "full-development-cycle",
+      "name": {
+        "en": "Full Development Cycle",
+        "zh": "完整开发周期"
+      },
+      "description": {
+        "en": "Complete development workflow from planning to deployment",
+        "zh": "从规划到部署的完整开发工作流"
+      },
+      "steps": [
+        {
+          "promptId": "plan-task",
+          "stepName": "Planning Phase",
+          "category": "task-management"
+        },
+        {
+          "promptId": "analyze-task",
+          "stepName": "Analysis Phase",
+          "category": "task-management"
+        },
+        {
+          "promptId": "execute-task",
+          "stepName": "Implementation Phase",
+          "category": "task-management"
+        },
+        {
+          "promptId": "verify-task",
+          "stepName": "Verification Phase",
+          "category": "task-management"
+        }
+      ],
+      "enabled": true
+    }
+  },
+  "settings": {
+    "defaultLanguage": "zh",
+    "enableHotReload": true,
+    "cacheEnabled": true,
+    "maxCacheSize": 100,
+    "loadingStrategy": "lazy"
+  }
+}

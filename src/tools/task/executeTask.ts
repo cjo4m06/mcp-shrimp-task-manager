@@ -1,28 +1,21 @@
-import { z } from "zod";
-import { UUID_V4_REGEX } from "../../utils/regex.js";
-import {
-  getTaskById,
-  updateTaskStatus,
-  canExecuteTask,
-  assessTaskComplexity,
-} from "../../models/taskModel.js";
-import { TaskStatus, Task } from "../../types/index.js";
-import { getExecuteTaskPrompt } from "../../prompts/index.js";
-import { loadTaskRelatedFiles } from "../../utils/fileLoader.js";
+import { z } from 'zod';
+import { UUID_V4_REGEX } from '../../utils/regex.js';
+import { getTaskById, updateTaskStatus, canExecuteTask, assessTaskComplexity } from '../../models/taskModel.js';
+import { TaskStatus, Task } from '../../types/index.js';
+import { getExecuteTaskPrompt } from '../../prompts/index.js';
+import { loadTaskRelatedFiles } from '../../utils/fileLoader.js';
 
 // 執行任務工具
 export const executeTaskSchema = z.object({
   taskId: z
     .string()
     .regex(UUID_V4_REGEX, {
-      message: "任務ID格式無效，請提供有效的UUID v4格式",
+      message: '任務ID格式無效，請提供有效的UUID v4格式',
     })
-    .describe("待執行任務的唯一標識符，必須是系統中存在的有效任務ID"),
+    .describe('待執行任務的唯一標識符，必須是系統中存在的有效任務ID'),
 });
 
-export async function executeTask({
-  taskId,
-}: z.infer<typeof executeTaskSchema>) {
+export async function executeTask({ taskId }: z.infer<typeof executeTaskSchema>) {
   try {
     // 檢查任務是否存在
     const task = await getTaskById(taskId);
@@ -30,7 +23,7 @@ export async function executeTask({
       return {
         content: [
           {
-            type: "text" as const,
+            type: 'text' as const,
             text: `找不到ID為 \`${taskId}\` 的任務。請確認ID是否正確。`,
           },
         ],
@@ -42,13 +35,13 @@ export async function executeTask({
     if (!executionCheck.canExecute) {
       const blockedByTasksText =
         executionCheck.blockedBy && executionCheck.blockedBy.length > 0
-          ? `被以下未完成的依賴任務阻擋: ${executionCheck.blockedBy.join(", ")}`
-          : "無法確定阻擋原因";
+          ? `被以下未完成的依賴任務阻擋: ${executionCheck.blockedBy.join(', ')}`
+          : '無法確定阻擋原因';
 
       return {
         content: [
           {
-            type: "text" as const,
+            type: 'text' as const,
             text: `任務 "${task.name}" (ID: \`${taskId}\`) 目前無法執行。${blockedByTasksText}`,
           },
         ],
@@ -60,7 +53,7 @@ export async function executeTask({
       return {
         content: [
           {
-            type: "text" as const,
+            type: 'text' as const,
             text: `任務 "${task.name}" (ID: \`${taskId}\`) 已經處於進行中狀態。`,
           },
         ],
@@ -72,7 +65,7 @@ export async function executeTask({
       return {
         content: [
           {
-            type: "text" as const,
+            type: 'text' as const,
             text: `任務 "${task.name}" (ID: \`${taskId}\`) 已經標記為完成。如需重新執行，請先使用 delete_task 刪除該任務並重新創建。`,
           },
         ],
@@ -109,19 +102,14 @@ export async function executeTask({
     }
 
     // 加載任務相關的文件內容
-    let relatedFilesSummary = "";
+    let relatedFilesSummary = '';
     if (task.relatedFiles && task.relatedFiles.length > 0) {
       try {
-        const relatedFilesResult = await loadTaskRelatedFiles(
-          task.relatedFiles
-        );
+        const relatedFilesResult = await loadTaskRelatedFiles(task.relatedFiles);
         relatedFilesSummary =
-          typeof relatedFilesResult === "string"
-            ? relatedFilesResult
-            : relatedFilesResult.summary || "";
+          typeof relatedFilesResult === 'string' ? relatedFilesResult : relatedFilesResult.summary || '';
       } catch (error) {
-        relatedFilesSummary =
-          "Error loading related files, please check the files manually.";
+        relatedFilesSummary = 'Error loading related files, please check the files manually.';
       }
     }
 
@@ -136,7 +124,7 @@ export async function executeTask({
     return {
       content: [
         {
-          type: "text" as const,
+          type: 'text' as const,
           text: prompt,
         },
       ],
@@ -145,10 +133,8 @@ export async function executeTask({
     return {
       content: [
         {
-          type: "text" as const,
-          text: `執行任務時發生錯誤: ${
-            error instanceof Error ? error.message : String(error)
-          }`,
+          type: 'text' as const,
+          text: `執行任務時發生錯誤: ${error instanceof Error ? error.message : String(error)}`,
         },
       ],
     };

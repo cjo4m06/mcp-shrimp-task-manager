@@ -1,6 +1,6 @@
 {
   "name": "mcp-shrimp-task-manager",
-  "version": "1.0.20",
+  "version": "1.1.0",
   "description": "Shrimp Task Manager is a task tool built for AI Agents, emphasizing chain-of-thought, reflection, and style consistency. It converts natural language into structured dev tasks with dependency tracking and iterative refinement, enabling agent-like developer behavior in reasoning AI systems",
   "main": "dist/index.js",
   "type": "module",
@@ -16,10 +16,14 @@
     "mcp-shrimp-task-manager": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc && copyfiles -u 1 \"src/**/*.md\" dist && copyfiles -u 1 \"src/public/**/*\" dist && node scripts/add-shebang.js",
+    "build": "tsc && copyfiles -u 1 \"src/**/*.md\" dist && copyfiles -u 1 \"src/**/*.json\" dist && copyfiles -u 1 \"src/public/**/*\" dist && node scripts/add-shebang.js",
     "dev": "ts-node src/index.ts",
     "start": "node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
+    "test:ci": "vitest run --coverage"
   },
   "keywords": [
     "mcp",
@@ -30,7 +34,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@modelcontextprotocol/sdk": "^1.12.1",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "get-port": "^7.1.0",
@@ -42,8 +46,11 @@
     "@types/express": "^5.0.1",
     "@types/node": "^20.8.2",
     "@types/uuid": "^9.0.6",
+    "@vitest/coverage-v8": "^3.1.4",
+    "@vitest/ui": "^3.1.4",
     "copyfiles": "^2.4.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vitest": "^3.1.4"
   }
 }
