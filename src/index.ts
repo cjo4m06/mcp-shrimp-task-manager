@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { loadPromptFromTemplate } from "./prompts/loader.js";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import {
   CallToolRequest,
@@ -9,11 +9,11 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import express, { Request, Response, NextFunction } from "express";
-import getPort from "get-port";
 import path from "path";
 import fs from "fs";
 import fsPromises from "fs/promises";
 import { fileURLToPath } from "url";
+import { v4 as uuidv4 } from "uuid";
 
 // 導入所有工具函數和 schema
 import {
@@ -53,134 +53,39 @@ import {
 
 async function main() {
   try {
-    const ENABLE_GUI = process.env.ENABLE_GUI === "true";
+    // Get configuration from environment
+    const MCP_PORT = parseInt(process.env.MCP_PORT || "3000", 10);
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const publicPath = path.join(__dirname, "public");
+    const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
+    const TASKS_FILE_PATH = path.join(DATA_DIR, "tasks.json");
 
-    if (ENABLE_GUI) {
-      // 創建 Express 應用
-      const app = express();
+    // Create Express app
+    const app = express();
+    app.use(express.json());
 
-      // 儲存 SSE 客戶端的列表
-      let sseClients: Response[] = [];
+    // Store active MCP transport sessions
+    const mcpSessions = new Map<string, StreamableHTTPServerTransport>();
 
-      // 發送 SSE 事件的輔助函數
-      function sendSseUpdate() {
-        sseClients.forEach((client) => {
-          // 檢查客戶端是否仍然連接
-          if (!client.writableEnded) {
-            client.write(
-              `event: update\ndata: ${JSON.stringify({
-                timestamp: Date.now(),
-              })}\n\n`
-            );
-          }
-        });
-        // 清理已斷開的客戶端 (可選，但建議)
-        sseClients = sseClients.filter((client) => !client.writableEnded);
-      }
+    // Store SSE clients for GUI updates
+    let sseClients: Response[] = [];
 
-      // 設置靜態文件目錄
-      const __filename = fileURLToPath(import.meta.url);
-      const __dirname = path.dirname(__filename);
-      const publicPath = path.join(__dirname, "public");
-      const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
-      const TASKS_FILE_PATH = path.join(DATA_DIR, "tasks.json"); // 提取檔案路徑
-
-      app.use(express.static(publicPath));
-
-      // 設置 API 路由
-      app.get("/api/tasks", async (req: Request, res: Response) => {
-        try {
-          // 使用 fsPromises 保持異步讀取
-          const tasksData = await fsPromises.readFile(TASKS_FILE_PATH, "utf-8");
-          res.json(JSON.parse(tasksData));
-        } catch (error) {
-          // 確保檔案不存在時返回空任務列表
-          if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-            res.json({ tasks: [] });
-          } else {
-            res.status(500).json({ error: "Failed to read tasks data" });
-          }
+    // Helper function to send SSE updates
+    function sendSseUpdate() {
+      sseClients.forEach((client) => {
+        if (!client.writableEnded) {
+          client.write(
+            `event: update\ndata: ${JSON.stringify({
+              timestamp: Date.now(),
+            })}\n\n`
+          );
         }
       });
-
-      // 新增：SSE 端點
-      app.get("/api/tasks/stream", (req: Request, res: Response) => {
-        res.writeHead(200, {
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          Connection: "keep-alive",
-          // 可選: CORS 頭，如果前端和後端不在同一個 origin
-          // "Access-Control-Allow-Origin": "*",
-        });
-
-        // 發送一個初始事件或保持連接
-        res.write("data: connected\n\n");
-
-        // 將客戶端添加到列表
-        sseClients.push(res);
-
-        // 當客戶端斷開連接時，將其從列表中移除
-        req.on("close", () => {
-          sseClients = sseClients.filter((client) => client !== res);
-        });
-      });
-
-      // 獲取可用埠
-      const port = await getPort();
-
-      // 啟動 HTTP 伺服器
-      const httpServer = app.listen(port, () => {
-        // 在伺服器啟動後開始監聽檔案變化
-        try {
-          // 檢查檔案是否存在，如果不存在則不監聽 (避免 watch 報錯)
-          if (fs.existsSync(TASKS_FILE_PATH)) {
-            fs.watch(TASKS_FILE_PATH, (eventType, filename) => {
-              if (
-                filename &&
-                (eventType === "change" || eventType === "rename")
-              ) {
-                // 稍微延遲發送，以防短時間內多次觸發 (例如編輯器保存)
-                // debounce sendSseUpdate if needed
-                sendSseUpdate();
-              }
-            });
-          }
-        } catch (watchError) {}
-      });
-
-      // 將 URL 寫入 WebGUI.md
-      try {
-        // 讀取 TEMPLATES_USE 環境變數並轉換為語言代碼
-        const templatesUse = process.env.TEMPLATES_USE || "en";
-        const getLanguageFromTemplate = (template: string): string => {
-          if (template === "zh") return "zh-TW";
-          if (template === "en") return "en";
-          // 自訂範本預設使用英文
-          return "en";
-        };
-        const language = getLanguageFromTemplate(templatesUse);
-
-        const websiteUrl = `[Task Manager UI](http://localhost:${port}?lang=${language})`;
-        const websiteFilePath = path.join(DATA_DIR, "WebGUI.md");
-        await fsPromises.writeFile(websiteFilePath, websiteUrl, "utf-8");
-      } catch (error) {}
-
-      // 設置進程終止事件處理 (確保移除 watcher)
-      const shutdownHandler = async () => {
-        // 關閉所有 SSE 連接
-        sseClients.forEach((client) => client.end());
-        sseClients = [];
-
-        // 關閉 HTTP 伺服器
-        await new Promise<void>((resolve) => httpServer.close(() => resolve()));
-        process.exit(0);
-      };
-
-      process.on("SIGINT", shutdownHandler);
-      process.on("SIGTERM", shutdownHandler);
+      sseClients = sseClients.filter((client) => !client.writableEnded);
     }
 
-    // 創建MCP服務器
+    // Create MCP server instance
     const server = new Server(
       {
         name: "Shrimp Task Manager",
@@ -193,6 +98,7 @@ async function main() {
       }
     );
 
+    // Set up MCP server handlers
     server.setRequestHandler(ListToolsRequestSchema, async () => {
       return {
         tools: [
@@ -473,10 +379,151 @@ async function main() {
       }
     );
 
-    // 建立連接
-    const transport = new StdioServerTransport();
-    await server.connect(transport);
+    // Health check endpoint
+    app.get("/health", (req: Request, res: Response) => {
+      res.status(200).json({ status: "healthy", timestamp: new Date().toISOString() });
+    });
+
+    // Serve static files for GUI
+    app.use(express.static(publicPath));
+
+    // GUI API endpoints
+    app.get("/api/tasks", async (req: Request, res: Response) => {
+      try {
+        const tasksData = await fsPromises.readFile(TASKS_FILE_PATH, "utf-8");
+        res.json(JSON.parse(tasksData));
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+          res.json({ tasks: [] });
+        } else {
+          res.status(500).json({ error: "Failed to read tasks data" });
+        }
+      }
+    });
+
+    // SSE endpoint for GUI updates
+    app.get("/api/tasks/stream", (req: Request, res: Response) => {
+      res.writeHead(200, {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      });
+
+      res.write("data: connected\n\n");
+      sseClients.push(res);
+
+      req.on("close", () => {
+        sseClients = sseClients.filter((client) => client !== res);
+      });
+    });
+
+    // Main MCP endpoint using StreamableHTTP transport
+    app.all("/mcp", async (req: Request, res: Response) => {
+      try {
+        // Get or create session ID
+        let sessionId = req.headers['mcp-session-id'] as string;
+        if (!sessionId) {
+          sessionId = uuidv4();
+          res.setHeader('mcp-session-id', sessionId);
+        }
+
+        // Get or create transport for this session
+        let transport = mcpSessions.get(sessionId);
+        if (!transport) {
+          transport = new StreamableHTTPServerTransport({
+            sessionIdGenerator: () => sessionId,
+            onsessioninitialized: (id: string) => {
+              console.log(`🔗 New MCP session initialized: ${id}`);
+            },
+            enableJsonResponse: false
+          });
+          mcpSessions.set(sessionId, transport);
+          
+          // Connect the transport to the server
+          await server.connect(transport);
+          
+          // Clean up session when transport closes
+          transport.onclose = () => {
+            mcpSessions.delete(sessionId);
+            console.log(`🔌 MCP session closed: ${sessionId}`);
+          };
+        }
+
+        // Handle the request using the correct method
+        await transport.handleRequest(req, res, req.body);
+      } catch (error) {
+        console.error("Error handling MCP request:", error);
+        if (!res.headersSent) {
+          res.status(500).json({ error: "Internal server error" });
+        }
+      }
+    });
+
+    // Start the server
+    const httpServer = app.listen(MCP_PORT, () => {
+      console.log(`🦐 Shrimp Task Manager MCP Server running on port ${MCP_PORT}`);
+      console.log(`📊 Web GUI available at: http://localhost:${MCP_PORT}`);
+      console.log(`🔌 MCP endpoint available at: http://localhost:${MCP_PORT}/mcp`);
+      
+      // Set up file watching for task updates
+      try {
+        if (fs.existsSync(TASKS_FILE_PATH)) {
+          fs.watch(TASKS_FILE_PATH, (eventType, filename) => {
+            if (filename && (eventType === "change" || eventType === "rename")) {
+              sendSseUpdate();
+            }
+          });
+        }
+      } catch (watchError) {
+        console.warn("Could not set up file watching:", watchError);
+      }
+
+      // Write GUI URL to WebGUI.md
+      try {
+        const templatesUse = process.env.TEMPLATES_USE || "en";
+        const getLanguageFromTemplate = (template: string): string => {
+          if (template === "zh") return "zh-TW";
+          if (template === "en") return "en";
+          return "en";
+        };
+        const language = getLanguageFromTemplate(templatesUse);
+        const websiteUrl = `[Task Manager UI](http://localhost:${MCP_PORT}?lang=${language})`;
+        const websiteFilePath = path.join(DATA_DIR, "WebGUI.md");
+        fsPromises.writeFile(websiteFilePath, websiteUrl, "utf-8").catch(() => {});
+      } catch (error) {
+        console.warn("Could not write WebGUI.md:", error);
+      }
+    });
+
+    // Graceful shutdown
+    const shutdownHandler = async () => {
+      console.log("🛑 Shutting down Shrimp Task Manager...");
+      
+      // Close all SSE connections
+      sseClients.forEach((client) => client.end());
+      sseClients = [];
+
+      // Close all MCP sessions
+      for (const [sessionId, transport] of mcpSessions) {
+        try {
+          transport.close?.();
+        } catch (error) {
+          console.warn(`Error closing session ${sessionId}:`, error);
+        }
+      }
+      mcpSessions.clear();
+
+      // Close HTTP server
+      await new Promise<void>((resolve) => httpServer.close(() => resolve()));
+      console.log("✅ Server shutdown complete");
+      process.exit(0);
+    };
+
+    process.on("SIGINT", shutdownHandler);
+    process.on("SIGTERM", shutdownHandler);
+
   } catch (error) {
+    console.error("Failed to start server:", error);
     process.exit(1);
   }
 }

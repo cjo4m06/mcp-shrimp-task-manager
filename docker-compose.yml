@@ -1,0 +1,22 @@
+services:
+  shrimp-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shrimp-mcp
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - /mnt/cache/appdata/shrimp-mcp:/data
+    networks:
+      - jakenet
+    environment:
+      - MCP_PORT=3000
+      - DATA_DIR=/data
+      - TEMPLATES_USE=en
+
+networks:
+  jakenet:
+    external: true
+

@@ -5,6 +5,8 @@ yarn-debug.log
 yarn-error.log
 .npm
 .yarn-integrity
+plan.md
+PROJECT_RULES.md
 
 # TypeScript 編譯輸出
 dist/
@@ -17,6 +19,7 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.example
 
 # IDE 和編輯器
 .idea/
@@ -55,4 +58,29 @@ data/*/*.json
 data/*
 
 # Cursor AI 生成的暫存檔案
-.cursor/tmp/ 
+.cursor/tmp/
+
+# Ignore dependencies
+node_modules
+
+# Ignore development and environment files
+.git
+.gitignore
+.env
+.env.example
+*.log
+plan.md
+
+# Ignore local development artifacts
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.idea
+.vscode
+.cursor/
+
+# Docker
+Dockerfile
+
+# README
+README.md 

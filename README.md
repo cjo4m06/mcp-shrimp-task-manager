@@ -186,18 +186,33 @@ This tool is particularly valuable when your codebase expands or undergoes signi
 
 - [Prompt Customization Guide](docs/en/prompt-customization.md): Instructions for customizing tool prompts via environment variables
 - [Changelog](CHANGELOG.md): Record of all notable changes to this project
+- [Deployment Guide](docs/deployment.md): Instructions on how to build and run the Docker container
 
 ## 🔧 <a id="installation"></a>Installation and Usage
 
-### Installing via Smithery
+The recommended way to run Shrimp Task Manager is by using Docker. This provides a consistent, isolated environment for the service.
 
-To install Shrimp Task Manager for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@cjo4m06/mcp-shrimp-task-manager):
+### Prerequisites
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/) (usually included with Docker Desktop)
 
-```bash
-npx -y @smithery/cli install @cjo4m06/mcp-shrimp-task-manager --client claude
-```
+### Running with Docker Compose
 
-### Manual Installation
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/cjo4m06/mcp-shrimp-task-manager.git
+    cd mcp-shrimp-task-manager
+    ```
+
+2.  **Start the service:**
+    ```bash
+    docker-compose up --build -d
+    ```
+    The service will be available at `http://localhost:3000`.
+
+### Manual Installation (for development)
+
+If you prefer to run the service locally without Docker:
 
 ```bash
 # Install dependencies
@@ -205,90 +220,25 @@ npm install
 
 # Build and start service
 npm run build
+npm start
 ```
 
 ## 🔌 <a id="clients"></a>Using with MCP-Compatible Clients
 
-Shrimp Task Manager can be used with any client that supports the Model Context Protocol, such as Cursor IDE.
+Shrimp Task Manager can be used with any client that supports the Model Context Protocol, such as Cursor IDE. To connect, you need to point your client to the server's HTTP endpoint.
 
 ### Configuration in Cursor IDE
 
-Shrimp Task Manager offers two configuration methods: global configuration and project-specific configuration.
-
-#### Global Configuration
-
-1. Open the Cursor IDE global configuration file (usually located at `~/.cursor/mcp.json`)
-2. Add the following configuration in the `mcpServers` section:
+Update your global (`~/.cursor/mcp.json`) or project-specific (`.cursor/mcp.json`) configuration file:
 
 ```json
 {
   "mcpServers": {
     "shrimp-task-manager": {
-      "command": "node",
-      "args": ["/mcp-shrimp-task-manager/dist/index.js"],
+      "url": "http://localhost:3000/mcp",
       "env": {
-        "DATA_DIR": "/path/to/project/data", // 必須使用絕對路徑
-        "TEMPLATES_USE": "en",
-        "ENABLE_GUI": "false"
-      }
-    }
-  }
-}
-
-
-or
-
-{
-  "mcpServers": {
-    "shrimp-task-manager": {
-      "command": "npx",
-      "args": ["-y", "mcp-shrimp-task-manager"],
-      "env": {
-        "DATA_DIR": "/mcp-shrimp-task-manager/data",
-        "TEMPLATES_USE": "en",
-        "ENABLE_GUI": "false"
-      }
-    }
-  }
-}
-```
-
-> ⚠️ Please replace `/mcp-shrimp-task-manager` with your actual path.
-
-#### Project-Specific Configuration
-
-You can also set up dedicated configurations for each project to use independent data directories for different projects:
-
-1. Create a `.cursor` directory in the project root
-2. Create an `mcp.json` file in this directory with the following content:
-
-```json
-{
-  "mcpServers": {
-    "shrimp-task-manager": {
-      "command": "node",
-      "args": ["/path/to/mcp-shrimp-task-manager/dist/index.js"],
-      "env": {
-        "DATA_DIR": "/path/to/project/data", // Must use absolute path
-        "TEMPLATES_USE": "en",
-        "ENABLE_GUI": "false"
-      }
-    }
-  }
-}
-
-
-or
-
-{
-  "mcpServers": {
-    "shrimp-task-manager": {
-      "command": "npx",
-      "args": ["-y", "mcp-shrimp-task-manager"],
-      "env": {
-        "DATA_DIR": "/path/to/project/data", // Must use absolute path
-        "TEMPLATES_USE": "en",
-        "ENABLE_GUI": "false"
+        "DATA_DIR": "/path/to/project/data", // Must be an absolute path accessible by the container
+        "TEMPLATES_USE": "en"
       }
     }
   }
@@ -297,48 +247,18 @@ or
 
 ### ⚠️ Important Configuration Notes
 
-The **DATA_DIR parameter** is the directory where Shrimp Task Manager stores task data, conversation logs, and other information. Setting this parameter correctly is crucial for the normal operation of the system. This parameter must use an **absolute path**; using a relative path may cause the system to incorrectly locate the data directory, resulting in data loss or function failure.
-
-> **Warning**: Using relative paths may cause the following issues:
->
-> - Data files not found, causing system initialization failure
-> - Task status loss or inability to save correctly
-> - Inconsistent application behavior across different environments
-> - System crashes or failure to start
+-   **`url`**: This should point to the `/mcp` endpoint of your running Shrimp Task Manager container.
+-   **`DATA_DIR`**: This path must be the **absolute path on the host machine** that you want to map to the container's data volume. The `docker-compose.yml` file handles this mapping. Ensure this path exists and has the correct permissions.
 
 ### 🔧 Environment Variable Configuration
 
-Shrimp Task Manager supports customizing prompt behavior through environment variables, allowing you to fine-tune AI assistant responses without modifying code. You can set these variables in the configuration or through an `.env` file:
+You can customize the server's behavior by modifying the `environment` section in the `docker-compose.yml` file.
 
-```json
-{
-  "mcpServers": {
-    "shrimp-task-manager": {
-      "command": "node",
-      "args": ["/path/to/mcp-shrimp-task-manager/dist/index.js"],
-      "env": {
-        "DATA_DIR": "/path/to/project/data",
-        "MCP_PROMPT_PLAN_TASK": "Custom planning guidance...",
-        "MCP_PROMPT_EXECUTE_TASK_APPEND": "Additional execution instructions...",
-        "TEMPLATES_USE": "en",
-        "ENABLE_GUI": "false"
-      }
-    }
-  }
-}
-```
+-   **`MCP_PORT`**: The port the server listens on inside the container.
+-   **`DATA_DIR`**: The path inside the container where task data is stored. This should match the volume mount path.
+-   **`TEMPLATES_USE`**: Specifies the prompt template set to use (`en` or `zh`).
 
-There are two customization methods:
-
-- **Override Mode** (`MCP_PROMPT_[FUNCTION_NAME]`): Completely replace the default prompt
-- **Append Mode** (`MCP_PROMPT_[FUNCTION_NAME]_APPEND`): Add content to the existing prompt
-
-Additionally, there are other system configuration variables:
-
-- **DATA_DIR**: Specifies the directory where task data is stored
-- **TEMPLATES_USE**: Specifies the template set to use for prompts. Defaults to `en`. Currently available options are `en` and `zh`. To use custom templates, copy the `src/prompts/templates_en` directory to the location specified by `DATA_DIR`, rename the copied directory (e.g., to `my_templates`), and set `TEMPLATES_USE` to the new directory name (e.g., `my_templates`).
-
-For detailed instructions on customizing prompts, including supported parameters and examples, see the [Prompt Customization Guide](docs/en/prompt-customization.md).
+For more advanced prompt customization, see the [Prompt Customization Guide](docs/en/prompt-customization.md).
 
 ## 💡 <a id="prompt"></a>System Prompt Guidance
 
