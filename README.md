@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/cjo4m06-mcp-shrimp-task-manager-badge.png)](https://mseep.ai/app/cjo4m06-mcp-shrimp-task-manager)
+
 [English](README.md) | [中文](docs/zh/README.md)
 
 ## 目錄
