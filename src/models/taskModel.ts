@@ -11,8 +11,7 @@ import fs from "fs/promises";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { fileURLToPath } from "url";
-import { exec } from "child_process";
-import { promisify } from "util";
+import { spawnSync } from "child_process";
 import { getDataDir, getTasksFilePath, getMemoryDir } from "../utils/paths.js";
 
 // 確保獲取專案資料夾路徑
@@ -23,9 +22,6 @@ const PROJECT_ROOT = path.resolve(__dirname, "../..");
 // 數據文件路徑（改為異步獲取）
 // const DATA_DIR = getDataDir();
 // const TASKS_FILE = getTasksFilePath();
-
-// 將exec轉換為Promise形式
-const execPromise = promisify(exec);
 
 // 確保數據目錄存在
 async function ensureDataDir() {
@@ -737,7 +733,7 @@ export async function clearAllTasks(): Promise<{
   }
 }
 
-// 使用系統指令搜尋任務記憶
+// 使用系統指令搜尋任務記憶 - 使用安全的 spawnSync 方式
 export async function searchTasksWithCommand(
   query: string,
   isId: boolean = false,
@@ -763,88 +759,56 @@ export async function searchTasksWithCommand(
     // 確保記憶資料夾存在
     await fs.access(MEMORY_DIR);
 
-    // 生成搜尋命令
-    const cmd = generateSearchCommand(query, isId, MEMORY_DIR);
+    // 執行安全的搜尋
+    const searchResult = executeSearch(query, isId, MEMORY_DIR);
 
-    // 如果有搜尋命令，執行它
-    if (cmd) {
-      try {
-        const { stdout } = await execPromise(cmd, {
-          maxBuffer: 1024 * 1024 * 10,
-        });
+    if (searchResult.success && searchResult.stdout) {
+      // 解析搜尋結果，提取符合的檔案路徑
+      const matchedFiles = new Set<string>();
 
-        if (stdout) {
-          // 解析搜尋結果，提取符合的檔案路徑
-          const matchedFiles = new Set<string>();
-
-          stdout.split("\n").forEach((line) => {
-            if (line.trim()) {
-              // 格式通常是: 文件路徑:匹配內容
-              const filePath = line.split(":")[0];
-              if (filePath) {
-                matchedFiles.add(filePath);
-              }
-            }
-          });
-
-          // 限制讀取檔案數量
-          const MAX_FILES_TO_READ = 10;
-          const sortedFiles = Array.from(matchedFiles)
-            .sort()
-            .reverse()
-            .slice(0, MAX_FILES_TO_READ);
-
-          // 只處理符合條件的檔案
-          for (const filePath of sortedFiles) {
-            try {
-              const data = await fs.readFile(filePath, "utf-8");
-              const tasks = JSON.parse(data).tasks || [];
-
-              // 格式化日期字段
-              const formattedTasks = tasks.map((task: any) => ({
-                ...task,
-                createdAt: task.createdAt
-                  ? new Date(task.createdAt)
-                  : new Date(),
-                updatedAt: task.updatedAt
-                  ? new Date(task.updatedAt)
-                  : new Date(),
-                completedAt: task.completedAt
-                  ? new Date(task.completedAt)
-                  : undefined,
-              }));
-
-              // 進一步過濾任務確保符合條件
-              const filteredTasks = isId
-                ? formattedTasks.filter((task: Task) => task.id === query)
-                : formattedTasks.filter((task: Task) => {
-                    const keywords = query
-                      .split(/\s+/)
-                      .filter((k) => k.length > 0);
-                    if (keywords.length === 0) return true;
-
-                    return keywords.every((keyword) => {
-                      const lowerKeyword = keyword.toLowerCase();
-                      return (
-                        task.name.toLowerCase().includes(lowerKeyword) ||
-                        task.description.toLowerCase().includes(lowerKeyword) ||
-                        (task.notes &&
-                          task.notes.toLowerCase().includes(lowerKeyword)) ||
-                        (task.implementationGuide &&
-                          task.implementationGuide
-                            .toLowerCase()
-                            .includes(lowerKeyword)) ||
-                        (task.summary &&
-                          task.summary.toLowerCase().includes(lowerKeyword))
-                      );
-                    });
-                  });
-
-              memoryTasks.push(...filteredTasks);
-            } catch (error: unknown) {}
+      searchResult.stdout.split("\n").forEach((line: string) => {
+        if (line.trim()) {
+          // 格式通常是: 文件路徑:匹配內容
+          const filePath = line.split(":")[0];
+          if (filePath) {
+            matchedFiles.add(filePath);
           }
         }
-      } catch (error: unknown) {}
+      });
+
+      // 限制讀取檔案數量
+      const MAX_FILES_TO_READ = 10;
+      const sortedFiles = Array.from(matchedFiles)
+        .sort()
+        .reverse()
+        .slice(0, MAX_FILES_TO_READ);
+
+      // 只處理符合條件的檔案
+      for (const filePath of sortedFiles) {
+        try {
+          const data = await fs.readFile(filePath, "utf-8");
+          const tasks = JSON.parse(data).tasks || [];
+
+          // 格式化日期字段
+          const formattedTasks = tasks.map((task: any) => ({
+            ...task,
+            createdAt: task.createdAt
+              ? new Date(task.createdAt)
+              : new Date(),
+            updatedAt: task.updatedAt
+              ? new Date(task.updatedAt)
+              : new Date(),
+            completedAt: task.completedAt
+              ? new Date(task.completedAt)
+              : undefined,
+          }));
+
+          // 進一步過濾任務確保符合條件
+          const filteredTasks = filterCurrentTasks(formattedTasks, query, isId);
+
+          memoryTasks.push(...filteredTasks);
+        } catch (error: unknown) {}
+      }
     }
   } catch (error: unknown) {}
 
@@ -903,65 +867,128 @@ export async function searchTasksWithCommand(
   };
 }
 
-// 根據平台生成適當的搜尋命令
-function generateSearchCommand(
+// 執行安全的搜尋，使用 spawnSync 防止命令注入
+function executeSearch(
   query: string,
   isId: boolean,
   memoryDir: string
-): string {
-  // 安全地轉義用戶輸入
-  const safeQuery = escapeShellArg(query);
-  const keywords = safeQuery.split(/\s+/).filter((k) => k.length > 0);
+): { success: boolean; stdout?: string } {
+  // 驗證輸入
+  if (!query || typeof query !== 'string') {
+    return { success: false };
+  }
 
-  // 檢測操作系統類型
-  const isWindows = process.platform === "win32";
+  // 清理查詢字符串，移除控制字符
+  const cleanQuery = query.replace(/[\x00-\x1F\x7F]/g, '').trim();
+  if (!cleanQuery) {
+    return { success: false };
+  }
 
-  if (isWindows) {
-    // Windows環境，使用findstr命令
-    if (isId) {
-      // ID搜尋
-      return `findstr /s /i /c:"${safeQuery}" "${memoryDir}\\*.json"`;
-    } else if (keywords.length === 1) {
-      // 單一關鍵字
-      return `findstr /s /i /c:"${safeQuery}" "${memoryDir}\\*.json"`;
-    } else {
-      // 多關鍵字搜尋 - Windows中使用PowerShell
-      const keywordPatterns = keywords.map((k) => `'${k}'`).join(" -and ");
-      return `powershell -Command "Get-ChildItem -Path '${memoryDir}' -Filter *.json -Recurse | Select-String -Pattern ${keywordPatterns} | ForEach-Object { $_.Path }"`;
-    }
-  } else {
-    // Unix/Linux/MacOS環境，使用grep命令
-    if (isId) {
-      return `grep -r --include="*.json" "${safeQuery}" "${memoryDir}"`;
-    } else if (keywords.length === 1) {
-      return `grep -r --include="*.json" "${safeQuery}" "${memoryDir}"`;
-    } else {
-      // 多關鍵字用管道連接多個grep命令
-      const firstKeyword = escapeShellArg(keywords[0]);
-      const otherKeywords = keywords.slice(1).map((k) => escapeShellArg(k));
+  try {
+    // 檢測操作系統類型
+    const isWindows = process.platform === "win32";
 
-      let cmd = `grep -r --include="*.json" "${firstKeyword}" "${memoryDir}"`;
-      for (const keyword of otherKeywords) {
-        cmd += ` | grep "${keyword}"`;
+    if (isWindows) {
+      // Windows環境，使用 findstr 命令
+      const args = ['/s', '/i', '/c:' + cleanQuery, memoryDir + '\\*.json'];
+      
+      const result = spawnSync('findstr', args, {
+        encoding: 'utf8',
+        maxBuffer: 1024 * 1024 * 10,
+      });
+
+      if (result.error) {
+        return { success: false };
       }
-      return cmd;
+
+      return {
+        success: true,
+        stdout: result.stdout || '',
+      };
+    } else {
+      // Unix/Linux/MacOS環境，使用 grep 命令
+      if (isId) {
+        // ID搜尋使用精確匹配
+        const args = ['-r', '--include=*.json', cleanQuery, memoryDir];
+        
+        const result = spawnSync('grep', args, {
+          encoding: 'utf8',
+          maxBuffer: 1024 * 1024 * 10,
+        });
+
+        if (result.error) {
+          return { success: false };
+        }
+
+        return {
+          success: true,
+          stdout: result.stdout || '',
+        };
+      } else {
+        // 文本搜尋，使用關鍵字 OR 邏輯搜尋
+        const keywords = cleanQuery
+          .split(/\s+/)
+          .map(keyword => keyword.trim())
+          .filter(keyword => keyword.length > 0);
+        
+        if (keywords.length === 0) {
+          return { success: false };
+        }
+
+        // 使用 grep 的多重 -e 選項進行 OR 搜尋
+        const args = ['-r', '--include=*.json', '-i'];
+        
+        // 為每個關鍵字添加模式
+        keywords.forEach(keyword => {
+          args.push('-e', keyword);
+        });
+        
+        args.push(memoryDir);
+        
+        const result = spawnSync('grep', args, {
+          encoding: 'utf8',
+          maxBuffer: 1024 * 1024 * 10,
+        });
+
+        // grep 在沒有匹配時返回退出碼 1，這是正常的
+        if (result.error) {
+          return { success: false };
+        }
+
+        return {
+          success: true,
+          stdout: result.stdout || '',
+        };
+      }
     }
+  } catch (error) {
+    return { success: false };
   }
 }
 
 /**
- * 安全地轉義shell參數，防止命令注入
+ * 檢查任務是否符合搜尋關鍵字
  */
-function escapeShellArg(arg: string): string {
-  if (!arg) return "";
+function taskMatchesKeywords(task: Task, keywords: string[]): boolean {
+  const searchableFields = [
+    task.name,
+    task.description,
+    task.notes,
+    task.implementationGuide,
+    task.summary,
+  ];
 
-  // 移除所有控制字符和特殊字符
-  return arg
-    .replace(/[\x00-\x1F\x7F]/g, "") // 控制字符
-    .replace(/[&;`$"'<>|]/g, ""); // Shell 特殊字符
+  return keywords.every((keyword) => {
+    const lowerKeyword = keyword.toLowerCase();
+    return searchableFields.some((field) => 
+      field && field.toLowerCase().includes(lowerKeyword)
+    );
+  });
 }
 
-// 過濾當前任務列表
+/**
+ * 根據搜尋條件過濾當前任務列表
+ */
 function filterCurrentTasks(
   tasks: Task[],
   query: string,
@@ -969,22 +996,21 @@ function filterCurrentTasks(
 ): Task[] {
   if (isId) {
     return tasks.filter((task) => task.id === query);
-  } else {
-    const keywords = query.split(/\s+/).filter((k) => k.length > 0);
-    if (keywords.length === 0) return tasks;
-
-    return tasks.filter((task) => {
-      return keywords.every((keyword) => {
-        const lowerKeyword = keyword.toLowerCase();
-        return (
-          task.name.toLowerCase().includes(lowerKeyword) ||
-          task.description.toLowerCase().includes(lowerKeyword) ||
-          (task.notes && task.notes.toLowerCase().includes(lowerKeyword)) ||
-          (task.implementationGuide &&
-            task.implementationGuide.toLowerCase().includes(lowerKeyword)) ||
-          (task.summary && task.summary.toLowerCase().includes(lowerKeyword))
-        );
-      });
-    });
   }
+
+  // 解析並清理搜尋查詢為關鍵字
+  const keywords = query
+    .split(/\s+/)
+    .map(keyword => keyword.trim())
+    .filter(keyword => keyword.length > 0);
+  
+  // 如果沒有有效關鍵字，返回所有任務
+  if (keywords.length === 0) {
+    return tasks;
+  }
+
+  // 根據關鍵字匹配過濾任務
+  return tasks.filter((task) => taskMatchesKeywords(task, keywords));
 }
+
+
