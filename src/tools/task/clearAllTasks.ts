@@ -35,6 +35,7 @@ export async function clearAllTasks({
     };
   }
 
+
   // 檢查是否真的有任務需要清除
   // Check if there are actually tasks that need to be cleared
   const allTasks = await getAllTasks();

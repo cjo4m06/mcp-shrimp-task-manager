@@ -1,37 +1,66 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { releaseMetadata, getReleaseFile } from '../data/releases';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 // @ts-ignore
 import { dark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { useTranslation } from 'react-i18next';
+import { getUIStrings, getReleaseContent } from '../i18n/documentation/index.js';
+import ImageLightbox, { useLightbox } from './ImageLightbox';
 
 function ReleaseNotes() {
   const [selectedVersion, setSelectedVersion] = useState(releaseMetadata[0]?.version || '');
   const [releaseContent, setReleaseContent] = useState('');
   const [loading, setLoading] = useState(true);
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language;
+  const uiStrings = getUIStrings('releaseNotes', currentLanguage);
+  const lightbox = useLightbox();
+  const imagesRef = useRef([]);
 
   useEffect(() => {
     if (selectedVersion) {
       loadReleaseContent(selectedVersion);
     }
-  }, [selectedVersion]);
+  }, [selectedVersion, currentLanguage]);
 
   const loadReleaseContent = async (version) => {
     setLoading(true);
     setReleaseContent('');
     
     try {
-      const releaseFile = getReleaseFile(version);
-      const response = await fetch(releaseFile);
-      
-      if (response.ok) {
-        const content = await response.text();
-        setReleaseContent(content);
+      // First check if we have translated content in the language files
+      const translatedContent = getReleaseContent(version, currentLanguage);
+      if (translatedContent && translatedContent.content) {
+        setReleaseContent(translatedContent.content);
       } else {
-        setReleaseContent(`# ${version}\n\nRelease notes not found.`);
+        // Try to load language-specific markdown file
+        let releaseFile;
+        if (currentLanguage !== 'en') {
+          // Check for language-specific file first (e.g., v3.0.0-zh.md)
+          releaseFile = `/releases/${version}-${currentLanguage}.md`;
+          const response = await fetch(releaseFile);
+          
+          if (response.ok) {
+            const content = await response.text();
+            setReleaseContent(content);
+            return; // Exit early if language-specific file found
+          }
+        }
+        
+        // Fallback to English version
+        releaseFile = getReleaseFile(version);
+        const response = await fetch(releaseFile);
+        
+        if (response.ok) {
+          const content = await response.text();
+          setReleaseContent(content);
+        } else {
+          setReleaseContent(`# ${version}\n\n${uiStrings.notFound}`);
+        }
       }
     } catch (error) {
       console.error('Error loading release content:', error);
-      setReleaseContent(`# ${version}\n\nError loading release notes.`);
+      setReleaseContent(`# ${version}\n\n${uiStrings.error}`);
     } finally {
       setLoading(false);
     }
@@ -52,13 +81,24 @@ function ReleaseNotes() {
           parts.push(remaining.substring(0, linkMatch.index));
         }
         // Add link
+        const href = linkMatch[2];
+        const isAnchor = href.startsWith('#');
+        
         parts.push(
           <a
             key={`link-${key++}`}
-            href={linkMatch[2]}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: '#3b82f6', textDecoration: 'underline' }}
+            href={href}
+            target={isAnchor ? undefined : "_blank"}
+            rel={isAnchor ? undefined : "noopener noreferrer"}
+            style={{ color: '#ffff00', textDecoration: 'underline' }}
+            onClick={isAnchor ? (e) => {
+              e.preventDefault();
+              const targetId = href.substring(1);
+              const element = document.getElementById(targetId);
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            } : undefined}
           >
             {linkMatch[1]}
           </a>
@@ -134,36 +174,45 @@ function ReleaseNotes() {
     
     const lines = content.split('\n');
     const elements = [];
+    const imageList = [];
     let i = 0;
     
     while (i < lines.length) {
       const line = lines[i];
       
       if (line.startsWith('# ')) {
+        const text = line.substring(2);
+        const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
         elements.push(
-          <h1 key={i} className="release-h1">
-            {parseInlineMarkdown(line.substring(2))}
+          <h1 key={i} id={id} className="release-h1">
+            {parseInlineMarkdown(text)}
           </h1>
         );
         i++;
       } else if (line.startsWith('## ')) {
+        const text = line.substring(3);
+        const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
         elements.push(
-          <h2 key={i} className="release-h2">
-            {parseInlineMarkdown(line.substring(3))}
+          <h2 key={i} id={id} className="release-h2">
+            {parseInlineMarkdown(text)}
           </h2>
         );
         i++;
       } else if (line.startsWith('### ')) {
+        const text = line.substring(4);
+        const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
         elements.push(
-          <h3 key={i} className="release-h3">
-            {parseInlineMarkdown(line.substring(4))}
+          <h3 key={i} id={id} className="release-h3">
+            {parseInlineMarkdown(text)}
           </h3>
         );
         i++;
       } else if (line.startsWith('#### ')) {
+        const text = line.substring(5);
+        const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
         elements.push(
-          <h4 key={i} className="release-h4">
-            {parseInlineMarkdown(line.substring(5))}
+          <h4 key={i} id={id} className="release-h4">
+            {parseInlineMarkdown(text)}
           </h4>
         );
         i++;
@@ -188,7 +237,7 @@ function ReleaseNotes() {
                 // Optional: Add visual feedback
                 const button = event.target;
                 const originalText = button.textContent;
-                button.textContent = 'Copied!';
+                button.textContent = uiStrings.copied;
                 button.classList.add('copied');
                 setTimeout(() => {
                   button.textContent = originalText;
@@ -197,7 +246,7 @@ function ReleaseNotes() {
               }}
               title="Copy code to clipboard"
             >
-              Copy
+              {uiStrings.copy}
             </button>
             <SyntaxHighlighter
               language={language}
@@ -241,12 +290,21 @@ function ReleaseNotes() {
         if (imgMatch) {
           const altText = imgMatch[1];
           const imgUrl = imgMatch[2];
+          const imageIndex = imageList.length;
+          
+          imageList.push({
+            src: imgUrl,
+            title: altText || `Image ${imageIndex + 1}`,
+            description: altText
+          });
+          
           elements.push(
             <div key={i} className="release-image">
               <img 
                 src={imgUrl} 
                 alt={altText} 
-                style={{ maxWidth: '60%', height: 'auto', margin: '1rem 0' }}
+                style={{ maxWidth: '75%', height: 'auto', margin: '1rem 0', cursor: 'pointer' }}
+                onClick={() => lightbox.openLightbox(imagesRef.current, imageIndex)}
               />
             </div>
           );
@@ -276,6 +334,9 @@ function ReleaseNotes() {
       }
     }
     
+    // Store images in ref to avoid re-renders
+    imagesRef.current = imageList;
+    
     return elements;
   };
 
@@ -283,12 +344,12 @@ function ReleaseNotes() {
     <div className="release-notes-tab-content">
       <div className="release-notes-inner">
         <div className="release-notes-header">
-          <h2>📋 Release Notes</h2>
+          <h2>{uiStrings.header}</h2>
         </div>
         
         <div className="release-notes-content">
           <div className="release-sidebar">
-            <h3>Versions</h3>
+            <h3>{uiStrings.versions}</h3>
             <ul className="version-list">
               {releaseMetadata.map((release) => (
                 <li key={release.version}>
@@ -310,7 +371,7 @@ function ReleaseNotes() {
           
           <div className="release-details">
             {loading ? (
-              <div className="release-loading">Loading release notes...</div>
+              <div className="release-loading">{uiStrings.loading}</div>
             ) : (
               <div className="release-markdown-content">
                 {renderMarkdown(releaseContent)}
@@ -319,6 +380,13 @@ function ReleaseNotes() {
           </div>
         </div>
       </div>
+      
+      <ImageLightbox
+        isOpen={lightbox.isOpen}
+        onClose={lightbox.closeLightbox}
+        images={lightbox.images}
+        currentIndex={lightbox.currentIndex}
+      />
     </div>
   );
 }

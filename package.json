@@ -19,7 +19,8 @@
     "build": "tsc && copyfiles -u 1 \"src/**/*.md\" dist && copyfiles -u 1 \"src/public/**/*\" dist && node scripts/add-shebang.js",
     "dev": "ts-node src/index.ts",
     "start": "node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest",
+    "test:coverage": "vitest --coverage"
   },
   "keywords": [
     "mcp",
@@ -44,6 +45,7 @@
     "@types/uuid": "^9.0.6",
     "copyfiles": "^2.4.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vitest": "^1.0.0"
   }
 }

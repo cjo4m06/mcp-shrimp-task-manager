@@ -63,3 +63,7 @@ data/*
 
 # Audio files
 *.wav 
+
+# Screenshots folder
+Screenshots/
+/Screenshots
