@@ -8,7 +8,7 @@ export default defineConfig({
     assetsDir: 'assets',
   },
   server: {
-    port: 9999,
+    port: 3000,
     proxy: {
       '/api': {
         target: 'http://localhost:9998',

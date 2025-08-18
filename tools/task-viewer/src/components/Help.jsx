@@ -1,56 +1,31 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 // @ts-ignore
 import { dark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
-import { useTranslation } from 'react-i18next';
-import { getUIStrings, getReadmeContent } from '../i18n/documentation/index.js';
-import ImageLightbox, { useLightbox } from './ImageLightbox';
 
 function Help() {
   const [readmeContent, setReadmeContent] = useState('');
   const [loading, setLoading] = useState(true);
-  const { t, i18n } = useTranslation();
-  const currentLanguage = i18n.language;
-  const uiStrings = getUIStrings('help', currentLanguage);
-  const lightbox = useLightbox();
-  const imagesRef = useRef([]);
 
   useEffect(() => {
     loadReadmeContent();
-  }, [currentLanguage]);
+  }, []);
 
   const loadReadmeContent = async () => {
     setLoading(true);
     
     try {
-      // First check if we have translated content
-      const translatedContent = getReadmeContent(currentLanguage);
-      if (translatedContent && translatedContent.content) {
-        setReadmeContent(translatedContent.content);
-      } else if (currentLanguage === 'en') {
-        // Load from README.md for English
-        const response = await fetch('/api/readme');
-        
-        if (response.ok) {
-          const content = await response.text();
-          setReadmeContent(content);
-        } else {
-          setReadmeContent(`# Help\n\n${uiStrings.notFound}`);
-        }
+      const response = await fetch('/api/readme');
+      
+      if (response.ok) {
+        const content = await response.text();
+        setReadmeContent(content);
       } else {
-        // Fallback to English if translation not available
-        const response = await fetch('/api/readme');
-        
-        if (response.ok) {
-          const content = await response.text();
-          setReadmeContent(content);
-        } else {
-          setReadmeContent(`# Help\n\n${uiStrings.notFound}`);
-        }
+        setReadmeContent('# Help\n\nREADME not found.');
       }
     } catch (error) {
       console.error('Error loading README:', error);
-      setReadmeContent(`# Help\n\n${uiStrings.error}`);
+      setReadmeContent('# Help\n\nError loading README.');
     } finally {
       setLoading(false);
     }
@@ -153,7 +128,6 @@ function Help() {
     
     const lines = content.split('\n');
     const elements = [];
-    const imageList = [];
     let i = 0;
     
     while (i < lines.length) {
@@ -214,7 +188,7 @@ function Help() {
                 // Optional: Add visual feedback
                 const button = event.target;
                 const originalText = button.textContent;
-                button.textContent = uiStrings.copied;
+                button.textContent = 'Copied!';
                 button.classList.add('copied');
                 setTimeout(() => {
                   button.textContent = originalText;
@@ -223,7 +197,7 @@ function Help() {
               }}
               title="Copy code to clipboard"
             >
-              {uiStrings.copy}
+              Copy
             </button>
             <SyntaxHighlighter
               language={language}
@@ -267,21 +241,12 @@ function Help() {
         if (imgMatch) {
           const altText = imgMatch[1];
           const imgUrl = imgMatch[2];
-          const imageIndex = imageList.length;
-          
-          imageList.push({
-            src: imgUrl,
-            title: altText || `Image ${imageIndex + 1}`,
-            description: altText
-          });
-          
           elements.push(
             <div key={i} className="release-image">
               <img 
                 src={imgUrl} 
                 alt={altText} 
-                style={{ maxWidth: '100%', height: 'auto', margin: '1rem 0', cursor: 'pointer' }}
-                onClick={() => lightbox.openLightbox(imagesRef.current, imageIndex)}
+                style={{ maxWidth: '80%', height: 'auto', margin: '1rem 0' }}
               />
             </div>
           );
@@ -303,9 +268,6 @@ function Help() {
       }
     }
     
-    // Store images in ref to avoid re-renders
-    imagesRef.current = imageList;
-    
     return elements;
   };
 
@@ -313,13 +275,13 @@ function Help() {
     <div className="release-notes-tab-content">
       <div className="release-notes-inner">
         <div className="release-notes-header">
-          <h2>{uiStrings.header}</h2>
+          <h2>ℹ️ Help & Documentation</h2>
         </div>
         
         <div className="release-notes-content" style={{ maxWidth: '100%' }}>
           <div className="release-details" style={{ maxWidth: '100%' }}>
             {loading ? (
-              <div className="release-loading">{uiStrings.loading}</div>
+              <div className="release-loading">Loading documentation...</div>
             ) : (
               <div className="release-markdown-content">
                 {renderMarkdown(readmeContent)}
@@ -328,13 +290,6 @@ function Help() {
           </div>
         </div>
       </div>
-      
-      <ImageLightbox
-        isOpen={lightbox.isOpen}
-        onClose={lightbox.closeLightbox}
-        images={lightbox.images}
-        currentIndex={lightbox.currentIndex}
-      />
     </div>
   );
 }

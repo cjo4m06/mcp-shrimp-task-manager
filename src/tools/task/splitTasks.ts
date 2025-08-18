@@ -6,8 +6,6 @@ import {
 } from "../../models/taskModel.js";
 import { RelatedFileType, Task } from "../../types/index.js";
 import { getSplitTasksPrompt } from "../../prompts/index.js";
-import { getAllAvailableAgents } from "../../utils/agentLoader.js";
-import { matchAgentToTask } from "../../utils/agentMatcher.js";
 
 // 拆分任務工具
 // Task splitting tool
@@ -129,17 +127,6 @@ export async function splitTasks({
   globalAnalysisResult,
 }: z.infer<typeof splitTasksSchema>) {
   try {
-    // 載入可用的代理
-    // Load available agents
-    let availableAgents: any[] = [];
-    try {
-      availableAgents = await getAllAvailableAgents();
-    } catch (error) {
-      // 如果載入代理失敗，繼續執行但不分配代理
-      // If agent loading fails, continue execution but don't assign agents
-      availableAgents = [];
-    }
-
     // 檢查 tasks 裡面的 name 是否有重複
     // Check if there are duplicate names in tasks
     const nameSet = new Set();
@@ -168,40 +155,21 @@ export async function splitTasks({
 
     // 將任務資料轉換為符合batchCreateOrUpdateTasks的格式
     // Convert task data to format compatible with batchCreateOrUpdateTasks
-    const convertedTasks = tasks.map((task) => {
-      // 創建一個臨時的 Task 對象用於代理匹配
-      // Create a temporary Task object for agent matching
-      const tempTask: Partial<Task> = {
-        name: task.name,
-        description: task.description,
-        notes: task.notes,
-        implementationGuide: task.implementationGuide,
-      };
-
-      // 使用 matchAgentToTask 找到最適合的代理
-      // Use matchAgentToTask to find the most suitable agent
-      const matchedAgent = availableAgents.length > 0 
-        ? matchAgentToTask(tempTask as Task, availableAgents)
-        : undefined;
-
-      return {
-        name: task.name,
-        description: task.description,
-        notes: task.notes,
-        dependencies: task.dependencies,
-        implementationGuide: task.implementationGuide,
-        verificationCriteria: task.verificationCriteria,
-        agent: matchedAgent, // 添加代理分配
-        // Add agent assignment
-        relatedFiles: task.relatedFiles?.map((file) => ({
-          path: file.path,
-          type: file.type as RelatedFileType,
-          description: file.description,
-          lineStart: file.lineStart,
-          lineEnd: file.lineEnd,
-        })),
-      };
-    });
+    const convertedTasks = tasks.map((task) => ({
+      name: task.name,
+      description: task.description,
+      notes: task.notes,
+      dependencies: task.dependencies,
+      implementationGuide: task.implementationGuide,
+      verificationCriteria: task.verificationCriteria,
+      relatedFiles: task.relatedFiles?.map((file) => ({
+        path: file.path,
+        type: file.type as RelatedFileType,
+        description: file.description,
+        lineStart: file.lineStart,
+        lineEnd: file.lineEnd,
+      })),
+    }));
 
     // 處理 clearAllTasks 模式
     // Handle clearAllTasks mode

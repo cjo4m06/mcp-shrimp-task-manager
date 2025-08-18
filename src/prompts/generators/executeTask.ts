@@ -182,12 +182,6 @@ export async function getExecuteTaskPrompt(
     complexityTemplate: complexityPrompt,
   });
 
-  // 如果任務有指定的代理，添加 sub-agent 命令
-  if (task.agent) {
-    // 在 prompt 開頭添加 use sub-agent 命令
-    prompt = `use sub-agent ${task.agent}\n\n${prompt}`;
-  }
-
   // 載入可能的自定義 prompt
   // Load possible custom prompt
   return loadPrompt(prompt, "EXECUTE_TASK");

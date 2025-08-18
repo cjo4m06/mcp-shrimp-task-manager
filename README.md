@@ -1,12 +1,11 @@
-[🇺🇸 English](README.md) | [🇩🇪 Deutsch](docs/de/README.md) | [🇫🇷 Français](docs/fr/README.md) | [🇰🇷 한국어](docs/ko/README.md) | [🇧🇷 Português](docs/pt/README.md) | [🇷🇺 Русский](docs/ru/README.md) | [🇨🇳 中文](docs/zh/README.md)
+[English](README.md) | [中文](docs/zh/README.md)
 
-## Table of Contents
+## 目錄
 
 - [✨ Features](#features1)
 - [🧭 Usage Guide](#usage-guide)
 - [🖥️ Task Viewer Tool](#task-viewer-tool)
 - [🔬 Research Mode](#research-mode)
-- [🤖 Agent Management System](#agent-management-system)
 - [🧠 Task Memory Function](#task-memory-function)
 - [📋 Project Rules Initialization](#project-rules)
 - [🌐 Web GUI](#web-gui)
@@ -47,11 +46,9 @@ Shrimp Task Manager guides Agents through structured workflows for systematic pr
 - **<a id="web-gui"></a>Web GUI**: Provides an optional web-based graphical user interface for task management. Enable by setting `ENABLE_GUI=true` in your `.env` file. When enabled, a `WebGUI.md` file containing the access address will be created in your `DATA_DIR`. You can customize the web port by setting `WEB_PORT` (if not specified, an available port will be automatically selected).
 - **<a id="task-viewer"></a>Task Viewer**: A modern, React-based web interface for viewing and managing task data across multiple profiles with advanced features like drag & drop tabs, real-time search, and configurable auto-refresh. See the [Task Viewer documentation](tools/task-viewer) for setup and usage instructions.
 
-  <kbd><img src="tools/task-viewer/task-viewer-interface.png" alt="Task Viewer Interface" /></kbd>
+  ![Task Viewer Interface](tools/task-viewer/task-viewer-interface.png)
   
-  <kbd><img src="tools/task-viewer/task-details-view.png" alt="Task Details View" /></kbd>
-
-- **<a id="agent-management"></a>Agent Management**: Comprehensive subagent management system for specialized task handling. Assign specific AI agents to tasks, manage agent metadata, and leverage Claude's agent system for optimal task execution.
+  ![Task Details View](tools/task-viewer/task-details-view.png)
 
 ## 🧭 <a id="usage-guide"></a>Usage Guide
 
@@ -145,89 +142,6 @@ The system will guide the Agent through structured research phases, ensuring tho
 5. **Integration**: Applying research results to your project context
 
 > **💡 Recommendation**: For the best research mode experience, we recommend using **Claude 4 Sonnet**, which provides exceptional analytical capabilities and comprehensive research synthesis.
-
-## 🤖 <a id="agent-management-system"></a>Agent Management System
-
-The Task Viewer now includes a comprehensive Agent Management System that integrates seamlessly with Claude's agent capabilities, allowing you to leverage specialized AI agents for different types of tasks.
-
-### What are Agents?
-
-Agents are specialized AI personalities or skill sets stored in your `.claude/agents` folder. Each agent can have unique capabilities, instructions, and behaviors tailored to specific types of tasks. The Agent Management System allows you to:
-
-- **View Available Agents**: Browse all agents from your `.claude/agents` folder
-- **Assign Agents to Tasks**: Use the dropdown selector in the task table to assign specific agents
-- **Edit Agent Content**: Modify agent instructions and metadata using the built-in editor
-- **Customize Agent Appearance**: Assign colors to agents for visual organization
-- **Leverage Global Agents**: Access system-wide agents by configuring your global Claude folder path
-
-### Key Features
-
-#### 1. Agent List View
-Access the Agents tab to see all available agents with their descriptions and capabilities. The list shows agents from both your project's `.claude/agents` folder and globally configured agents.
-
-Each agent in the list now includes:
-- **AI Instruction column**: Click the robot emoji (🤖) to instantly copy agent usage instructions to your clipboard
-  - Example: `use subagent debugger.md located in ./claude/agents to perform:`
-  - Saves you from typing the full agent path and syntax
-  - Works for both global and project-specific agents
-- **View and Edit buttons**: Manage agent content and metadata
-- **Color-coded names**: Visual organization based on agent metadata
-
-<kbd><img src="tools/task-viewer/releases/agent-list-view-with-ai-instruction.png" alt="Agent List View with AI Instruction Column" /></kbd>
-
-#### 2. Agent Assignment
-In the task table, each task now has an agent dropdown selector. You can:
-- Select "No agent" for standard task manager execution
-- Choose specific agents for specialized handling
-- Click the eye icon (👁️) to open an agent viewer popup
-- Browse through different agents in the popup to select the right one
-- Ask Claude to automatically assign suitable agents
-
-<kbd><img src="tools/task-viewer/releases/agent-dropdown-task-table.png" alt="Agent Dropdown in Task Table" /></kbd>
-
-<kbd><img src="tools/task-viewer/releases/agent-viewer-popup.png" alt="Agent Viewer Popup" /></kbd>
-
-#### 3. One-Click AI Instructions
-Click the robot emoji (🤖) next to any task to copy agent-specific instructions to your clipboard:
-```
-use the built in subagent located in ./claude/agents/[agent-name] to complete this shrimp task: [task-id] please when u start working mark the shrimp task as in progress
-```
-
-<kbd><img src="tools/task-viewer/releases/agent-copy-instruction-tooltip.png" alt="Agent Copy Instruction Tooltip" /></kbd>
-
-#### 4. Agent Editor
-Edit agent content and metadata directly in the Task Viewer:
-- Modify agent instructions using markdown
-- Add color metadata for visual organization
-- Preview changes before saving
-
-<kbd><img src="tools/task-viewer/releases/agent-editor-color-selection.png" alt="Agent Editor with Color Selection" /></kbd>
-
-#### 5. Agent Information Modal
-Browse through detailed agent information with easy navigation between agents.
-
-<kbd><img src="tools/task-viewer/releases/agent-info-modal.png" alt="Agent Information Modal" /></kbd>
-
-#### 6. Global Settings
-Configure your global Claude folder path to access system-wide agents across all projects.
-
-<kbd><img src="tools/task-viewer/releases/global-settings-agents.png" alt="Global Settings for Agents" /></kbd>
-
-### How to Use Agent Management
-
-1. **Setup**: Ensure you have agents defined in your `.claude/agents` folder
-2. **Browse**: Navigate to the Agents tab to view available agents
-3. **Assign**: In the task table, use the dropdown to assign agents to specific tasks
-4. **Execute**: Click the robot emoji to copy the execution command
-5. **Paste**: Give the command to Claude to execute the task with the specified agent
-
-### Benefits
-
-- **Specialization**: Use agents optimized for specific types of tasks (e.g., frontend, backend, testing)
-- **Consistency**: Ensure tasks are handled according to predefined agent behaviors
-- **Efficiency**: Quickly assign and execute tasks with appropriate agents
-- **Organization**: Visual color coding helps identify agent assignments at a glance
-- **Integration**: Seamlessly works with Claude's existing agent system
 
 ## 🧠 <a id="task-memory-function"></a>Task Memory Function
 
@@ -582,134 +496,12 @@ After configuration, you can use the following tools:
 | **Task Execution**           | `execute_task`       | Execute specific tasks                           |
 |                              | `verify_task`        | Verify task completion                           |
 
-## 🏗️ Architecture Overview
-
-### Core Architecture
-
-The MCP Shrimp Task Manager is built as a Model Context Protocol (MCP) server that provides structured task management capabilities for AI agents through guided workflows and systematic task decomposition.
-
-#### 1. **MCP Server Foundation**
-- Built on `@modelcontextprotocol/sdk` for MCP protocol compliance
-- Uses stdio transport for communication with AI clients
-- Exposes 16 specialized tools via JSON Schema definitions
-- Supports both synchronous and asynchronous operations
-
-#### 2. **Task Data Model** (`src/types/index.ts`, `src/models/taskModel.ts`)
-- **Task Entity**: Core data structure with unique ID, name, description, status, and dependencies
-- **Task States**: PENDING → IN_PROGRESS → COMPLETED (or BLOCKED)
-- **Dependency Graph**: Manages task relationships and execution order
-- **Related Files**: Tracks files associated with each task (TO_MODIFY, REFERENCE, CREATE, etc.)
-- **Persistence**: JSON file storage with Git versioning for complete history
-- **Memory System**: Automatic backups and long-term task history preservation
-
-#### 3. **Tool System Architecture** (`src/tools/`)
-The system provides specialized tools organized into three main categories:
-
-**Task Management Tools:**
-- `plan_task`: Converts natural language into structured development plans
-- `analyze_task`: Deep technical analysis with complexity assessment
-- `split_tasks`: Intelligent decomposition of complex tasks into manageable subtasks
-- `execute_task`: Guided implementation with step-by-step instructions
-- `verify_task`: Completion verification and quality assurance
-- `list_tasks`, `query_task`, `get_task_detail`: Task inspection and retrieval
-- `update_task`, `delete_task`, `clear_all_tasks`: Task manipulation
-
-**Cognitive Tools:**
-- `process_thought`: Chain-of-thought reasoning framework for complex problem solving
-- `reflect_task`: Post-completion analysis and learning extraction
-- `research_mode`: Systematic technical investigation with guided workflows
-
-**Project Tools:**
-- `init_project_rules`: Establishes project-specific conventions and standards
-
-#### 4. **Prompt Template System** (`src/prompts/`)
-- **Multi-language Support**: English and Traditional Chinese templates
-- **Template-based Generation**: Modular prompt construction
-- **Context-aware Prompts**: Dynamic prompt generation based on task state
-- **Customizable Templates**: Override or extend via environment variables
-- **Template Loading**: Dynamic template selection based on configuration
-
-#### 5. **Agent Integration System** (`src/utils/agentLoader.ts`)
-- **Agent Assignment**: Tasks can be assigned to specialized AI agents
-- **Agent Metadata**: Stores agent capabilities and specializations
-- **Agent Matching**: Intelligent agent selection based on task requirements
-- **Claude Integration**: Seamless integration with Claude's agent system
-
-### Data Flow & Workflow
-
-#### 1. **Task Planning Phase**
-```
-User Request → plan_task → analyze_task → split_tasks (if complex)
-```
-- Natural language is parsed and converted to structured tasks
-- Complexity assessment determines if task splitting is needed
-- Dependencies are automatically identified and mapped
-
-#### 2. **Execution Phase**
-```
-execute_task → Implementation Guide → Status Updates → File Tracking
-```
-- Step-by-step implementation guidance generated
-- Related files tracked and monitored
-- Progress status updated in real-time
-- Git commits created for version control
-
-#### 3. **Verification Phase**
-```
-verify_task → reflect_task → Task Summary → Memory Storage
-```
-- Completion verified against acceptance criteria
-- Lessons learned extracted for future reference
-- Task summary generated and stored
-- Memory system preserves knowledge for future tasks
-
-#### 4. **Memory & Persistence**
-- **Primary Storage**: `tasks.json` in DATA_DIR
-- **Version Control**: Git repository tracks all changes
-- **Backup System**: Automatic timestamped backups
-- **Memory Directory**: Long-term storage of completed tasks
-- **Project Isolation**: ListRoots protocol enables per-project data separation
-
-### Key Design Principles
-
-1. **Chain-of-Thought Reasoning**: Tools guide AI through structured thinking processes
-2. **Iterative Refinement**: Tasks can be analyzed, split, and refined multiple times
-3. **Context Preservation**: Git history and memory system prevent context loss across sessions
-4. **Language Flexibility**: Bilingual support with customizable templates
-5. **Stateful Management**: Persistent storage maintains task state between conversations
-6. **Guided Workflows**: System guides rather than commands, ensuring consistency
-
-### Web Interfaces
-
-#### 1. **Built-in Web GUI** (`src/web/webServer.ts`)
-- Optional Express.js server (ENABLE_GUI=true)
-- Real-time task visualization
-- Auto-port selection with fallback
-- Generates WebGUI.md with access URL
-
-#### 2. **Task Viewer Tool** (`tools/task-viewer/`)
-- Standalone React application
-- Multi-profile support for different projects
-- Real-time task monitoring with auto-refresh
-- Drag-and-drop interface for organization
-- Agent management integration
-
-### Integration Points
-
-- **MCP Protocol**: Standard protocol for AI model interaction
-- **File System**: Direct file manipulation for task data
-- **Git Integration**: Version control for task history
-- **Environment Variables**: Extensive configuration options
-- **Web APIs**: RESTful endpoints for GUI interaction
-
 ## 🔧 Technical Implementation
 
 - **Node.js**: High-performance JavaScript runtime environment
 - **TypeScript**: Provides type-safe development environment
 - **MCP SDK**: Interface for seamless interaction with large language models
 - **UUID**: Generate unique and reliable task identifiers
-- **Express.js**: Web server for optional GUI
-- **Git**: Version control for task history
 
 ## 📄 <a id="license"></a>License
 

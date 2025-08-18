@@ -78,11 +78,6 @@ export interface Task {
   // New field: Save complete technical analysis results
   analysisResult?: string; // 來自 analyze_task 和 reflect_task 階段的完整分析結果
   // analysisResult?: string; // Complete analysis results from analyze_task and reflect_task stages
-  
-  // 代理系統相關欄位
-  // Agent system related fields
-  agent?: string; // 最適合處理此任務的代理類型
-  // agent?: string; // The most suitable agent type to handle this task
 
   // 新增欄位：保存具體的實現指南
   // New field: Save specific implementation guide

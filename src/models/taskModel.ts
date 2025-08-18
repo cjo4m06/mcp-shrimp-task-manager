@@ -15,83 +15,6 @@ import { exec } from "child_process";
 import { promisify } from "util";
 import { getDataDir, getTasksFilePath, getMemoryDir } from "../utils/paths.js";
 
-const execAsync = promisify(exec);
-
-// Helper function to get current date/time in server's local timezone
-function getLocalDate(): Date {
-  return new Date();
-}
-
-// Helper function to get ISO string in local timezone format
-function getLocalISOString(): string {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
-  
-  // Get timezone offset in hours and minutes
-  const offset = -now.getTimezoneOffset();
-  const offsetHours = String(Math.floor(Math.abs(offset) / 60)).padStart(2, '0');
-  const offsetMinutes = String(Math.abs(offset) % 60).padStart(2, '0');
-  const offsetSign = offset >= 0 ? '+' : '-';
-  
-  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${offsetSign}${offsetHours}:${offsetMinutes}`;
-}
-
-// Git helper functions
-async function initGitIfNeeded(dataDir: string): Promise<void> {
-  const gitDir = path.join(dataDir, '.git');
-  try {
-    await fs.access(gitDir);
-    // Git already initialized
-  } catch {
-    // Initialize git repository
-    await execAsync(`cd "${dataDir}" && git init`);
-    await execAsync(`cd "${dataDir}" && git config user.name "Shrimp Task Manager"`);
-    await execAsync(`cd "${dataDir}" && git config user.email "shrimp@task-manager.local"`);
-    
-    // Create .gitignore
-    const gitignore = `# Temporary files
-*.tmp
-*.log
-
-# OS files
-.DS_Store
-Thumbs.db
-`;
-    await fs.writeFile(path.join(dataDir, '.gitignore'), gitignore);
-    
-    // Initial commit
-    await execAsync(`cd "${dataDir}" && git add .`);
-    await execAsync(`cd "${dataDir}" && git commit -m "Initial commit: Initialize task repository"`);
-  }
-}
-
-async function commitTaskChanges(dataDir: string, message: string, details?: string): Promise<void> {
-  try {
-    // Stage the tasks.json file
-    await execAsync(`cd "${dataDir}" && git add tasks.json`);
-    
-    // Check if there are changes to commit
-    const { stdout } = await execAsync(`cd "${dataDir}" && git status --porcelain tasks.json`);
-    
-    if (stdout.trim()) {
-      // There are changes to commit
-      const fullMessage = details ? `${message}\n\n${details}` : message;
-      const timestamp = getLocalISOString();
-      const commitMessage = `[${timestamp}] ${fullMessage}`;
-      
-      await execAsync(`cd "${dataDir}" && git commit -m "${commitMessage.replace(/"/g, '\\"')}"`);
-    }
-  } catch (error) {
-    console.error('Git commit error:', error);
-    // Don't fail the operation if git fails
-  }
-}
-
 // 確保獲取專案資料夾路徑
 // Ensure getting project data folder path
 const __filename = fileURLToPath(import.meta.url);
@@ -138,29 +61,18 @@ async function readTasks(): Promise<Task[]> {
   // Convert date strings back to Date objects
   return tasks.map((task: any) => ({
     ...task,
-    createdAt: task.createdAt ? new Date(task.createdAt) : getLocalDate(),
-    updatedAt: task.updatedAt ? new Date(task.updatedAt) : getLocalDate(),
+    createdAt: task.createdAt ? new Date(task.createdAt) : new Date(),
+    updatedAt: task.updatedAt ? new Date(task.updatedAt) : new Date(),
     completedAt: task.completedAt ? new Date(task.completedAt) : undefined,
   }));
 }
 
 // 寫入所有任務
 // Write all tasks
-async function writeTasks(tasks: Task[], commitMessage?: string): Promise<void> {
+async function writeTasks(tasks: Task[]): Promise<void> {
   await ensureDataDir();
   const TASKS_FILE = await getTasksFilePath();
-  const DATA_DIR = await getDataDir();
-  
-  // Initialize git if needed
-  await initGitIfNeeded(DATA_DIR);
-  
-  // Write the tasks file
   await fs.writeFile(TASKS_FILE, JSON.stringify({ tasks }, null, 2));
-  
-  // Commit the changes
-  if (commitMessage) {
-    await commitTaskChanges(DATA_DIR, commitMessage);
-  }
 }
 
 // 獲取所有任務
@@ -183,8 +95,7 @@ export async function createTask(
   description: string,
   notes?: string,
   dependencies: string[] = [],
-  relatedFiles?: RelatedFile[],
-  agent?: string
+  relatedFiles?: RelatedFile[]
 ): Promise<Task> {
   const tasks = await readTasks();
 
@@ -199,14 +110,13 @@ export async function createTask(
     notes,
     status: TaskStatus.PENDING,
     dependencies: dependencyObjects,
-    createdAt: getLocalDate(),
-    updatedAt: getLocalDate(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
     relatedFiles,
-    agent,
   };
 
   tasks.push(newTask);
-  await writeTasks(tasks, `Add new task: ${newTask.name}`);
+  await writeTasks(tasks);
 
   return newTask;
 }
@@ -245,10 +155,10 @@ export async function updateTask(
   tasks[taskIndex] = {
     ...tasks[taskIndex],
     ...updates,
-    updatedAt: getLocalDate(),
+    updatedAt: new Date(),
   };
 
-  await writeTasks(tasks, `Update task: ${tasks[taskIndex].name}`);
+  await writeTasks(tasks);
 
   return tasks[taskIndex];
 }
@@ -262,7 +172,7 @@ export async function updateTaskStatus(
   const updates: Partial<Task> = { status };
 
   if (status === TaskStatus.COMPLETED) {
-    updates.completedAt = getLocalDate();
+    updates.completedAt = new Date();
   }
 
   return await updateTask(taskId, updates);
@@ -289,7 +199,6 @@ export async function updateTaskContent(
     dependencies?: string[];
     implementationGuide?: string;
     verificationCriteria?: string;
-    agent?: string;
   }
 ): Promise<{ success: boolean; message: string; task?: Task }> {
   // 獲取任務並檢查是否存在
@@ -338,10 +247,6 @@ export async function updateTaskContent(
 
   if (updates.verificationCriteria !== undefined) {
     updateObj.verificationCriteria = updates.verificationCriteria;
-  }
-
-  if (updates.agent !== undefined) {
-    updateObj.agent = updates.agent;
   }
 
   // 如果沒有要更新的內容，提前返回
@@ -410,7 +315,6 @@ export async function batchCreateOrUpdateTasks(
     relatedFiles?: RelatedFile[];
     implementationGuide?: string; // 新增：實現指南
     verificationCriteria?: string; // 新增：驗證標準
-    agent?: string; // 新增：代理分配
   }>,
   updateMode: "append" | "overwrite" | "selective" | "clearAllTasks", // 必填參數，指定任務更新策略
   globalAnalysisResult?: string // 新增：全局分析結果
@@ -496,12 +400,8 @@ export async function batchCreateOrUpdateTasks(
           description: taskData.description,
           notes: taskData.notes,
           // 後面會處理 dependencies
-<<<<<<< HEAD
-          updatedAt: getLocalDate(),
-=======
           // Dependencies will be processed later
           updatedAt: new Date(),
->>>>>>> upstream/main
           // 新增：保存實現指南（如果有）
           // New: Save implementation guide (if any)
           implementationGuide: taskData.implementationGuide,
@@ -511,8 +411,6 @@ export async function batchCreateOrUpdateTasks(
           // 新增：保存全局分析結果（如果有）
           // New: Save global analysis result (if any)
           analysisResult: globalAnalysisResult,
-          // 新增：保存代理分配（如果有）
-          agent: taskData.agent,
         };
 
         // 處理相關文件（如果有）
@@ -547,7 +445,7 @@ export async function batchCreateOrUpdateTasks(
         status: TaskStatus.PENDING,
         dependencies: [], // 後面會填充
         createdAt: new Date(),
-        updatedAt: getLocalDate(),
+        updatedAt: new Date(),
         relatedFiles: taskData.relatedFiles,
         // 新增：保存實現指南（如果有）
         implementationGuide: taskData.implementationGuide,
@@ -555,8 +453,6 @@ export async function batchCreateOrUpdateTasks(
         verificationCriteria: taskData.verificationCriteria,
         // 新增：保存全局分析結果（如果有）
         analysisResult: globalAnalysisResult,
-        // 新增：保存代理分配（如果有）
-        agent: taskData.agent,
       };
 
       newTasks.push(newTask);
@@ -618,12 +514,8 @@ export async function batchCreateOrUpdateTasks(
   const allTasks = [...tasksToKeep, ...newTasks];
 
   // 寫入更新後的任務列表
-<<<<<<< HEAD
-  await writeTasks(allTasks, `Bulk task operation: ${updateMode} mode, ${newTasks.length} tasks`);
-=======
   // Write updated task list
   await writeTasks(allTasks);
->>>>>>> upstream/main
 
   return newTasks;
 }
@@ -702,13 +594,9 @@ export async function deleteTask(
   }
 
   // 執行刪除操作
-<<<<<<< HEAD
-  const deletedTask = tasks[taskIndex];
-=======
   // Execute delete operation
->>>>>>> upstream/main
   tasks.splice(taskIndex, 1);
-  await writeTasks(tasks, `Delete task: ${deletedTask.name}`);
+  await writeTasks(tasks);
 
   return { success: true, message: "任務刪除成功" };
 }
@@ -885,18 +773,12 @@ export async function clearAllTasks(): Promise<{
       (task) => task.status === TaskStatus.COMPLETED
     );
 
-<<<<<<< HEAD
-    // 創建備份文件名 - 使用本地時間
-    const timestamp = getLocalISOString()
-=======
     // 創建備份文件名
     // Create backup file name
     const timestamp = new Date()
       .toISOString()
->>>>>>> upstream/main
       .replace(/:/g, "-")
-      .replace(/\..+/, "")
-      .replace(/[+\-]\d{2}-\d{2}$/, ""); // Remove timezone offset for filename
+      .replace(/\..+/, "");
     const backupFileName = `tasks_memory_${timestamp}.json`;
 
     // 確保 memory 目錄存在
@@ -920,12 +802,8 @@ export async function clearAllTasks(): Promise<{
     );
 
     // 清空任務文件
-<<<<<<< HEAD
-    await writeTasks([], `Clear all tasks (${allTasks.length} tasks removed)`);
-=======
     // Clear task file
     await writeTasks([]);
->>>>>>> upstream/main
 
     return {
       success: true,
@@ -1021,10 +899,10 @@ export async function searchTasksWithCommand(
                 ...task,
                 createdAt: task.createdAt
                   ? new Date(task.createdAt)
-                  : getLocalDate(),
+                  : new Date(),
                 updatedAt: task.updatedAt
                   ? new Date(task.updatedAt)
-                  : getLocalDate(),
+                  : new Date(),
                 completedAt: task.completedAt
                   ? new Date(task.completedAt)
                   : undefined,
