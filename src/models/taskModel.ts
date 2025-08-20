@@ -496,12 +496,7 @@ export async function batchCreateOrUpdateTasks(
           description: taskData.description,
           notes: taskData.notes,
           // 後面會處理 dependencies
-<<<<<<< HEAD
           updatedAt: getLocalDate(),
-=======
-          // Dependencies will be processed later
-          updatedAt: new Date(),
->>>>>>> upstream/main
           // 新增：保存實現指南（如果有）
           // New: Save implementation guide (if any)
           implementationGuide: taskData.implementationGuide,
@@ -618,12 +613,7 @@ export async function batchCreateOrUpdateTasks(
   const allTasks = [...tasksToKeep, ...newTasks];
 
   // 寫入更新後的任務列表
-<<<<<<< HEAD
   await writeTasks(allTasks, `Bulk task operation: ${updateMode} mode, ${newTasks.length} tasks`);
-=======
-  // Write updated task list
-  await writeTasks(allTasks);
->>>>>>> upstream/main
 
   return newTasks;
 }
@@ -702,11 +692,7 @@ export async function deleteTask(
   }
 
   // 執行刪除操作
-<<<<<<< HEAD
   const deletedTask = tasks[taskIndex];
-=======
-  // Execute delete operation
->>>>>>> upstream/main
   tasks.splice(taskIndex, 1);
   await writeTasks(tasks, `Delete task: ${deletedTask.name}`);
 
@@ -885,15 +871,8 @@ export async function clearAllTasks(): Promise<{
       (task) => task.status === TaskStatus.COMPLETED
     );
 
-<<<<<<< HEAD
     // 創建備份文件名 - 使用本地時間
     const timestamp = getLocalISOString()
-=======
-    // 創建備份文件名
-    // Create backup file name
-    const timestamp = new Date()
-      .toISOString()
->>>>>>> upstream/main
       .replace(/:/g, "-")
       .replace(/\..+/, "")
       .replace(/[+\-]\d{2}-\d{2}$/, ""); // Remove timezone offset for filename
@@ -920,12 +899,7 @@ export async function clearAllTasks(): Promise<{
     );
 
     // 清空任務文件
-<<<<<<< HEAD
     await writeTasks([], `Clear all tasks (${allTasks.length} tasks removed)`);
-=======
-    // Clear task file
-    await writeTasks([]);
->>>>>>> upstream/main
 
     return {
       success: true,
@@ -1115,7 +1089,6 @@ export async function searchTasksWithCommand(
   // Pagination processing
   const totalResults = allTasks.length;
   const totalPages = Math.ceil(totalResults / pageSize);
-  const safePage = Math.max(1, Math.min(page, totalPages || 1)); // 確保頁碼有效
   const safePage = Math.max(1, Math.min(page, totalPages || 1)); // Ensure page number is valid
   const startIndex = (safePage - 1) * pageSize;
   const endIndex = Math.min(startIndex + pageSize, totalResults);
@@ -1200,7 +1173,6 @@ function escapeShellArg(arg: string): string {
   // Remove all control characters and special characters
   return arg
     .replace(/[\x00-\x1F\x7F]/g, "") // 控制字符
-    .replace(/[&;`$"'<>|]/g, ""); // Shell 特殊字符
     .replace(/[&;`$"'<>|]/g, ""); // Shell special characters
 }
 
