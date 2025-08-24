@@ -1,5 +1,11 @@
 {
   "appTitle": "🦐 Visualizzatore Gestore Attività Shrimp",
+  "unknown": "Sconosciuto",
+  "unknownTask": "Attività Sconosciuta",
+  "task.name": "Nome Attività",
+  "task.status": "Stato",
+  "task.dependencies": "Dipendenze",
+  "actions": "Azioni",
   "header": {
     "appTitle": "🦐 Visualizzatore Gestore Attività Shrimp",
     "version": "Versione",
@@ -216,5 +222,11 @@
   "inProgress": "IN CORSO",
   "pending": "IN ATTESA",
   "autoRefresh": "Aggiornamento Automatico",
-  "searchTasksPlaceholder": "Cerca attività..."
+  "searchTasksPlaceholder": "Cerca attività...",
+  "task": "Attività",
+  "agent": "Agente",
+  "description": "Descrizione",
+  "version": "Versione",
+  "created": "Creato",
+  "updated": "Aggiornato"
 }

@@ -1,5 +1,11 @@
 {
   "appTitle": "🦐 Trình Xem Quản Lý Tác Vụ Shrimp",
+  "unknown": "Không xác định",
+  "unknownTask": "Nhiệm vụ không xác định",
+  "task.name": "Tên nhiệm vụ",
+  "task.status": "Trạng thái",
+  "task.dependencies": "Phụ thuộc",
+  "actions": "Hành động",
   "header": {
     "appTitle": "🦐 Trình Xem Quản Lý Tác Vụ Shrimp",
     "version": "Phiên bản",
@@ -216,5 +222,11 @@
   "inProgress": "ĐANG THỰC HIỆN",
   "pending": "CHỜ XỬ LÝ",
   "autoRefresh": "Tự động làm mới",
-  "searchTasksPlaceholder": "Tìm kiếm nhiệm vụ..."
+  "searchTasksPlaceholder": "Tìm kiếm nhiệm vụ...",
+  "task": "Nhiệm vụ",
+  "agent": "Đại lý",
+  "description": "Mô tả",
+  "version": "Phiên bản",
+  "created": "Đã tạo",
+  "updated": "Đã cập nhật"
 }

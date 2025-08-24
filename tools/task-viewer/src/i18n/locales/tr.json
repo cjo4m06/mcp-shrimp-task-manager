@@ -1,5 +1,11 @@
 {
   "appTitle": "🦐 Shrimp Görev Yöneticisi Görüntüleyici",
+  "unknown": "Bilinmeyen",
+  "unknownTask": "Bilinmeyen Görev",
+  "task.name": "Görev Adı",
+  "task.status": "Durum",
+  "task.dependencies": "Bağımlılıklar",
+  "actions": "Eylemler",
   "header": {
     "appTitle": "🦐 Shrimp Görev Yöneticisi Görüntüleyici",
     "version": "Sürüm",
@@ -277,5 +283,11 @@
   "inProgress": "DEVAM EDİYOR",
   "pending": "BEKLİYOR",
   "autoRefresh": "Otomatik Yenile",
-  "searchTasksPlaceholder": "Görev ara..."
+  "searchTasksPlaceholder": "Görev ara...",
+  "task": "Görev",
+  "agent": "Temsilci",
+  "description": "Açıklama",
+  "version": "Sürüm",
+  "created": "Oluşturuldu",
+  "updated": "Güncellendi"
 }

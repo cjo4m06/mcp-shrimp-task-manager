@@ -1,5 +1,11 @@
 {
   "appTitle": "🦐 虾米任务管理器查看器",
+  "unknown": "未知",
+  "unknownTask": "未知任务",
+  "task.name": "任务名称",
+  "task.status": "状态",
+  "task.dependencies": "依赖项",
+  "actions": "操作",
   "projects": "项目",
   "releaseNotes": "发布说明",
   "readme": "说明文档",
@@ -313,5 +319,11 @@
   "inProgress": "进行中",
   "pending": "待处理",
   "autoRefresh": "自动刷新",
-  "searchTasksPlaceholder": "搜索任务..."
+  "searchTasksPlaceholder": "搜索任务...",
+  "task": "任务",
+  "agent": "代理",
+  "description": "描述",
+  "created": "创建时间",
+  "updated": "更新时间",
+  "version": "版本"
 }

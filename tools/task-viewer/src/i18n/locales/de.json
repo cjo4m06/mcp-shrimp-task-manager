@@ -1,5 +1,11 @@
 {
   "appTitle": "🦐 Shrimp Task Manager Viewer",
+  "unknown": "Unbekannt",
+  "unknownTask": "Unbekannte Aufgabe",
+  "task.name": "Aufgabenname",
+  "task.status": "Status",
+  "task.dependencies": "Abhängigkeiten",
+  "actions": "Aktionen",
   "header": {
     "appTitle": "🦐 Shrimp Task Manager Viewer",
     "version": "Version",
@@ -216,5 +222,11 @@
   "inProgress": "IN BEARBEITUNG",
   "pending": "AUSSTEHEND",
   "autoRefresh": "Auto-Aktualisierung",
-  "searchTasksPlaceholder": "Aufgaben suchen..."
+  "searchTasksPlaceholder": "Aufgaben suchen...",
+  "task": "Aufgabe",
+  "agent": "Agent",
+  "description": "Beschreibung",
+  "version": "Version",
+  "created": "Erstellt",
+  "updated": "Aktualisiert"
 }

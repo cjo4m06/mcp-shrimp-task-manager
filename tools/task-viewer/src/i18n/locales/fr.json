@@ -1,5 +1,11 @@
 {
   "appTitle": "🦐 Visualiseur du Gestionnaire de Tâches Shrimp",
+  "unknown": "Inconnu",
+  "unknownTask": "Tâche Inconnue",
+  "task.name": "Nom de la tâche",
+  "task.status": "Statut",
+  "task.dependencies": "Dépendances",
+  "actions": "Actions",
   "header": {
     "appTitle": "🦐 Visualiseur du Gestionnaire de Tâches Shrimp",
     "version": "Version",
@@ -212,9 +218,14 @@
   "history": "Historique",
   "agents": "Agents",
   "totalTasks": "TÂCHES TOTALES",
-  "completed": "TERMINÉES",
-  "inProgress": "EN COURS",
-  "pending": "EN ATTENTE",
   "autoRefresh": "Actualisation Auto",
-  "searchTasksPlaceholder": "Rechercher des tâches..."
+  "searchTasksPlaceholder": "Rechercher des tâches...",
+  "completed": "Terminé",
+  "pending": "En attente",
+  "task": "Tâche",
+  "agent": "Représentant",
+  "description": "Description",
+  "version": "Version",
+  "created": "Créé",
+  "updated": "Mis à jour"
 }

@@ -1,5 +1,11 @@
 {
   "appTitle": "🦐 새우 작업 관리자 뷰어",
+  "unknown": "알 수 없음",
+  "unknownTask": "알 수 없는 작업",
+  "task.name": "작업 이름",
+  "task.status": "상태",
+  "task.dependencies": "종속성",
+  "actions": "작업",
   "projects": "프로젝트",
   "releaseNotes": "릴리스 노트",
   "readme": "읽어보기",
@@ -179,5 +185,11 @@
   "inProgress": "진행 중",
   "pending": "대기 중",
   "autoRefresh": "자동 새로고침",
-  "searchTasksPlaceholder": "작업 검색..."
+  "searchTasksPlaceholder": "작업 검색...",
+  "task": "작업",
+  "agent": "에이전트",
+  "description": "설명",
+  "version": "버전",
+  "created": "생성됨",
+  "updated": "업데이트됨"
 }

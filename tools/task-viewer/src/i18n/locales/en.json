@@ -1,5 +1,11 @@
 {
   "appTitle": "🦐 Shrimp Task Manager Viewer",
+  "unknown": "Unknown",
+  "unknownTask": "Unknown Task",
+  "task.name": "Task Name",
+  "task.status": "Status",
+  "task.dependencies": "Dependencies",
+  "actions": "Actions",
   "projects": "Projects",
   "releaseNotes": "Release Notes",
   "readme": "README",
@@ -216,5 +222,11 @@
   "inProgress": "IN PROGRESS",
   "pending": "PENDING",
   "autoRefresh": "Auto Refresh",
-  "searchTasksPlaceholder": "Search tasks..."
+  "searchTasksPlaceholder": "Search tasks...",
+  "task": "Task",
+  "agent": "Agent",
+  "description": "Description",
+  "version": "Version",
+  "created": "Created",
+  "updated": "Updated"
 }

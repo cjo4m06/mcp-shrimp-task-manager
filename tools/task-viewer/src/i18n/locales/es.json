@@ -1,5 +1,11 @@
 {
   "appTitle": "🦐 Visor del Gestor de Tareas Shrimp",
+  "unknown": "Desconocido",
+  "unknownTask": "Tarea Desconocida",
+  "task.name": "Nombre de Tarea",
+  "task.status": "Estado",
+  "task.dependencies": "Dependencias",
+  "actions": "Acciones",
   "header": {
     "appTitle": "🦐 Visor del Gestor de Tareas Shrimp",
     "version": "Versión",
@@ -313,5 +319,11 @@
   "inProgress": "EN PROGRESO",
   "pending": "PENDIENTES",
   "autoRefresh": "Actualización Automática",
-  "searchTasksPlaceholder": "Buscar tareas..."
+  "searchTasksPlaceholder": "Buscar tareas...",
+  "task": "Tarea",
+  "agent": "Agente",
+  "description": "Descripción",
+  "version": "Versión",
+  "created": "Creado",
+  "updated": "Actualizado"
 }

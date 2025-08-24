@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { generateTaskNumbers, getTaskNumber, convertDependenciesToNumbers, getTaskByNumber } from '../utils/taskNumbering';
 
 function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDetailViewChange, resetDetailView, profileId, onTaskSaved, onDeleteTask, showToast }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [selectedTask, setSelectedTask] = useState(null);
   const [availableAgents, setAvailableAgents] = useState([]);
   const [savingAgents, setSavingAgents] = useState({});
@@ -140,7 +140,7 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
     },
     {
       accessorKey: 'taskNumber',
-      header: 'Task',
+      header: t('task'),
       cell: ({ row }) => {
         const taskNumber = taskNumberMap[row.original.id] || row.index + 1;
         return (
@@ -157,7 +157,7 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
             }}
             title={`${t('clickToCopyUuid')}: ${row.original.id}`}
           >
-            Task {taskNumber}
+            {t('task')} {taskNumber}
           </span>
         );
       },
@@ -204,16 +204,20 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
     {
       accessorKey: 'status',
       header: t('task.status'),
-      cell: ({ getValue }) => (
-        <span className={`status-badge status-${getValue()}`}>
-          {getValue()?.replace('_', ' ')}
-        </span>
-      ),
+      cell: ({ getValue }) => {
+        const status = getValue();
+        const statusKey = status === 'in_progress' ? 'inProgress' : status;
+        return (
+          <span className={`status-badge status-${status}`}>
+            {t(`status.${statusKey}`)}
+          </span>
+        );
+      },
       size: 120,
     },
     {
       accessorKey: 'agent',
-      header: 'Agent',
+      header: t('agent'),
       cell: ({ row }) => {
         const currentAgent = row.original.agent || '';
         const taskId = row.original.id;
@@ -375,7 +379,7 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
               // Get task number for display
               const taskNumber = getTaskNumber(depId, taskNumberMap);
               const depTask = data.find(t => t.id === depId);
-              const depTaskName = depTask ? depTask.name : 'Unknown Task';
+              const depTaskName = depTask ? depTask.name : t('unknownTask');
               
               return (
                 <Tooltip key={depId} content={`UUID: ${depId}`}>
@@ -390,7 +394,7 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
                       }
                     }}
                   >
-                    Task {taskNumberMap[depId] || 'Unknown'}
+                    {t('task')} {taskNumberMap[depId] || t('unknown')}
                   </span>
                 </Tooltip>
               );
@@ -458,7 +462,7 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
       ),
       size: 100,
     },
-  ], [data, setSelectedTask, t, taskNumberMap, onDeleteTask, availableAgents, savingAgents, profileId, onTaskSaved, selectedRows]);
+  ], [data, setSelectedTask, t, i18n.language, taskNumberMap, onDeleteTask, availableAgents, savingAgents, profileId, onTaskSaved, selectedRows]);
 
   const table = useReactTable({
     data,
