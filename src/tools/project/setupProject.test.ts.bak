@@ -1,0 +1,319 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { promises as fs } from 'fs';
+import path from 'path';
+import os from 'os';
+import { setupProject, setupProjectSchema } from './setupProject.js';
+import type { SetupProjectInput } from './setupProject.js';
+
+// Mock the paths module
+vi.mock('../../utils/paths.js', () => ({
+  getDataDir: vi.fn()
+}));
+
+describe('SetupProject Feature', () => {
+  let tempDir: string;
+  let settingsFile: string;
+  let originalCwd: string;
+
+  beforeEach(async () => {
+    // Save original cwd
+    originalCwd = process.cwd();
+    
+    // Create a temporary directory for testing
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'setup-project-test-'));
+    settingsFile = path.join(tempDir, '.shrimp-task-viewer-settings.json');
+    
+    // Mock environment to use temp settings file
+    vi.stubEnv('HOME', tempDir);
+    
+    // Mock the getDataDir function
+    const { getDataDir } = await import('../../utils/paths.js');
+    vi.mocked(getDataDir).mockResolvedValue(path.join(tempDir, 'data'));
+    
+    // Create data directory
+    await fs.mkdir(path.join(tempDir, 'data'), { recursive: true });
+  });
+
+  afterEach(async () => {
+    // Restore original cwd
+    process.chdir(originalCwd);
+    
+    // Clean up temp directory
+    try {
+      await fs.rm(tempDir, { recursive: true, force: true });
+    } catch (error) {
+      // Ignore cleanup errors
+    }
+    
+    // Restore environment
+    vi.unstubAllEnvs();
+    vi.clearAllMocks();
+  });
+
+  describe('Profile Name Generation', () => {
+    it('should generate profile name from simple project path', async () => {
+      const input: SetupProjectInput = {
+        projectPath: '/home/user/my-awesome-project'
+      };
+      
+      const result = await setupProject(input);
+      const settings = JSON.parse(await fs.readFile(settingsFile, 'utf8'));
+      
+      expect(settings.projects[0].profileName).toBe('my-awesome-project');
+      expect(result.content[0].text).toContain('my-awesome-project');
+    });
+
+    it('should generate profile name with parent context for meaningful paths', async () => {
+      const input: SetupProjectInput = {
+        projectPath: '/home/user/important-client/frontend'
+      };
+      
+      const result = await setupProject(input);
+      const settings = JSON.parse(await fs.readFile(settingsFile, 'utf8'));
+      
+      expect(settings.projects[0].profileName).toBe('important-client_frontend');
+      expect(result.content[0].text).toContain('important-client_frontend');
+    });
+
+    it('should skip generic parent folders like repos and projects', async () => {
+      const input: SetupProjectInput = {
+        projectPath: '/home/user/repos/my-app'
+      };
+      
+      const result = await setupProject(input);
+      const settings = JSON.parse(await fs.readFile(settingsFile, 'utf8'));
+      
+      expect(settings.projects[0].profileName).toBe('my-app');
+      expect(result.content[0].text).toContain('my-app');
+    });
+
+    it('should use custom profile name when provided', async () => {
+      const input: SetupProjectInput = {
+        projectPath: '/some/path',
+        profileName: 'custom_project_name'
+      };
+      
+      const result = await setupProject(input);
+      const settings = JSON.parse(await fs.readFile(settingsFile, 'utf8'));
+      
+      expect(settings.projects[0].profileName).toBe('custom_project_name');
+      expect(result.content[0].text).toContain('custom_project_name');
+    });
+  });
+
+  describe('Settings File Operations', () => {
+    it('should create new settings file if it does not exist', async () => {
+      const input: SetupProjectInput = {
+        projectPath: '/test/project'
+      };
+      
+      // Verify settings file doesn't exist
+      await expect(fs.access(settingsFile)).rejects.toThrow();
+      
+      await setupProject(input);
+      
+      // Verify settings file was created
+      const settings = JSON.parse(await fs.readFile(settingsFile, 'utf8'));
+      expect(settings.projects).toHaveLength(1);
+      expect(settings.version).toBeDefined();
+      expect(settings.lastUpdated).toBeDefined();
+    });
+
+    it('should update existing settings file with new project', async () => {
+      // Create initial settings
+      const initialSettings = {
+        projects: [
+          {
+            profileName: 'existing_project',
+            taskPath: '/path/to/existing.json',
+            projectRoot: '/existing/project'
+          }
+        ],
+        version: '3.1.0',
+        lastUpdated: new Date().toISOString()
+      };
+      await fs.writeFile(settingsFile, JSON.stringify(initialSettings, null, 2));
+      
+      const input: SetupProjectInput = {
+        projectPath: '/new/project',
+        profileName: 'new_project'
+      };
+      
+      await setupProject(input);
+      
+      const settings = JSON.parse(await fs.readFile(settingsFile, 'utf8'));
+      expect(settings.projects).toHaveLength(2);
+      expect(settings.projects[0].profileName).toBe('existing_project');
+      expect(settings.projects[1].profileName).toBe('new_project');
+    });
+
+    it('should update existing project entry instead of duplicating', async () => {
+      // Create initial settings with a project
+      const initialSettings = {
+        projects: [
+          {
+            profileName: 'test_project',
+            taskPath: '/old/path/test_project_tasks.json',
+            projectRoot: '/old/project/path',
+            addedAt: '2025-01-01T00:00:00.000Z'
+          }
+        ],
+        version: '3.1.0',
+        lastUpdated: '2025-01-01T00:00:00.000Z'
+      };
+      await fs.writeFile(settingsFile, JSON.stringify(initialSettings, null, 2));
+      
+      const input: SetupProjectInput = {
+        projectPath: '/new/project/path',
+        profileName: 'test_project'  // Same profile name
+      };
+      
+      await setupProject(input);
+      
+      const settings = JSON.parse(await fs.readFile(settingsFile, 'utf8'));
+      expect(settings.projects).toHaveLength(1);
+      expect(settings.projects[0].profileName).toBe('test_project');
+      expect(settings.projects[0].projectRoot).toBe('/new/project/path');
+      expect(settings.projects[0].updatedAt).toBeDefined();
+    });
+  });
+
+  describe('Task File Initialization', () => {
+    it('should create tasks.json with initial metadata', async () => {
+      const input: SetupProjectInput = {
+        projectPath: '/test/project',
+        profileName: 'test_project'
+      };
+      
+      await setupProject(input);
+      
+      const taskPath = path.join(tempDir, 'data', 'test_project_tasks.json');
+      const tasksData = JSON.parse(await fs.readFile(taskPath, 'utf8'));
+      
+      expect(tasksData.tasks).toEqual([]);
+      expect(tasksData.initialRequest).toContain('Project: test_project');
+      expect(tasksData.initialRequest).toContain('Path: /test/project');
+      expect(tasksData.createdAt).toBeDefined();
+      expect(tasksData.updatedAt).toBeDefined();
+    });
+
+    it('should not overwrite existing tasks.json file', async () => {
+      const taskFileName = 'existing_project_tasks.json';
+      const taskPath = path.join(tempDir, 'data', taskFileName);
+      
+      // Create existing tasks file
+      const existingTasks = {
+        tasks: [{ id: '123', name: 'Existing task' }],
+        initialRequest: 'Original request',
+        createdAt: '2025-01-01T00:00:00.000Z'
+      };
+      await fs.writeFile(taskPath, JSON.stringify(existingTasks, null, 2));
+      
+      const input: SetupProjectInput = {
+        projectPath: '/test/project',
+        profileName: 'existing_project'
+      };
+      
+      await setupProject(input);
+      
+      // Verify original content is preserved
+      const tasksData = JSON.parse(await fs.readFile(taskPath, 'utf8'));
+      expect(tasksData.tasks).toHaveLength(1);
+      expect(tasksData.tasks[0].id).toBe('123');
+      expect(tasksData.initialRequest).toBe('Original request');
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should handle file system errors gracefully', async () => {
+      // Mock getDataDir to return an inaccessible path
+      const { getDataDir } = await import('../../utils/paths.js');
+      vi.mocked(getDataDir).mockResolvedValue('/root/no-permission');
+      
+      const input: SetupProjectInput = {
+        projectPath: '/test/project'
+      };
+      
+      await expect(setupProject(input)).rejects.toThrow('Failed to setup project');
+    });
+
+    it('should handle corrupted settings file', async () => {
+      // Create corrupted settings file
+      await fs.writeFile(settingsFile, 'not valid json{]', 'utf8');
+      
+      const input: SetupProjectInput = {
+        projectPath: '/test/project',
+        profileName: 'test_project'
+      };
+      
+      // Should create new valid settings
+      await setupProject(input);
+      
+      const settings = JSON.parse(await fs.readFile(settingsFile, 'utf8'));
+      expect(settings.projects).toHaveLength(1);
+      expect(settings.projects[0].profileName).toBe('test_project');
+    });
+  });
+
+  describe('Integration Flow', () => {
+    it('should complete full project setup flow successfully', async () => {
+      const input: SetupProjectInput = {
+        projectPath: '/home/user/my-full-project'
+      };
+      
+      const result = await setupProject(input);
+      
+      // Check success message
+      expect(result.content[0].type).toBe('text');
+      expect(result.content[0].text).toContain('✅ Project successfully set up!');
+      expect(result.content[0].text).toContain('Profile Name: my-full-project');
+      expect(result.content[0].text).toContain('Project Path: /home/user/my-full-project');
+      
+      // Check settings file
+      const settings = JSON.parse(await fs.readFile(settingsFile, 'utf8'));
+      expect(settings.projects[0].profileName).toBe('my-full-project');
+      expect(settings.projects[0].projectRoot).toBe('/home/user/my-full-project');
+      expect(settings.projects[0].addedAt).toBeDefined();
+      
+      // Check tasks file
+      const taskPath = path.join(tempDir, 'data', 'my-full-project_tasks.json');
+      const tasksData = JSON.parse(await fs.readFile(taskPath, 'utf8'));
+      expect(tasksData.tasks).toEqual([]);
+      expect(tasksData.initialRequest).toContain('my-full-project');
+    });
+
+    it('should use current working directory when projectPath not provided', async () => {
+      // Change to a specific directory
+      const testDir = path.join(tempDir, 'test-cwd-project');
+      await fs.mkdir(testDir, { recursive: true });
+      process.chdir(testDir);
+      
+      const input: SetupProjectInput = {};
+      
+      const result = await setupProject(input);
+      
+      const settings = JSON.parse(await fs.readFile(settingsFile, 'utf8'));
+      expect(settings.projects[0].projectRoot).toBe(testDir);
+      expect(settings.projects[0].profileName).toBe('test-cwd-project');
+    });
+  });
+
+  describe('Schema Validation', () => {
+    it('should validate input against setupProjectSchema', () => {
+      const validInput = {
+        projectPath: '/valid/path',
+        profileName: 'valid_name'
+      };
+      
+      const result = setupProjectSchema.safeParse(validInput);
+      expect(result.success).toBe(true);
+    });
+
+    it('should allow optional fields in schema', () => {
+      const minimalInput = {};
+      
+      const result = setupProjectSchema.safeParse(minimalInput);
+      expect(result.success).toBe(true);
+    });
+  });
+});

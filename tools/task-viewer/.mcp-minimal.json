@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "shrimp-task-manager": {
+       "command": "node",
+       "args": ["/home/fire/claude/mcp-shrimp-task-manager/dist/index.js"],
+       "env": {
+         "DATA_DIR": "/home/fire/claude/shrimp_data_task_viewer/",
+         "TEMPLATES_USE": "en",
+         "ENABLE_GUI": "false"
+       }
+    },
+    "context7": {
+       "command": "npx",
+       "args": ["@upstash/context7-mcp"]
+    },
+    "firecrawl": {
+      "command": "npx",
+      "args": ["firecrawl-mcp"]
+    }
+  }
+}

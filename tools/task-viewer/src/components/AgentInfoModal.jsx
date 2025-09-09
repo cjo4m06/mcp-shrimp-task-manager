@@ -59,18 +59,79 @@ function AgentInfoModal({ agent, isOpen, onClose, availableAgents = [], onSelect
           'Dependency management'
         ],
         bestFor: 'General task management and execution'
+      },
+      'test-expert': {
+        title: 'Test Expert Agent',
+        description: 'Specialized agent for React testing using Vitest. Writes comprehensive tests, runs existing tests, and fixes test failures.',
+        capabilities: [
+          'React component testing',
+          'Integration testing',
+          'Test coverage optimization',
+          'Test failure diagnosis',
+          'Mock setup and configuration'
+        ],
+        bestFor: 'Testing tasks, test development, and quality assurance'
+      },
+      'react-optimizer': {
+        title: 'React Optimization Agent',
+        description: 'React performance optimization specialist. Ensures optimal rendering, prevents memory leaks, and implements performance best practices.',
+        capabilities: [
+          'React 18 optimization',
+          'Hook optimization',
+          'Memory leak prevention',
+          'Performance profiling',
+          'Vite bundling optimization'
+        ],
+        bestFor: 'React performance optimization and code quality'
+      },
+      'ui-developer': {
+        title: 'UI/UX Development Agent',
+        description: 'UI/UX specialist for React components. Creates responsive designs, implements modern CSS, and ensures accessibility.',
+        capabilities: [
+          'React component development',
+          'Responsive design',
+          'Tailwind CSS implementation',
+          'Accessibility compliance',
+          'Modern CSS techniques'
+        ],
+        bestFor: 'UI component development and design implementation'
+      },
+      'architect': {
+        title: 'Software Architect Agent',
+        description: 'Expert software architect specializing in high-level system design, feature architecture, and technical decision making.',
+        capabilities: [
+          'System architecture design',
+          'Technical decision making',
+          'Feature planning',
+          'Component integration',
+          'Scalability planning'
+        ],
+        bestFor: 'Architectural decisions and system design'
       }
     };
     
     return descriptions[name] || {
-      title: name,
-      description: `Agent: ${name}`,
-      capabilities: [],
-      bestFor: 'Specialized tasks'
+      title: name.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      description: `Specialized agent for ${name.replace(/[-_]/g, ' ')} related tasks. This agent provides focused expertise for specific domain requirements.`,
+      capabilities: [
+        'Domain-specific task execution',
+        'Specialized problem solving',
+        'Focused expertise application'
+      ],
+      bestFor: `${name.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} specific tasks and operations`
     };
   };
   
-  const agentInfo = agentData || getAgentDescription(agentName);
+  // Always use the hardcoded description, but merge with agent data for additional properties
+  const agentInfo = {
+    ...getAgentDescription(agentName),
+    ...agentData,
+    // Override with hardcoded description to ensure it's always present
+    description: getAgentDescription(agentName).description,
+    title: getAgentDescription(agentName).title,
+    capabilities: getAgentDescription(agentName).capabilities,
+    bestFor: getAgentDescription(agentName).bestFor
+  };
   
   // Navigation handlers
   const handlePrevious = () => {

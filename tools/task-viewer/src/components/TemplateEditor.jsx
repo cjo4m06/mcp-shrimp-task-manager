@@ -16,6 +16,7 @@ function TemplateEditor({
   // Initialize with template content if available
   const [content, setContent] = useState(template?.content || '');
   const [mode, setMode] = useState(template?.status === 'custom+append' ? 'append' : 'override');
+  const [validationError, setValidationError] = useState('');
 
   // Update content when template changes
   useEffect(() => {
@@ -39,9 +40,11 @@ function TemplateEditor({
     e.preventDefault();
     
     if (!content.trim()) {
+      setValidationError('Template content cannot be empty');
       return;
     }
 
+    setValidationError('');
     if (onSave) {
       onSave({
         ...template,
@@ -122,7 +125,10 @@ function TemplateEditor({
             <MDEditor
               key={template?.functionName || 'editor'}
               value={content || ''}
-              onChange={(val) => setContent(val || '')}
+              onChange={(val) => {
+                setContent(val || '');
+                setValidationError('');
+              }}
               preview="live"
               height={500}
               hideToolbar={false}
@@ -157,6 +163,11 @@ function TemplateEditor({
             </div>
           </div>
 
+          {validationError && (
+            <div className="error-message" style={{ color: 'red', marginBottom: '10px' }}>
+              {validationError}
+            </div>
+          )}
           <div className="form-actions">
             <button
               type="submit"

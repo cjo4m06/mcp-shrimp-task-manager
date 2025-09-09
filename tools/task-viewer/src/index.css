@@ -2,6 +2,7 @@
 @import './styles/nested-tabs.css';
 @import './styles/chat-agent.css';
 
+
 /* Force reload test */
 * {
   box-sizing: border-box;
@@ -316,10 +317,25 @@ a:visited {
 .tab.dragging {
   opacity: 0.5;
   transform: scale(0.95);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  transition: all 0.2s ease;
 }
 
 .tab.drag-over {
   border-left: 3px solid #4fbdba;
+  background-color: rgba(79, 189, 186, 0.1);
+  transform: translateX(2px);
+  transition: all 0.2s ease;
+}
+
+.tab {
+  transition: all 0.2s ease;
+  cursor: grab;
+}
+
+.tab:active {
+  cursor: grabbing;
 }
 
 .tab-name {
@@ -384,7 +400,7 @@ a:visited {
   background: #16213e;
   border-radius: 0 10px 10px 0;
   border: 2px solid #2c3e50;
-  overflow: hidden;
+  overflow: auto;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   margin-top: 0;
   margin-left: 15px;
@@ -592,9 +608,52 @@ a:visited {
   padding: 16px 20px;
   margin: 20px 0;
   display: flex;
-  gap: 12px;
+  justify-content: space-between;
   align-items: center;
   animation: slideDown 0.3s ease-out;
+}
+
+.bulk-actions-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.bulk-actions-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.bulk-actions-label {
+  color: #ffffff;
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.bulk-agent-select {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #ffffff;
+  font-size: 14px;
+  min-width: 150px;
+  cursor: pointer;
+}
+
+.bulk-agent-select:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.bulk-agent-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bulk-agent-select option {
+  background: #1a1a1a;
+  color: #ffffff;
 }
 
 @keyframes slideDown {
@@ -1105,6 +1164,46 @@ a:visited {
   font-weight: bold;
   color: #ffffff;
   margin: 0;
+}
+
+/* Clickable stat cards */
+.clickable-stat {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.clickable-stat:hover {
+  background: #1e2a4a;
+  border-color: #4fbdba;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.clickable-stat.active {
+  background: rgba(79, 189, 186, 0.2);
+  border-color: #4fbdba;
+  box-shadow: 0 2px 4px rgba(79, 189, 186, 0.3);
+}
+
+.clickable-stat.active::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border: 2px solid #4fbdba;
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+.clickable-stat.active h3 {
+  color: #7ec8ca;
+}
+
+.clickable-stat.active .value {
+  color: #4fbdba;
 }
 
 @media (max-width: 768px) {
@@ -1793,10 +1892,22 @@ a:visited {
 }
 
 /* Release Notes Styles */
+.release-notes-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .release-notes-tab-content {
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .release-notes-inner {
@@ -1805,6 +1916,64 @@ a:visited {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+/* Force scrollbars to be visible in Release Notes */
+.release-notes-tab-content .release-sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: #4fbdba #16213e;
+}
+
+.release-notes-tab-content .release-details {
+  scrollbar-width: auto !important;
+  scrollbar-color: #4fbdba #1a2332 !important;
+}
+
+/* Force scrollbars to always be visible */
+.release-details {
+  overflow-y: scroll !important;
+  overflow-x: hidden !important;
+  /* Force scrollbar track to be visible */
+  scrollbar-gutter: stable !important;
+}
+
+.release-sidebar {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* WebKit scrollbar styles for Release Notes - make them more prominent */
+.release-notes-tab-content .release-sidebar::-webkit-scrollbar {
+  width: 10px !important;
+  display: block !important;
+}
+
+.release-notes-tab-content .release-details::-webkit-scrollbar {
+  width: 16px !important;
+  display: block !important;
+}
+
+.release-notes-tab-content .release-sidebar::-webkit-scrollbar-track,
+.release-notes-tab-content .release-details::-webkit-scrollbar-track {
+  background: #1a2332 !important;
+  border-radius: 10px;
+  border: 1px solid #2c3e50;
+}
+
+.release-notes-tab-content .release-sidebar::-webkit-scrollbar-thumb,
+.release-notes-tab-content .release-details::-webkit-scrollbar-thumb {
+  background: #4fbdba !important;
+  background-image: linear-gradient(180deg, #5ac7c4, #3a9d9a) !important;
+  border-radius: 8px;
+  border: 1px solid #5ac7c4;
+  min-height: 50px;
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+.release-notes-tab-content .release-sidebar::-webkit-scrollbar-thumb:hover,
+.release-notes-tab-content .release-details::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #5ac7c4, #4fbdba) !important;
+  border-color: #4fbdba;
 }
 
 .release-notes-header {
@@ -1826,6 +1995,7 @@ a:visited {
   display: flex;
   flex: 1;
   overflow: hidden;
+  min-height: 0; /* Important for flexbox scrolling */
 }
 
 .release-sidebar {
@@ -1834,6 +2004,7 @@ a:visited {
   border-right: 2px solid #2c3e50;
   overflow-y: auto;
   padding: 20px;
+  height: 100%;
 }
 
 .release-sidebar h3 {
@@ -1897,7 +2068,9 @@ a:visited {
 .release-details {
   flex: 1;
   padding: 30px;
-  overflow-y: auto;
+  overflow-y: scroll !important; /* Force scrollbar */
+  overflow-x: hidden;
+  min-width: 0; /* Important for flexbox */
 }
 
 .release-header {
@@ -4626,6 +4799,9 @@ a:visited {
   font-size: 0.85rem;
   cursor: pointer;
   transition: border-color 0.2s;
+  min-height: 40px;
+  white-space: normal;
+  text-align: left;
 }
 
 .agent-table-select:hover:not(:disabled) {
@@ -4964,15 +5140,18 @@ a:visited {
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 1.2rem;
-  padding: 2px 6px;
-  margin-left: 4px;
-  transition: transform 0.2s;
-  vertical-align: middle;
+  font-size: 0.85rem;
+  padding: 4px 10px;
+  transition: all 0.2s;
+  color: #4fbdba;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .agent-info-button:hover {
-  transform: scale(1.2);
+  background-color: rgba(79, 189, 186, 0.1);
+  transform: translateY(-1px);
 }
 
 .agent-info-button:disabled {
@@ -4982,7 +5161,7 @@ a:visited {
 
 .agent-cell-wrapper {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 4px;
   width: 100%;
 }
@@ -5120,4 +5299,129 @@ a:visited {
 /* Adjust for table cell */
 .agent-cell-wrapper .agent-dropdown-container {
   flex: 1;
+}
+
+/* Table of Contents styles for Help tab */
+.toc-list {
+  list-style: none !important;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-list div {
+  list-style: none !important;
+}
+
+/* Remove any default bullets from nested elements */
+.release-sidebar .toc-list,
+.release-sidebar .toc-list div,
+.release-sidebar .toc-list a {
+  list-style: none !important;
+  list-style-type: none !important;
+}
+
+/* Task Summary Preview in Table */
+.task-summary-preview {
+  max-height: 100px;
+  overflow: hidden;
+  position: relative;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.task-summary-preview .task-summary-container {
+  font-size: 0.85rem !important;
+  line-height: 1.4 !important;
+}
+
+.task-summary-preview .wmde-markdown h1,
+.task-summary-preview .wmde-markdown h2,
+.task-summary-preview .wmde-markdown h3,
+.task-summary-preview .wmde-markdown h4 {
+  font-size: 0.9rem !important;
+  margin: 0.2rem 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+.task-summary-preview .wmde-markdown h1 {
+  color: #4fbdba !important;
+}
+
+.task-summary-preview .wmde-markdown h2 {
+  color: #3498db !important;
+}
+
+.task-summary-preview .wmde-markdown h3 {
+  color: #ff8c00 !important;
+}
+
+.task-summary-preview .wmde-markdown p {
+  font-size: 0.85rem !important;
+  margin: 0.1rem 0 !important;
+  line-height: 1.4 !important;
+}
+
+.task-summary-preview .wmde-markdown ul,
+.task-summary-preview .wmde-markdown ol {
+  margin: 0.2rem 0 !important;
+  padding-left: 1rem !important;
+}
+
+.task-summary-preview .wmde-markdown li {
+  font-size: 0.85rem !important;
+  margin-bottom: 0.1rem !important;
+  line-height: 1.4 !important;
+}
+
+.task-summary-preview .wmde-markdown code {
+  font-size: 0.8rem !important;
+  padding: 1px 3px !important;
+}
+
+.task-summary-preview .wmde-markdown pre {
+  font-size: 0.8rem !important;
+  padding: 0.5rem !important;
+  margin: 0.2rem 0 !important;
+}
+
+/* Summary expand/collapse button styles */
+.summary-expand-button {
+  background: transparent;
+  border: 1px solid #4fbdba;
+  color: #4fbdba;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.summary-expand-button:hover {
+  background-color: rgba(79, 189, 186, 0.1);
+}
+
+/* Responsive styles for summary column */
+@media (max-width: 768px) {
+  .task-summary-preview {
+    max-width: 200px !important;
+  }
+  
+  .summary-expand-button {
+    font-size: 11px;
+    padding: 1px 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .task-summary-preview {
+    max-width: 150px !important;
+  }
+  
+  /* Hide summary column on very small screens */
+  th:nth-child(6),
+  td:nth-child(6) {
+    display: none;
+  }
 }

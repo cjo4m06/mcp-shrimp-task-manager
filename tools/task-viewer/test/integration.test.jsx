@@ -5,6 +5,8 @@ import http from 'http';
 import path from 'path';
 import os from 'os';
 import App from '../src/App';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '../src/i18n/i18n';
 
 // Mock os module first
 vi.mock('os', () => ({
@@ -14,16 +16,21 @@ vi.mock('os', () => ({
   }
 }));
 
-// Mock fs module
+// Mock fs module with default export
 const mockFs = {
   readFile: vi.fn(),
   writeFile: vi.fn(),
   mkdir: vi.fn()
 };
 
-vi.mock('fs', () => ({
-  promises: mockFs
-}));
+vi.mock('fs', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    default: actual,
+    promises: mockFs
+  };
+});
 
 // Import server after mocks are set up
 const { startServer } = await import('../server.js');
@@ -109,9 +116,17 @@ describe('Integration Tests', () => {
     vi.restoreAllMocks();
   });
 
+  const renderApp = () => {
+    return render(
+      <I18nextProvider i18n={i18n}>
+        <App />
+      </I18nextProvider>
+    );
+  };
+
   describe('Full Application Flow', () => {
     it('loads profiles and displays tasks when profile selected', async () => {
-      render(<App />);
+      renderApp();
 
       // Wait for profiles to load
       await waitFor(() => {

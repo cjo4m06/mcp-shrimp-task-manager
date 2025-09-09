@@ -13,6 +13,8 @@ export interface Agent {
   description?: string;
   path?: string;
   content?: string;
+  type?: string;
+  capabilities?: string[];
 }
 
 /**

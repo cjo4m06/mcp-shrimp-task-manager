@@ -1,26 +1,26 @@
 # 🦐 Shrimp Task Manager Viewer
 
-A modern, React-based web interface for viewing and managing [Shrimp Task Manager](https://github.com/cjo4m06/mcp-shrimp-task-manager) tasks created through the MCP (Model Context Protocol) tool. This visual interface allows you to see detailed task information, track progress across multiple projects, and easily copy task UUIDs for AI agent interactions.
+A modern, React-based web interface for viewing and managing [Shrimp Task Manager](https://github.com/cjo4m06/mcp-shrimp-task-manager) tasks created through the MCP (Model Context Protocol) tool. This visual interface allows you to see detailed task information, track progress across multiple projects, and instantly copy ready-to-execute AI agent commands for parallel task execution.
 
 ## Why Use Shrimp Task Viewer?
 
-When using Shrimp Task Manager as an MCP server with AI agents like Claude, this viewer provides essential visibility into your task ecosystem:
+Shrimp Task Manager Viewer was built by developers for developers as an essential tool for visualizing and managing the complex task workflows that AI agents execute. When you're working with AI assistants like Claude through the MCP (Model Context Protocol), it's crucial to have real-time visibility into what tasks are being planned, which are in progress, and how they interconnect through dependencies. This viewer transforms the abstract task data into an intuitive visual interface that lets you monitor, control, and optimize your AI-driven development workflow.
 
-- **Visual Task Overview**: See all tasks, their status, dependencies, and progress in a clean tabbed interface
-- **UUID Management**: Click any task badge to instantly copy its UUID for commands like `"Use task manager to complete this shrimp task: [UUID]"`
-- **Parallel Execution**: Open multiple terminals and use the AI Actions column (🤖) to copy task instructions for parallel AI agent execution
-- **Live Updates**: Direct file path reading ensures you always see the current task state
-- **Multi-Project Support**: Manage tasks across different projects with draggable profile tabs
+The viewer excels at enabling developers to work on multiple projects simultaneously. You can maintain separate task lists for different features or experiments, quickly switch between them using profile tabs, and even archive completed workflows for future reference. When a critical bug interrupts your feature development, simply archive your current task list, switch profiles to handle the urgent issue, then seamlessly return to your original work with all context preserved. 
+
+The true power of this tool lies in its support for parallel AI agent execution. The AI Actions column (🤖) provides one-click access to complete, ready-to-execute commands that you can paste directly into multiple terminal sessions or AI conversations. Instead of manually constructing commands or copying UUIDs, you instantly get formatted instructions like `"use the built in subagent located in ./claude/agents/react-specialist to complete this shrimp task: [task-id]"` that tell the AI agent exactly what to do. This enables true parallelization - spin up five terminal windows, assign different tasks to different AI agents, and watch them work concurrently on your project. With live updates reflecting real-time changes and comprehensive dependency tracking, this tool bridges the gap between AI planning and human oversight, ensuring you always understand exactly what your AI assistants are doing and maximizing your development throughput through intelligent parallelization.
 
 For information on setting up Shrimp Task Manager as an MCP server, see the [main repository](https://github.com/cjo4m06/mcp-shrimp-task-manager).
 
-## 📖 Detailed Page Documentation
+## 📖 Tab Documentation
 
-### 📋 Tasks Page
+![Tabs Overview](Screenshots/tabs.png)
 
-The main Tasks page is your command center for task management. It provides a comprehensive view of all tasks in the selected profile with powerful features for organization and execution.
+## 📋 Tasks Tab
 
-![Tasks Page Overview](task-viewer-interface.png)
+The main Tasks tab is your command center for task management. It provides a comprehensive view of all tasks in the selected profile with powerful features for organization and execution.
+
+![Tasks Tab Overview](task-viewer-interface.png)
 
 **Key Features:**
 - **Task Table**: Displays all tasks with sortable columns including Task #, Status, Agent, Created Date, Name, Dependencies, and Actions
@@ -50,7 +50,7 @@ The robot emoji in the Actions column is a powerful feature for AI-assisted task
 
 #### 🤖 AI-Powered Bulk Agent Assignment
 
-The Tasks page now includes AI-powered bulk agent assignment using OpenAI's GPT-4:
+The Tasks tab now includes AI-powered bulk agent assignment using OpenAI's GPT-4:
 
 **How to use:**
 1. **Select Tasks**: Use the checkboxes to select multiple tasks that need agent assignment
@@ -59,13 +59,13 @@ The Tasks page now includes AI-powered bulk agent assignment using OpenAI's GPT-
 4. **Automatic Matching**: AI considers task descriptions, dependencies, and agent capabilities
 
 **Setup Requirements:**
-1. **Configure API Key**: Navigate to Settings → Global Settings
+1. **Configure API Key**: Navigate to Settings → Global Settings Tab
 2. **Enter OpenAI Key**: Paste your OpenAI API key in the field (shown as ✓ Configured when set)
 3. **Alternative Method**: Set the `OPENAI_API_KEY` or `OPEN_AI_KEY_SHRIMP_TASK_VIEWER` environment variable
 4. **Get API Key**: Visit [OpenAI Platform](https://platform.openai.com/api-keys) to generate a key
 
 ![Global Settings OpenAI Key](releases/global-settings-openai-key.png)
-*The Global Settings page provides a secure field to configure your OpenAI API key*
+*The Global Settings tab provides a secure field to configure your OpenAI API key*
 
 #### 📝 Task Details View
 
@@ -84,11 +84,32 @@ Click any task row to open the detailed task view with comprehensive information
 - **Context Preservation**: Stay in detail view while moving between tasks
 - **Keyboard Support**: Use arrow keys for even faster navigation
 
-### 📜 Project History Page
+#### 📤 Export Feature
 
-The Project History page provides valuable insights into your project's evolution by displaying snapshots of completed tasks saved by the Shrimp Task Manager.
+Export your task data in multiple formats for reporting, backup, or sharing purposes:
 
-![Project History Overview](releases/project-history-view.png)
+**Export Options:**
+- **JSON Format**: Complete task data with all metadata, perfect for backup and data interchange
+- **CSV Format**: Tabular format ideal for spreadsheet analysis and reporting
+- **Markdown Format**: Human-readable format with numbered tasks and initial request display
+
+**Export Features:**
+- **Numbered Tasks**: All export formats include sequential task numbering for easy reference
+- **Initial Request Display**: Exported files include the project's initial request for context
+- **Complete Data**: All task information including descriptions, status, dependencies, and metadata
+- **Download Ready**: Files are automatically formatted and ready for immediate download
+
+**How to Export:**
+1. Navigate to any project's task list
+2. Click the "Export" button in the top-right area
+3. Choose your preferred format (JSON, CSV, or Markdown)
+4. File downloads automatically with a timestamped filename
+
+## 📊 Task History Tab
+
+The Task History tab provides valuable insights into your project's evolution by displaying snapshots of completed tasks saved by the Shrimp Task Manager.
+
+![Task History Overview](releases/project-history-view.png)
 
 **Features:**
 - **Timeline View**: Browse through historical snapshots of your project's task states
@@ -96,16 +117,16 @@ The Project History page provides valuable insights into your project's evolutio
 - **Task Evolution**: Track how tasks progressed from creation to completion
 - **Notes System**: Add personal annotations to historical entries
 
-![Project History Detail](releases/project-history-detail-view.png)
+![Task History Detail](releases/project-history-detail-view.png)
 
 **Navigation:**
 - Click on any historical entry to view the detailed task state at that point in time
 - Use the navigation buttons to move between different snapshots
 - Search and filter historical tasks just like in the main tasks view
 
-### 🤖 Sub-Agents Page
+## 🤖 Sub-Agents Tab
 
-The Sub-Agents page allows you to manage specialized AI agents that can be assigned to tasks for optimal execution.
+The Sub-Agents tab allows you to manage specialized AI agents that can be assigned to tasks for optimal execution.
 
 ![Agent List View with AI Instruction](releases/agent-list-view-with-ai-instruction.png)
 
@@ -135,7 +156,7 @@ The Sub-Agents page allows you to manage specialized AI agents that can be assig
 ![Agent Viewer Popup](releases/agent-viewer-popup.png)
 *The agent viewer popup allows you to browse through all available agents and select the best one for each task*
 
-### 🎨 Templates Page
+## 🎨 Templates Tab
 
 Manage AI instruction templates that guide how the Shrimp Task Manager analyzes and executes different types of operations.
 
@@ -147,7 +168,48 @@ Manage AI instruction templates that guide how the Shrimp Task Manager analyzes 
 - **Live Preview**: See template effects before activation
 - **Export/Import**: Share templates with team members
 
-### ⚙️ Global Settings
+## 📦 Task Archives Tab
+
+The Task Archives tab provides powerful task list archiving and restoration capabilities, allowing you to save snapshots of your current tasks and restore them later.
+
+**Key Features:**
+- **Task List Archiving**: Save the current state of all tasks as a timestamped archive
+- **Archive Management**: View all archived task lists with detailed information
+- **Flexible Import Options**: Choose to append archived tasks to current tasks or replace all current tasks
+- **Archive Statistics**: See completion statistics for each archived task list
+- **Data Export**: Export task lists in multiple formats (JSON, CSV, Markdown) with numbered tasks
+
+**Archive Workflow:**
+
+![Archive Dialog](releases/archive-dialog.png)
+*The Archive Current Tasks dialog that appears when you press the Archive button, showing a summary of what will be archived including project name, task counts, and the complete initial request*
+
+1. **Create Archive**: Click the "Archive Tasks" button to save current task state
+2. **Browse Archives**: View all archived task lists with timestamps and statistics
+3. **Import Tasks**: Restore archived tasks with two options:
+   - **Append**: Add archived tasks to your current task list
+   - **Replace**: Replace all current tasks with archived tasks (warning provided)
+4. **Export Data**: Download task data in your preferred format
+
+![Archive List](releases/archive-list.png)
+*The Archive tab showing all archived task lists. Users can click "View" to examine tasks within an archive, "Delete" to remove an archive, or "Import" to restore tasks*
+
+![Import Archive Dialog](releases/archive-import.png)
+*The Import Archive dialog with options to either append archived tasks to the current list or completely replace existing tasks*
+
+**Archive Data Structure:**
+Each archive contains:
+- **Timestamp**: When the archive was created
+- **Initial Request**: The original project request or description
+- **Task Statistics**: Completed, in-progress, and pending task counts
+- **Full Task Data**: Complete task information including descriptions, dependencies, and metadata
+
+**Export Formats:**
+- **JSON**: Complete task data with all metadata
+- **CSV**: Tabular format suitable for spreadsheets
+- **Markdown**: Human-readable format with numbered tasks and initial request display
+
+## ⚙️ Global Settings Tab
 
 Configure system-wide settings including the Claude folder path for accessing global agents.
 
@@ -176,7 +238,7 @@ Configure system-wide settings including the Claude folder path for accessing gl
 - **Visual Indicators**: Loading states and refresh status
 - **Manual Refresh**: Dedicated refresh button for on-demand updates
 
-### 📊 Comprehensive Task Management
+### 📊 Task Management
 - **Task Statistics**: Live counts for Total, Completed, In Progress, and Pending tasks
 - **Profile Management**: Add/remove/reorder profiles via intuitive interface
 - **Persistent Settings**: Profile configurations saved across sessions
@@ -193,6 +255,14 @@ Configure system-wide settings including the Claude folder path for accessing gl
 - **Complete Audit Trail**: Review the full history of task modifications using standard Git tools
 - **Non-Blocking Operations**: Git failures don't interrupt task management
 - **Isolated Repository**: Task history tracked separately from your project repository
+
+### 📦 Archive & Data Management
+- **Task List Archiving**: Save complete snapshots of task states with timestamps
+- **Flexible Restoration**: Import archived tasks by appending to current tasks or replacing entirely
+- **Archive Statistics**: View completion metrics for each archived task list
+- **Multi-Format Export**: Download task data as JSON, CSV, or Markdown with numbered tasks
+- **Data Preservation**: Archives include initial project requests and complete task metadata
+- **Storage Management**: View, delete, and organize archived task lists efficiently
 
 ### 🎨 Professional UI/UX
 - **Dark Theme**: Optimized for development environments
@@ -231,10 +301,10 @@ Configure system-wide settings including the Claude folder path for accessing gl
 For development with hot reload:
 
 ```bash
-# Start both the API server and development server
+# Starting both the API server and development server together
 npm run start:all
 
-# Or run them separately:
+# Running servers separately if needed:
 npm start          # API server on port 9998
 npm run dev        # Vite dev server on port 3000
 ```
@@ -246,10 +316,10 @@ The app will be available at `http://localhost:3000` with automatic rebuilding o
 #### Standard Deployment
 
 ```bash
-# Build for production
+# Building the application for production
 npm run build
 
-# Start the production server
+# Starting the production server
 npm start
 ```
 
@@ -299,7 +369,7 @@ For automatic startup and process management:
 2. **Open your browser**:
    Navigate to `http://127.0.0.1:9998` (production) or `http://localhost:3000` (development)
 
-3. **Add your first profile**:
+3. **Add your first project**:
    - Click the "**+ Add Tab**" button
    - Enter a descriptive profile name (e.g., "Team Alpha Tasks")
    - Enter the path to your shrimp data folder containing tasks.json
@@ -340,23 +410,25 @@ For automatic startup and process management:
 
 To make environment variables persistent across terminal sessions, add them to your shell configuration file:
 
+#### Shell Configuration Examples
+
 **For macOS/Linux with Zsh** (default on modern macOS):
 ```bash
-# Add to ~/.zshrc
+# Adding environment variables to ~/.zshrc
 echo 'export SHRIMP_VIEWER_PORT=9998' >> ~/.zshrc
 echo 'export SHRIMP_VIEWER_HOST=127.0.0.1' >> ~/.zshrc
 
-# Reload configuration
+# Reloading the configuration
 source ~/.zshrc
 ```
 
 **For Linux/Unix with Bash**:
 ```bash
-# Add to ~/.bashrc
+# Adding environment variables to ~/.bashrc
 echo 'export SHRIMP_VIEWER_PORT=9998' >> ~/.bashrc
 echo 'export SHRIMP_VIEWER_HOST=127.0.0.1' >> ~/.bashrc
 
-# Reload configuration
+# Reloading the configuration
 source ~/.bashrc
 ```
 
@@ -375,26 +447,28 @@ OPEN_AI_KEY_SHRIMP_TASK_VIEWER=sk-...  # Alternative env var for OpenAI key
 
 ### Development Configuration
 
-- **Development with hot reload (recommended for development)**:
-  ```bash
-  npm run start:all  # Runs API server (9998) + Vite dev server (3000)
-  ```
-  
-  **Why use start:all?** This command runs both the API server and Vite dev server simultaneously. You get instant hot module replacement (HMR) for UI changes while having the full API functionality. Your changes appear immediately in the browser at `http://localhost:3000` without manual refreshing.
+#### Running Development Servers
 
-- **API server only (for production or API testing)**:
-  ```bash
-  npm start  # Runs on port 9998
-  ```
-  
-  **Why use API server only?** Use this when you've built the production files and want to test the complete app as it would run in production, or when you only need the API endpoints.
+**Development with hot reload (recommended for development)**:
+```bash
+npm run start:all  # Runs API server (9998) + Vite dev server (3000)
+```
 
-- **Build and serve for production**:
-  ```bash
-  npm run build && npm start  # Build then serve on port 9998
-  ```
-  
-  **Why build for production?** The production build optimizes your code by minifying JavaScript, removing dead code, and bundling assets efficiently. This results in faster load times and better performance for end users. Always use the production build when deploying.
+**Why use start:all?** This command runs both the API server and Vite dev server simultaneously. You get instant hot module replacement (HMR) for UI changes while having the full API functionality. Your changes appear immediately in the browser at `http://localhost:3000` without manual refreshing.
+
+**API server only (for production or API testing)**:
+```bash
+npm start  # Runs on port 9998
+```
+
+**Why use API server only?** Use this when you've built the production files and want to test the complete app as it would run in production, or when you only need the API endpoints.
+
+**Build and serve for production**:
+```bash
+npm run build && npm start  # Build then serve on port 9998
+```
+
+**Why build for production?** The production build optimizes your code by minifying JavaScript, removing dead code, and bundling assets efficiently. This results in faster load times and better performance for end users. Always use the production build when deploying.
 
 ### Profile Data Storage
 

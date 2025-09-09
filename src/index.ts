@@ -41,6 +41,20 @@ import {
   queryTaskSchema,
   getTaskDetail,
   getTaskDetailSchema,
+  getTaskHistory,
+  getTaskHistorySchema,
+  createArchive,
+  createArchiveSchema,
+  listArchives,
+  listArchivesSchema,
+  restoreFromArchive,
+  restoreFromArchiveSchema,
+  syncTaskState,
+  syncTaskStateSchema,
+  getDeletedTasks,
+  getDeletedTasksSchema,
+  recoverTask,
+  recoverTaskSchema,
   processThought,
   processThoughtSchema,
   initProjectRules,
@@ -173,6 +187,13 @@ async function main() {
             inputSchema: zodToJsonSchema(getTaskDetailSchema),
           },
           {
+            name: "get_task_history",
+            description: await loadPromptFromTemplate(
+              "toolsDescription/getTaskHistory.md"
+            ),
+            inputSchema: zodToJsonSchema(getTaskHistorySchema),
+          },
+          {
             name: "process_thought",
             description: await loadPromptFromTemplate(
               "toolsDescription/processThought.md"
@@ -185,6 +206,48 @@ async function main() {
               "toolsDescription/initProjectRules.md"
             ),
             inputSchema: zodToJsonSchema(initProjectRulesSchema),
+          },
+          {
+            name: "create_archive",
+            description: await loadPromptFromTemplate(
+              "toolsDescription/createArchive.md"
+            ),
+            inputSchema: zodToJsonSchema(createArchiveSchema),
+          },
+          {
+            name: "list_archives",
+            description: await loadPromptFromTemplate(
+              "toolsDescription/listArchives.md"
+            ),
+            inputSchema: zodToJsonSchema(listArchivesSchema),
+          },
+          {
+            name: "restore_from_archive",
+            description: await loadPromptFromTemplate(
+              "toolsDescription/restoreFromArchive.md"
+            ),
+            inputSchema: zodToJsonSchema(restoreFromArchiveSchema),
+          },
+          {
+            name: "sync_task_state",
+            description: await loadPromptFromTemplate(
+              "toolsDescription/syncTaskState.md"
+            ),
+            inputSchema: zodToJsonSchema(syncTaskStateSchema),
+          },
+          {
+            name: "get_deleted_tasks",
+            description: await loadPromptFromTemplate(
+              "toolsDescription/getDeletedTasks.md"
+            ),
+            inputSchema: zodToJsonSchema(getDeletedTasksSchema),
+          },
+          {
+            name: "recover_task",
+            description: await loadPromptFromTemplate(
+              "toolsDescription/recoverTask.md"
+            ),
+            inputSchema: zodToJsonSchema(recoverTaskSchema),
           },
           {
             name: "research_mode",
@@ -327,6 +390,76 @@ async function main() {
                 );
               }
               return await getTaskDetail(parsedArgs.data);
+            case "get_task_history":
+              parsedArgs = await getTaskHistorySchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await getTaskHistory(parsedArgs.data);
+            case "create_archive":
+              parsedArgs = await createArchiveSchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await createArchive(parsedArgs.data);
+            case "list_archives":
+              parsedArgs = await listArchivesSchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await listArchives(parsedArgs.data);
+            case "restore_from_archive":
+              parsedArgs = await restoreFromArchiveSchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await restoreFromArchive(parsedArgs.data);
+            case "sync_task_state":
+              parsedArgs = await syncTaskStateSchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await syncTaskState(parsedArgs.data);
+            case "get_deleted_tasks":
+              parsedArgs = await getDeletedTasksSchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await getDeletedTasks(parsedArgs.data);
+            case "recover_task":
+              parsedArgs = await recoverTaskSchema.safeParseAsync(
+                request.params.arguments
+              );
+              if (!parsedArgs.success) {
+                throw new Error(
+                  `Invalid arguments for tool ${request.params.name}: ${parsedArgs.error.message}`
+                );
+              }
+              return await recoverTask(parsedArgs.data);
             case "process_thought":
               parsedArgs = await processThoughtSchema.safeParseAsync(
                 request.params.arguments

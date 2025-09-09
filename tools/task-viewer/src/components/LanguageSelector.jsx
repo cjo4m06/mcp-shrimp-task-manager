@@ -28,6 +28,7 @@ function LanguageSelector() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [stayOpen, setStayOpen] = useState(false);
   const dropdownRef = useRef(null);
   const searchInputRef = useRef(null);
 
@@ -85,12 +86,14 @@ function LanguageSelector() {
         event.preventDefault();
         if (selectedIndex >= 0 && filteredLanguages[selectedIndex]) {
           changeLanguage(filteredLanguages[selectedIndex].code);
-          setIsOpen(false);
+          // Keep dropdown open for continuous navigation
+          setStayOpen(true);
         }
         break;
       case 'Escape':
         event.preventDefault();
         setIsOpen(false);
+        setStayOpen(false);
         break;
     }
   };
@@ -100,6 +103,7 @@ function LanguageSelector() {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
+        setStayOpen(false);
       }
     }
 
@@ -115,16 +119,47 @@ function LanguageSelector() {
     <div className="language-selector" ref={dropdownRef}>
       <button 
         className="language-selector-button"
-        onClick={() => setIsOpen(!isOpen)}
-        title={t('header.language')}
+        onClick={() => {
+          if (!isOpen) {
+            setIsOpen(true);
+            setStayOpen(false);
+          } else if (!stayOpen) {
+            setIsOpen(false);
+          }
+          // If stayOpen is true, clicking the button won't close the dropdown
+        }}
+        onDoubleClick={() => {
+          // Double-click always closes the dropdown
+          setIsOpen(false);
+          setStayOpen(false);
+        }}
+        title={stayOpen ? 
+          `${t('header.language')} - Pinned open (use arrow keys to navigate, double-click to close)` : 
+          t('header.language')
+        }
       >
         <span className="language-flag">{currentLang?.flag}</span>
         <span className="language-name">{currentLang?.name}</span>
-        <span className="dropdown-arrow">{isOpen ? '▲' : '▼'}</span>
+        <span className="dropdown-arrow">
+          {isOpen ? (stayOpen ? '📌' : '▲') : '▼'}
+        </span>
       </button>
       
       {isOpen && (
         <div className="language-dropdown">
+          {stayOpen && (
+            <div className="language-dropdown-hint" style={{
+              padding: '8px 12px', 
+              background: '#f0f9ff', 
+              border: '1px solid #0ea5e9', 
+              borderRadius: '4px', 
+              margin: '4px', 
+              fontSize: '12px',
+              color: '#0369a1'
+            }}>
+              📌 Dropdown pinned open. Use ↑↓ arrow keys to navigate. ESC or double-click button to close.
+            </div>
+          )}
           <div className="language-search">
             <input
               ref={searchInputRef}
@@ -158,7 +193,8 @@ function LanguageSelector() {
                       e.stopPropagation();
                       console.log('Clicked language:', lang.code);
                       changeLanguage(lang.code);
-                      setIsOpen(false);
+                      // Keep dropdown open for continuous navigation
+                      setStayOpen(true);
                     }}
                   >
                     <span className="language-flag">{lang.flag}</span>

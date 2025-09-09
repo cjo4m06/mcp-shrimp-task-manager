@@ -58,7 +58,6 @@ data/*
 .cursor/tmp/
 
 # Claude and MCP files
-.claude/
 .mcp.json
 
 # Audio files
@@ -70,3 +69,9 @@ Screenshots/
 
 # Task viewer history and agents
 tools/task-viewer/history-and-agents/
+
+# Snagit files
+*.snagx
+
+# Claude configuration
+.claude/

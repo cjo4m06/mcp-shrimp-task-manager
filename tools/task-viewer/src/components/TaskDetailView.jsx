@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useCallback, memo } from 'react';
 import { useTranslation } from 'react-i18next';
+import TaskSummary from './TaskSummary';
+import CompletionDetailsView from './CompletionDetailsView';
 
-function TaskDetailView({ task, onBack, projectRoot, onNavigateToTask, taskIndex, allTasks, isHistorical = false, onEdit }) {
+const TaskDetailView = memo(function TaskDetailView({ task, onBack, projectRoot, onNavigateToTask, taskIndex, allTasks, isHistorical = false, onEdit }) {
   const { t } = useTranslation();
   
   // Keyboard navigation
@@ -35,7 +37,8 @@ function TaskDetailView({ task, onBack, projectRoot, onNavigateToTask, taskIndex
   
   if (!task) return null;
 
-  const formatDate = (dateStr) => {
+  // Memoize expensive date formatting
+  const formatDate = useCallback((dateStr) => {
     if (!dateStr) return '—';
     const date = new Date(dateStr);
     return date.toLocaleString(undefined, {
@@ -47,13 +50,14 @@ function TaskDetailView({ task, onBack, projectRoot, onNavigateToTask, taskIndex
       second: '2-digit',
       hour12: true
     });
-  };
+  }, []);
 
-  const calculateTimeTaken = (createdAt, completedAt) => {
-    if (!createdAt || !completedAt) return null;
+  // Memoize time calculation to prevent recalculation on every render
+  const timeTaken = useMemo(() => {
+    if (!task.createdAt || !task.completedAt) return null;
     
-    const start = new Date(createdAt);
-    const end = new Date(completedAt);
+    const start = new Date(task.createdAt);
+    const end = new Date(task.completedAt);
     const diffMs = end - start;
     
     if (diffMs < 0) return null;
@@ -70,7 +74,7 @@ function TaskDetailView({ task, onBack, projectRoot, onNavigateToTask, taskIndex
     if (seconds > 0 || parts.length === 0) parts.push(`${seconds}s`);
     
     return parts.join(' ');
-  };
+  }, [task.createdAt, task.completedAt]);
 
   const getStatusColor = (status) => {
     const colors = {
@@ -178,10 +182,10 @@ function TaskDetailView({ task, onBack, projectRoot, onNavigateToTask, taskIndex
                 <span className="detail-label">Completed:</span>
                 <span className="detail-value">{formatDate(task.completedAt)}</span>
               </div>
-              {calculateTimeTaken(task.createdAt, task.completedAt) && (
+              {timeTaken && (
                 <div className="detail-row">
                   <span className="detail-label">Total time taken:</span>
-                  <span className="detail-value">{calculateTimeTaken(task.createdAt, task.completedAt)}</span>
+                  <span className="detail-value">{timeTaken}</span>
                 </div>
               )}
             </>
@@ -217,7 +221,17 @@ function TaskDetailView({ task, onBack, projectRoot, onNavigateToTask, taskIndex
         {task.summary && (
           <div className="task-detail-section">
             <h3>Summary</h3>
-            <div className="detail-content">{task.summary}</div>
+            <TaskSummary 
+              summary={task.summary} 
+              expandable={task.summary.length > 1000} 
+              initiallyExpanded={task.summary.length <= 1000}
+            />
+          </div>
+        )}
+
+        {task.completionDetails && (
+          <div className="task-detail-section">
+            <CompletionDetailsView completionDetails={task.completionDetails} />
           </div>
         )}
 
@@ -245,14 +259,9 @@ function TaskDetailView({ task, onBack, projectRoot, onNavigateToTask, taskIndex
                   return null;
                 }
                 
-                console.log('Dependency:', dep, 'depId:', depId);
-                console.log('All tasks:', allTasks);
-                
                 // Find the task number for this dependency
                 const depTaskIndex = allTasks ? allTasks.findIndex(t => t.id === depId) : -1;
                 const taskNumber = depTaskIndex >= 0 ? `TASK ${depTaskIndex + 1}` : 'TASK ?';
-                
-                console.log('Found task index:', depTaskIndex, 'Task number:', taskNumber);
                 
                 return (
                   <span 
@@ -309,6 +318,7 @@ function TaskDetailView({ task, onBack, projectRoot, onNavigateToTask, taskIndex
             </div>
           </div>
         )}
+
         
         <div className="keyboard-shortcuts-hint">
           <span className="shortcut-label">Keyboard shortcuts:</span>
@@ -319,6 +329,18 @@ function TaskDetailView({ task, onBack, projectRoot, onNavigateToTask, taskIndex
       </div>
     </div>
   );
-}
+}, (prevProps, nextProps) => {
+  // Custom memoization comparison to prevent unnecessary re-renders
+  return (
+    prevProps.task?.id === nextProps.task?.id &&
+    prevProps.task?.summary === nextProps.task?.summary &&
+    prevProps.task?.completionDetails === nextProps.task?.completionDetails &&
+    prevProps.taskIndex === nextProps.taskIndex &&
+    prevProps.isHistorical === nextProps.isHistorical &&
+    prevProps.projectRoot === nextProps.projectRoot
+  );
+});
+
+TaskDetailView.displayName = 'TaskDetailView';
 
 export default TaskDetailView;

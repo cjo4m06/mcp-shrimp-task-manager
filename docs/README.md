@@ -16,6 +16,8 @@
 
 ### Features
 - [Available Tools](tools.md) - Complete tool reference
+- [Rich Task Completion](rich-completion-guide.md) - Comprehensive task documentation (NEW)
+- [Agent Integration](agent-integration.md) - Rich completion for AI agents (NEW)
 - [Agent Management](agents.md) - AI agent specialization
 - [Research Mode](research-mode.md) - Systematic exploration
 - [Project Rules](project-rules.md) - Standards and conventions

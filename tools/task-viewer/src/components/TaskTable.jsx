@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, memo } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -8,12 +8,74 @@ import {
   flexRender,
 } from '@tanstack/react-table';
 import TaskDetailView from './TaskDetailView';
+import TaskSummary from './TaskSummary';
 import Tooltip from './Tooltip';
 import AgentInfoModal from './AgentInfoModal';
 import { useTranslation } from 'react-i18next';
 import { generateTaskNumbers, getTaskNumber, convertDependenciesToNumbers, getTaskByNumber } from '../utils/taskNumbering';
 
-function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDetailViewChange, resetDetailView, profileId, onTaskSaved, onDeleteTask, showToast }) {
+// Memoized component for summary cell with expand/collapse functionality
+const SummaryCell = memo(({ summary }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  if (!summary || summary.trim() === '') {
+    return <span style={{ color: '#666' }}>—</span>;
+  }
+  
+  const needsExpansion = summary.length > 100;
+  const displayText = !isExpanded && needsExpansion 
+    ? summary.slice(0, 100) + '...'
+    : summary;
+  
+  return (
+    <div className="task-summary-preview" style={{ maxWidth: '300px' }}>
+      {needsExpansion ? (
+        <>
+          <div style={{ marginBottom: '4px' }}>
+            <TaskSummary 
+              summary={displayText} 
+              expandable={false}
+              initiallyExpanded={true}
+            />
+          </div>
+          <button
+            className="summary-expand-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
+            style={{
+              background: 'transparent',
+              border: '1px solid #4fbdba',
+              color: '#4fbdba',
+              cursor: 'pointer',
+              fontSize: '12px',
+              padding: '2px 8px',
+              borderRadius: '4px',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseOver={(e) => {
+              e.target.style.backgroundColor = 'rgba(79, 189, 186, 0.1)';
+            }}
+            onMouseOut={(e) => {
+              e.target.style.backgroundColor = 'transparent';
+            }}
+          >
+            {isExpanded ? '▲ Less' : '▼ More'}
+          </button>
+        </>
+      ) : (
+        <TaskSummary 
+          summary={summary} 
+          expandable={false}
+          initiallyExpanded={true}
+        />
+      )}
+    </div>
+  );
+});
+
+function TaskTable({ data, globalFilter, onGlobalFilterChange, statusFilter, projectRoot, emojiTemplates, onDetailViewChange, resetDetailView, profileId, onTaskSaved, onDeleteTask, showToast }) {
   const { t } = useTranslation();
   const [selectedTask, setSelectedTask] = useState(null);
   const [availableAgents, setAvailableAgents] = useState([]);
@@ -22,10 +84,67 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [localTaskUpdates, setLocalTaskUpdates] = useState({});
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showCompleteConfirm, setShowCompleteConfirm] = useState(false);
   
+  // Merge server data with local updates
+  const mergedData = useMemo(() => {
+    return data.map(task => {
+      const localUpdate = localTaskUpdates[task.id];
+      return localUpdate ? { ...task, ...localUpdate } : task;
+    });
+  }, [data, localTaskUpdates]);
+
+  // Filter data based on status filter
+  const filteredData = useMemo(() => {
+    if (!statusFilter || statusFilter === 'all') {
+      return mergedData;
+    }
+    return mergedData.filter(task => task.status === statusFilter);
+  }, [mergedData, statusFilter]);
+
   // Generate task number mapping
-  const taskNumberMap = useMemo(() => generateTaskNumbers(data), [data]);
+  const taskNumberMap = useMemo(() => generateTaskNumbers(mergedData), [mergedData]);
   
+  /**
+   * Maps agent assignment values to display names for the dropdown UI.
+   * 
+   * This function handles the mapping between different agent formats:
+   * - AI assignments: Uses raw filenames like 'test-expert.md'
+   * - UI assignments: Uses processed display names like 'Test Expert'
+   * 
+   * @param {string} agentValue - The agent value from task data (could be filename or display name)
+   * @param {Array} availableAgents - Array of available agents with id/name mappings
+   * @returns {string} The display name for the dropdown, or original value if no match
+   */
+  const mapAgentToDisplayName = (agentValue, availableAgents) => {
+    // Handle empty or invalid inputs
+    if (!agentValue || typeof agentValue !== 'string' || availableAgents.length === 0) {
+      return '';
+    }
+    
+    // Strategy 1: Check if it's already a display name (UI format)
+    const exactMatch = availableAgents.find(agent => agent.name === agentValue);
+    if (exactMatch) {
+      return agentValue; // Already in correct format
+    }
+    
+    // Strategy 2: Handle AI assignment format (filename with extension)
+    // Remove file extension for comparison with agent IDs
+    const normalizedValue = agentValue.replace(/\.(md|yaml|yml)$/i, '');
+    const idMatch = availableAgents.find(agent => agent.id === normalizedValue);
+    
+    if (idMatch) {
+      return idMatch.name; // Return the processed display name
+    }
+    
+    // Strategy 3: If no match found, return original value
+    // This maintains backward compatibility and handles edge cases
+    return agentValue;
+  };
+
   // Load available agents on mount
   useEffect(() => {
     const loadAgents = async () => {
@@ -35,10 +154,34 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
         const response = await fetch(`/api/agents/combined/${profileId}`);
         if (response.ok) {
           const agents = await response.json();
-          setAvailableAgents(agents);
+          
+          // Transform agent data for TaskTable use
+          // This creates the mapping between AI assignment format (filenames) and UI display format
+          const formattedAgents = agents.map(agent => {
+            const filename = agent.name || '';
+            const baseFilename = filename.replace(/\.(md|yaml|yml)$/, '');
+            
+            return {
+              // id: Used to match against AI assignments (filename without extension)
+              id: baseFilename || `agent-${Math.random()}`,
+              
+              // name: Display name shown in dropdown (processed from metadata or filename)
+              name: agent.metadata?.name || 
+                    baseFilename.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 
+                    'Unknown Agent',
+              
+              description: agent.metadata?.description || '',
+              color: agent.metadata?.color || null,
+              type: agent.type,
+              tools: agent.metadata?.tools || []
+            };
+          });
+          
+          setAvailableAgents(formattedAgents);
         }
       } catch (err) {
         console.error('Error loading agents:', err);
+        setAvailableAgents([]); // Ensure it's always an array
       }
     };
     
@@ -87,7 +230,7 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
     {
       id: 'select',
       header: ({ table }) => {
-        const isIndeterminate = selectedRows.size > 0 && selectedRows.size < data.length;
+        const isIndeterminate = selectedRows.size > 0 && selectedRows.size < filteredData.length;
         const checkboxRef = React.useRef(null);
         
         React.useEffect(() => {
@@ -100,10 +243,10 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
           <input
             ref={checkboxRef}
             type="checkbox"
-            checked={selectedRows.size === data.length && data.length > 0}
+            checked={selectedRows.size === filteredData.length && filteredData.length > 0}
             onChange={(e) => {
               if (e.target.checked) {
-                setSelectedRows(new Set(data.map(task => task.id)));
+                setSelectedRows(new Set(filteredData.map(task => task.id)));
               } else {
                 setSelectedRows(new Set());
               }
@@ -140,7 +283,7 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
     },
     {
       accessorKey: 'taskNumber',
-      header: 'Task',
+      header: t('task'),
       cell: ({ row }) => {
         const taskNumber = taskNumberMap[row.original.id] || row.index + 1;
         return (
@@ -157,11 +300,11 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
             }}
             title={`${t('clickToCopyUuid')}: ${row.original.id}`}
           >
-            Task {taskNumber}
+            {t('task')} {taskNumber}
           </span>
         );
       },
-      size: 120,
+      size: 140,
     },
     {
       accessorKey: 'name',
@@ -188,7 +331,7 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
           </div>
         </div>
       ),
-      size: 300,
+      size: 360,
     },
     {
       accessorKey: 'description',
@@ -204,37 +347,58 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
     {
       accessorKey: 'status',
       header: t('task.status'),
-      cell: ({ getValue }) => (
-        <span className={`status-badge status-${getValue()}`}>
-          {getValue()?.replace('_', ' ')}
-        </span>
-      ),
+      cell: ({ getValue }) => {
+        const status = getValue();
+        const statusKey = status === 'in_progress' ? 'inProgress' : status;
+        return (
+          <span className={`status-badge status-${status}`}>
+            {t(`status.${statusKey}`)}
+          </span>
+        );
+      },
       size: 120,
     },
     {
+      accessorKey: 'summary',
+      header: 'Summary',
+      cell: ({ row }) => <SummaryCell summary={row.original.summary} />,
+      size: 320,
+    },
+    {
       accessorKey: 'agent',
-      header: 'Agent',
+      header: t('agent'),
       cell: ({ row }) => {
-        const currentAgent = row.original.agent || '';
+        const rawAgent = row.original.agent || '';
+        const currentAgent = mapAgentToDisplayName(rawAgent, availableAgents);
         const taskId = row.original.id;
         const isSaving = savingAgents[taskId] || false;
         
         return (
-          <div className="agent-cell-wrapper">
+          <div className="agent-cell-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <select
               className="agent-table-select"
               value={currentAgent}
               style={(() => {
                 // Find the selected agent's color
                 const selectedAgent = availableAgents.find(a => a.name === currentAgent);
+                const baseStyles = {
+                  width: '100%',
+                  minHeight: '40px',
+                  whiteSpace: 'normal',
+                  wordWrap: 'break-word',
+                  padding: '4px 8px',
+                  fontSize: '13px',
+                  lineHeight: '1.4'
+                };
                 if (selectedAgent?.color) {
                   return {
+                    ...baseStyles,
                     backgroundColor: selectedAgent.color,
                     color: '#ffffff', // White text for better contrast
                     borderColor: selectedAgent.color
                   };
                 }
-                return {};
+                return baseStyles;
               })()}
               onChange={async (e) => {
                 e.stopPropagation();
@@ -242,6 +406,12 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
                 
                 // Update saving state
                 setSavingAgents(prev => ({ ...prev, [taskId]: true }));
+                
+                // Immediately update local state for responsive UI
+                setLocalTaskUpdates(prev => ({
+                  ...prev,
+                  [taskId]: { ...prev[taskId], agent: newAgent }
+                }));
                 
                 try {
                   const response = await fetch(`/api/tasks/${profileId}/update`, {
@@ -256,15 +426,43 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
                   });
                   
                   if (response.ok) {
-                    // Refresh task data
-                    if (onTaskSaved) {
-                      await onTaskSaved();
+                    // Success! No need to refresh - local state is already updated
+                    if (showToast) {
+                      showToast('success', `Agent assigned to task`);
                     }
                   } else {
+                    // Revert local state on error
+                    setLocalTaskUpdates(prev => {
+                      const newState = { ...prev };
+                      if (newState[taskId]) {
+                        delete newState[taskId].agent;
+                        if (Object.keys(newState[taskId]).length === 0) {
+                          delete newState[taskId];
+                        }
+                      }
+                      return newState;
+                    });
                     console.error('Failed to update agent');
+                    if (showToast) {
+                      showToast('error', 'Failed to update agent');
+                    }
                   }
                 } catch (err) {
+                  // Revert local state on error
+                  setLocalTaskUpdates(prev => {
+                    const newState = { ...prev };
+                    if (newState[taskId]) {
+                      delete newState[taskId].agent;
+                      if (Object.keys(newState[taskId]).length === 0) {
+                        delete newState[taskId];
+                      }
+                    }
+                    return newState;
+                  });
                   console.error('Error updating agent:', err);
+                  if (showToast) {
+                    showToast('error', 'Network error while updating agent');
+                  }
                 } finally {
                   // Clear saving state
                   setSavingAgents(prev => {
@@ -288,26 +486,37 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
                 </option>
               ))}
             </select>
-            <button
-              className="agent-info-button"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (currentAgent && currentAgent !== '') {
-                  // Pass the full agent object if available, otherwise just the name
-                  const agentData = availableAgents.find(a => a.name === currentAgent) || currentAgent;
-                  setAgentModalInfo({ isOpen: true, agent: agentData, taskId: taskId });
-                }
-              }}
-              disabled={!currentAgent || currentAgent === ''}
-              title={currentAgent ? `View info for ${currentAgent}` : 'Select an agent first'}
-            >
-              👁️
-            </button>
-            {isSaving && <span className="saving-indicator">💾</span>}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <button
+                className="agent-info-button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (currentAgent && currentAgent !== '') {
+                    // Pass the full agent object if available, otherwise just the name
+                    const agentData = availableAgents.find(a => a.name === currentAgent) || currentAgent;
+                    setAgentModalInfo({ isOpen: true, agent: agentData, taskId: taskId });
+                  }
+                }}
+                disabled={!currentAgent || currentAgent === ''}
+                title={currentAgent ? `View info for ${currentAgent}` : 'Select an agent first'}
+                style={{
+                  padding: '2px 8px',
+                  fontSize: '14px',
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#4fbdba',
+                  cursor: currentAgent ? 'pointer' : 'not-allowed',
+                  opacity: currentAgent ? 1 : 0.5
+                }}
+              >
+                👁️ View Agent
+              </button>
+              {isSaving && <span className="saving-indicator">💾</span>}
+            </div>
           </div>
         );
       },
-      size: 200, // Increased from 150 to give more room for agents
+      size: 280, // Expanded for better agent visibility
     },
     {
       accessorKey: 'createdAt',
@@ -374,8 +583,8 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
               
               // Get task number for display
               const taskNumber = getTaskNumber(depId, taskNumberMap);
-              const depTask = data.find(t => t.id === depId);
-              const depTaskName = depTask ? depTask.name : 'Unknown Task';
+              const depTask = mergedData.find(t => t.id === depId);
+              const depTaskName = depTask ? depTask.name : t('unknownTask');
               
               return (
                 <Tooltip key={depId} content={`UUID: ${depId}`}>
@@ -390,7 +599,7 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
                       }
                     }}
                   >
-                    Task {taskNumberMap[depId] || 'Unknown'}
+                    {t('task')} {taskNumberMap[depId] || t('unknown')}
                   </span>
                 </Tooltip>
               );
@@ -398,7 +607,7 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
           </div>
         );
       },
-      size: 120, // Reduced from 200 to make more room for agents
+      size: 56, // Reduced by 20% more (was 70)
     },
     {
       accessorKey: 'actions',
@@ -407,12 +616,28 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
         <div className="actions-cell">
           <button
             className="copy-button action-button"
+            style={{ border: '2px solid #FFD700', borderRadius: '4px', padding: '2px 6px' }}
+            data-testid={`copy-agent-instruction-${row.original.id}`}
             onClick={(e) => {
               e.stopPropagation();
               const agentName = row.original.agent || 'task manager';
-              const instruction = agentName === 'task manager' 
-                ? `Use task manager to complete this shrimp task: ${row.original.id} please when u start working mark the shrimp task as in progress`
-                : `use the built in subagent located in ./claude/agents/${agentName} to complete this shrimp task: ${row.original.id} please when u start working mark the shrimp task as in progress`;
+              const agentPath = projectRoot && projectRoot.trim() 
+                ? `${projectRoot}/.claude/agents/${agentName}`
+                : `./.claude/agents/${agentName}`;
+              
+              let instruction;
+              if (emojiTemplates?.robot && emojiTemplates.robot.trim()) {
+                // Use custom template
+                instruction = emojiTemplates.robot
+                  .replace(/\[AGENT\]/g, agentPath)
+                  .replace(/\[UUID\]/g, row.original.id);
+              } else {
+                // Use default template
+                instruction = agentName === 'task manager' 
+                  ? `Use task manager to complete this shrimp task: ${row.original.id} please when u start working mark the shrimp task as in progress`
+                  : `use the built in subagent located in ${agentPath} to complete this shrimp task: ${row.original.id} please when u start working mark the shrimp task as in progress`;
+              }
+              
               navigator.clipboard.writeText(instruction);
               const button = e.target;
               button.textContent = '✓';
@@ -422,12 +647,70 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
             }}
             title={(() => {
               const agentName = row.original.agent || 'task manager';
-              return agentName === 'task manager'
-                ? `Use task manager to complete this shrimp task: ${row.original.id} please when u start working mark the shrimp task as in progress`
-                : `use the built in subagent located in ./claude/agents/${agentName} to complete this shrimp task: ${row.original.id} please when u start working mark the shrimp task as in progress`;
+              const agentPath = projectRoot && projectRoot.trim() 
+                ? `${projectRoot}/.claude/agents/${agentName}`
+                : `./.claude/agents/${agentName}`;
+              
+              if (emojiTemplates?.robot && emojiTemplates.robot.trim()) {
+                // Use custom template
+                return emojiTemplates.robot
+                  .replace(/\[AGENT\]/g, agentPath)
+                  .replace(/\[UUID\]/g, row.original.id);
+              } else {
+                // Use default template
+                return agentName === 'task manager'
+                  ? `Use task manager to complete this shrimp task: ${row.original.id} please when u start working mark the shrimp task as in progress`
+                  : `use the built in subagent located in ${agentPath} to complete this shrimp task: ${row.original.id} please when u start working mark the shrimp task as in progress`;
+              }
             })()}
           >
             🤖
+          </button>
+          <button
+            className="copy-button action-button direct-exec-button"
+            style={{ color: '#4CAF50', border: '2px solid #4CAF50', borderRadius: '4px', padding: '2px 6px' }}
+            data-testid={`copy-direct-instruction-${row.original.id}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              const agentName = row.original.agent || 'task manager';
+              
+              let instruction;
+              if (emojiTemplates?.arm && emojiTemplates.arm.trim()) {
+                // Use custom template
+                instruction = emojiTemplates.arm
+                  .replace(/\[AGENT_NAME\]/g, agentName)
+                  .replace(/\[UUID\]/g, row.original.id);
+              } else {
+                // Use default template
+                instruction = agentName === 'task manager' 
+                  ? `Use task planner to execute this task: ${row.original.id}. Please mark the task as in progress when you start working.`
+                  : `Use task planner to execute this task: ${row.original.id} using the role of ${agentName} agent. Apply the ${agentName} agent's specialized knowledge and approach, but execute the task yourself without launching a sub-agent. Please mark the task as in progress when you start working.`;
+              }
+              
+              navigator.clipboard.writeText(instruction);
+              const button = e.target;
+              button.textContent = '✓';
+              setTimeout(() => {
+                button.textContent = '🦾';
+              }, 2000);
+            }}
+            title={(() => {
+              const agentName = row.original.agent || 'task manager';
+              
+              if (emojiTemplates?.arm && emojiTemplates.arm.trim()) {
+                // Use custom template
+                return emojiTemplates.arm
+                  .replace(/\[AGENT_NAME\]/g, agentName)
+                  .replace(/\[UUID\]/g, row.original.id);
+              } else {
+                // Use default template
+                return agentName === 'task manager'
+                  ? `Use task planner to execute this task: ${row.original.id}`
+                  : `Use task planner to execute task ${row.original.id} using the role of ${agentName} agent`;
+              }
+            })()}
+          >
+            🦾
           </button>
           <button
             className={`edit-button action-button ${row.original.status === 'completed' ? 'disabled' : ''}`}
@@ -456,12 +739,12 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
           </button>
         </div>
       ),
-      size: 100,
+      size: 90, // Further reduced to give more space to agents column
     },
-  ], [data, setSelectedTask, t, taskNumberMap, onDeleteTask, availableAgents, savingAgents, profileId, onTaskSaved, selectedRows]);
+  ], [mergedData, setSelectedTask, t, taskNumberMap, onDeleteTask, availableAgents, savingAgents, profileId, showToast, selectedRows, localTaskUpdates]);
 
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     state: {
       globalFilter,
@@ -479,7 +762,7 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
     },
   });
 
-  if (data.length === 0) {
+  if (filteredData.length === 0) {
     return (
       <div className="empty-state">
         <div className="empty-state-icon">📋</div>
@@ -504,13 +787,13 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
             projectRoot={projectRoot}
             profileId={profileId}
             onNavigateToTask={(taskId) => {
-              const targetTask = data.find(t => t.id === taskId);
+              const targetTask = filteredData.find(t => t.id === taskId);
               if (targetTask) {
                 setSelectedTask(targetTask);
               }
             }}
-            taskIndex={data.findIndex(t => t.id === selectedTask.id)}
-            allTasks={data}
+            taskIndex={mergedData.findIndex(t => t.id === selectedTask.id)}
+            allTasks={mergedData}
             onSave={async (updatedTask) => {
               // Close the edit view immediately
               setSelectedTask(null);
@@ -533,13 +816,13 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
           onBack={() => setSelectedTask(null)}
           projectRoot={projectRoot}
           onNavigateToTask={(taskId) => {
-            const targetTask = data.find(t => t.id === taskId);
+            const targetTask = filteredData.find(t => t.id === taskId);
             if (targetTask) {
               setSelectedTask(targetTask);
             }
           }}
-          taskIndex={data.findIndex(t => t.id === selectedTask.id)}
-          allTasks={data}
+          taskIndex={filteredData.findIndex(t => t.id === selectedTask.id)}
+          allTasks={filteredData}
           onEdit={() => {
             setSelectedTask({ ...selectedTask, editMode: true });
           }}
@@ -548,7 +831,7 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
     }
   }
 
-  // Bulk assign agents function
+  // Bulk assign agents function (AI-powered)
   const handleBulkAssignAgents = async () => {
     const selectedTaskIds = Array.from(selectedRows);
     if (selectedTaskIds.length === 0) return;
@@ -633,18 +916,308 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
     }
   };
 
+  // Manual bulk assign agent function
+  const handleManualBulkAssignAgent = async (agentName) => {
+    const selectedTaskIds = Array.from(selectedRows);
+    if (selectedTaskIds.length === 0) return;
+
+    setLoading(true);
+    
+    try {
+      // Update each selected task with the chosen agent
+      const updatePromises = selectedTaskIds.map(taskId => 
+        fetch(`/api/tasks/${profileId}/update`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            taskId: taskId,
+            updates: { agent: agentName }
+          })
+        })
+      );
+
+      const responses = await Promise.all(updatePromises);
+      const successfulUpdates = responses.filter(response => response.ok).length;
+      
+      if (successfulUpdates > 0) {
+        if (showToast) {
+          showToast('success', `Successfully assigned ${agentName || 'No agent'} to ${successfulUpdates} tasks`);
+        }
+        
+        // Update local state immediately for responsive UI
+        setLocalTaskUpdates(prev => {
+          const newUpdates = { ...prev };
+          selectedTaskIds.forEach(taskId => {
+            newUpdates[taskId] = { ...newUpdates[taskId], agent: agentName };
+          });
+          return newUpdates;
+        });
+        
+        // Clear selection
+        setSelectedRows(new Set());
+        setShowBulkActions(false);
+      } else {
+        if (showToast) {
+          showToast('error', 'Failed to update tasks');
+        }
+      }
+    } catch (error) {
+      console.error('Error bulk assigning agent:', error);
+      if (showToast) {
+        showToast('error', 'Network error while assigning agents');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Bulk reset status function - reset completed tasks to pending
+  const handleBulkResetStatus = async () => {
+    const selectedTaskIds = Array.from(selectedRows);
+    const eligibleTasks = selectedTaskIds.filter(id => 
+      filteredData.find(t => t.id === id)?.status === 'completed'
+    );
+    
+    if (eligibleTasks.length === 0) return;
+    
+    setLoading(true);
+    
+    try {
+      const response = await fetch('/api/tasks/bulk-status-update', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId: profileId,
+          taskIds: eligibleTasks,
+          newStatus: 'pending'
+        })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        
+        // Refresh task data to show updated statuses
+        if (onTaskSaved) {
+          await onTaskSaved();
+        }
+        
+        // Clear selection and close modals
+        setSelectedRows(new Set());
+        setShowBulkActions(false);
+        setShowResetConfirm(false);
+        
+        // Show success message with correct parameter order (message, type)
+        if (showToast) {
+          showToast(`Successfully reset ${result.updatedCount || eligibleTasks.length} task(s) to pending status`, 'success');
+        }
+      } else {
+        // Handle error response
+        const errorText = await response.text();
+        console.error('Failed to update task statuses:', errorText);
+        throw new Error('Failed to update task statuses');
+      }
+    } catch (error) {
+      console.error('Error resetting task statuses:', error);
+      // Show error message with correct parameter order (message, type)
+      if (showToast) {
+        showToast('Failed to update task statuses', 'error');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Bulk mark as completed function
+  const handleBulkMarkCompleted = async () => {
+    const selectedTaskIds = Array.from(selectedRows);
+    const eligibleTasks = selectedTaskIds.filter(id => {
+      const task = filteredData.find(t => t.id === id);
+      return task && (task.status === 'pending' || task.status === 'in_progress');
+    });
+    
+    if (eligibleTasks.length === 0) return;
+
+    setLoading(true);
+    
+    try {
+      console.log('Sending bulk complete request:', {
+        projectId: profileId,
+        taskIds: eligibleTasks,
+        newStatus: 'completed'
+      });
+
+      const response = await fetch('/api/tasks/bulk-status-update', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          projectId: profileId,
+          taskIds: eligibleTasks,
+          newStatus: 'completed'
+        }),
+      });
+
+      console.log('Response status:', response.status, response.statusText);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error Response:', errorText);
+        throw new Error(errorText || 'Failed to update task statuses');
+      }
+
+      const result = await response.json();
+      console.log('API Success Response:', result);
+      
+      // Clear selection and hide bulk actions
+      setSelectedRows(new Set());
+      setShowBulkActions(false);
+      setShowCompleteConfirm(false);
+      
+      if (showToast) {
+        showToast(`Successfully marked ${result.updatedCount || eligibleTasks.length} task(s) as completed`, 'success');
+      }
+      
+    } catch (error) {
+      console.error('Error marking tasks as completed:', error);
+      if (showToast) {
+        showToast('Failed to mark tasks as completed', 'error');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Bulk delete function
+  const handleBulkDelete = async () => {
+    const selectedTaskIds = Array.from(selectedRows);
+    if (selectedTaskIds.length === 0) return;
+
+    setLoading(true);
+    
+    try {
+      // Delete each selected task
+      const deletePromises = selectedTaskIds.map(taskId => 
+        onDeleteTask(taskId)
+      );
+
+      await Promise.all(deletePromises);
+
+      // Clear selection after successful deletion
+      setSelectedRows(new Set());
+      setShowBulkActions(false);
+      setShowDeleteConfirm(false);
+      
+      if (showToast) {
+        showToast('success', `Successfully deleted ${selectedTaskIds.length} task${selectedTaskIds.length > 1 ? 's' : ''}`);
+      }
+    } catch (error) {
+      console.error('Error bulk deleting tasks:', error);
+      if (showToast) {
+        showToast('error', 'Failed to delete some tasks');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Otherwise, show the table
   return (
     <>
       {showBulkActions && (
         <div className="bulk-actions-bar">
-          <button 
-            className="bulk-action-button ai-assign"
-            onClick={handleBulkAssignAgents}
-            disabled={loading}
-          >
-            {loading ? '⏳ Processing...' : `🤖 AI Assign Agents (${selectedRows.size} tasks selected)`}
-          </button>
+          <div className="bulk-actions-left">
+            <span className="bulk-actions-label">
+              {selectedRows.size} tasks selected:
+            </span>
+            <select 
+              className="bulk-agent-select"
+              onChange={(e) => {
+                const selectedAgent = e.target.value;
+                if (selectedAgent !== '') {
+                  handleManualBulkAssignAgent(selectedAgent);
+                  e.target.value = ''; // Reset dropdown
+                }
+              }}
+              disabled={loading}
+            >
+              <option value="">Assign Agent...</option>
+              <option value="">No agent</option>
+              {availableAgents.map((agent) => (
+                <option key={agent.name} value={agent.name}>
+                  {agent.name}
+                </option>
+              ))}
+            </select>
+            <button 
+              className="bulk-action-button ai-assign"
+              data-testid="ai-assign-agents-button"
+              onClick={handleBulkAssignAgents}
+              disabled={loading}
+            >
+              {loading ? '⏳ Processing...' : `🤖 AI Assign Agents`}
+            </button>
+            {(() => {
+              const eligibleCount = Array.from(selectedRows).filter(id => 
+                filteredData.find(t => t.id === id)?.status === 'completed'
+              ).length;
+              const hasCompletedTasks = eligibleCount > 0;
+              
+              return hasCompletedTasks && (
+                <button 
+                  className="bulk-action-button reset"
+                  data-testid="bulk-reset-button"
+                  onClick={() => setShowResetConfirm(true)}
+                  disabled={loading || !hasCompletedTasks}
+                  style={{
+                    backgroundColor: '#f59e0b',
+                    color: 'white',
+                    marginLeft: '10px'
+                  }}
+                >
+                  ↻ Reset {eligibleCount} to Pending
+                </button>
+              );
+            })()}
+            {(() => {
+              const eligibleCount = Array.from(selectedRows).filter(id => {
+                const task = filteredData.find(t => t.id === id);
+                return task && (task.status === 'pending' || task.status === 'in_progress');
+              }).length;
+              const hasIncompleteeTasks = eligibleCount > 0;
+              
+              return hasIncompleteeTasks && (
+                <button 
+                  className="bulk-action-button complete"
+                  data-testid="bulk-complete-button"
+                  onClick={() => setShowCompleteConfirm(true)}
+                  disabled={loading || !hasIncompleteeTasks}
+                  style={{
+                    backgroundColor: '#10b981',
+                    color: 'white',
+                    marginLeft: '10px'
+                  }}
+                >
+                  ✅ Mark {eligibleCount} as Completed
+                </button>
+              );
+            })()}
+            <button 
+              className="bulk-action-button delete"
+              data-testid="bulk-delete-button"
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={loading}
+              style={{
+                backgroundColor: '#dc2626',
+                color: 'white',
+                marginLeft: '10px'
+              }}
+            >
+              🗑️ Delete {selectedRows.size} task{selectedRows.size > 1 ? 's' : ''}
+            </button>
+          </div>
         </div>
       )}
       <table className="table">
@@ -695,7 +1268,7 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
             table.getFilteredRowModel().rows.length
           )}{' '}
           {t('of')} {table.getFilteredRowModel().rows.length} {t('tasks')}
-          {globalFilter && ` (${t('filteredFrom')} ${data.length} ${t('total')})`}
+          {globalFilter && ` (${t('filteredFrom')} ${mergedData.length} ${t('total')})`}
         </div>
         
         <div className="pagination-controls">
@@ -774,6 +1347,287 @@ function TaskTable({ data, globalFilter, onGlobalFilterChange, projectRoot, onDe
           }
         }}
       />
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <div 
+          className="modal-overlay" 
+          onClick={() => setShowDeleteConfirm(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}
+        >
+          <div 
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: '#1a1a1a',
+              border: '1px solid #333',
+              borderRadius: '8px',
+              padding: '24px',
+              maxWidth: '500px',
+              width: '90%',
+              color: '#fff'
+            }}
+          >
+            <h3 style={{ 
+              margin: '0 0 16px 0', 
+              color: '#dc2626',
+              fontSize: '20px'
+            }}>
+              ⚠️ Confirm Delete
+            </h3>
+            
+            <p style={{ 
+              marginBottom: '20px',
+              color: '#ccc',
+              lineHeight: '1.5'
+            }}>
+              Are you sure you want to delete {selectedRows.size} task{selectedRows.size > 1 ? 's' : ''}? 
+              This action cannot be undone.
+            </p>
+            
+            <div style={{ 
+              display: 'flex', 
+              gap: '12px',
+              justifyContent: 'flex-end'
+            }}>
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={loading}
+                style={{
+                  padding: '8px 20px',
+                  backgroundColor: '#4a5568',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleBulkDelete}
+                disabled={loading}
+                style={{
+                  padding: '8px 20px',
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  opacity: loading ? 0.6 : 1
+                }}
+              >
+                {loading ? '⏳ Deleting...' : `🗑️ Delete ${selectedRows.size} Task${selectedRows.size > 1 ? 's' : ''}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {showResetConfirm && (
+        <div 
+          className="modal-overlay" 
+          onClick={() => setShowResetConfirm(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}
+        >
+          <div 
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: '#1a1a1a',
+              border: '1px solid #333',
+              borderRadius: '8px',
+              padding: '24px',
+              maxWidth: '500px',
+              width: '90%',
+              color: '#fff'
+            }}
+          >
+            <h3 style={{ 
+              margin: '0 0 16px 0', 
+              color: '#f59e0b',
+              fontSize: '20px'
+            }}>
+              ↻ Confirm Reset to Pending
+            </h3>
+            
+            <p style={{ 
+              marginBottom: '20px',
+              color: '#ccc',
+              lineHeight: '1.5'
+            }}>
+              {(() => {
+                const eligibleCount = Array.from(selectedRows).filter(id => 
+                  filteredData.find(t => t.id === id)?.status === 'completed'
+                ).length;
+                return `Are you sure you want to reset ${eligibleCount} completed task${eligibleCount > 1 ? 's' : ''} to pending status? This will clear their completion data.`;
+              })()}
+            </p>
+            
+            <div style={{ 
+              display: 'flex', 
+              gap: '12px',
+              justifyContent: 'flex-end'
+            }}>
+              <button
+                onClick={() => setShowResetConfirm(false)}
+                disabled={loading}
+                style={{
+                  padding: '8px 20px',
+                  backgroundColor: '#4a5568',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleBulkResetStatus}
+                disabled={loading}
+                style={{
+                  padding: '8px 20px',
+                  backgroundColor: '#f59e0b',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  opacity: loading ? 0.6 : 1
+                }}
+              >
+                {loading ? '⏳ Resetting...' : (() => {
+                  const eligibleCount = Array.from(selectedRows).filter(id => 
+                    filteredData.find(t => t.id === id)?.status === 'completed'
+                  ).length;
+                  return `↻ Reset ${eligibleCount} Task${eligibleCount > 1 ? 's' : ''}`;
+                })()}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Mark as Completed Confirmation Modal */}
+      {showCompleteConfirm && (
+        <div 
+          className="modal-overlay" 
+          onClick={() => setShowCompleteConfirm(false)}
+        >
+          <div 
+            className="modal-content" 
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: '500px',
+              padding: '24px',
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+              color: '#333'
+            }}
+          >
+            <h3 style={{ 
+              margin: '0 0 16px 0', 
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#1a202c'
+            }}>
+              Mark Tasks as Completed
+            </h3>
+            
+            <p style={{ 
+              margin: '0 0 24px 0', 
+              fontSize: '14px',
+              lineHeight: '1.5',
+              color: '#4a5568'
+            }}>
+              {(() => {
+                const eligibleCount = Array.from(selectedRows).filter(id => {
+                  const task = filteredData.find(t => t.id === id);
+                  return task && (task.status === 'pending' || task.status === 'in_progress');
+                }).length;
+                return `Are you sure you want to mark ${eligibleCount} task${eligibleCount > 1 ? 's' : ''} as completed?`;
+              })()}
+            </p>
+            
+            <div style={{ 
+              display: 'flex', 
+              gap: '12px',
+              justifyContent: 'flex-end'
+            }}>
+              <button
+                onClick={() => setShowCompleteConfirm(false)}
+                disabled={loading}
+                style={{
+                  padding: '8px 20px',
+                  backgroundColor: '#4a5568',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleBulkMarkCompleted}
+                disabled={loading}
+                style={{
+                  padding: '8px 20px',
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  opacity: loading ? 0.6 : 1
+                }}
+              >
+                {loading ? '⏳ Marking...' : (() => {
+                  const eligibleCount = Array.from(selectedRows).filter(id => {
+                    const task = filteredData.find(t => t.id === id);
+                    return task && (task.status === 'pending' || task.status === 'in_progress');
+                  }).length;
+                  return `✅ Mark ${eligibleCount} Task${eligibleCount > 1 ? 's' : ''} as Completed`;
+                })()}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

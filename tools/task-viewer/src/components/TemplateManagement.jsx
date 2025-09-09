@@ -72,6 +72,14 @@ function TemplateManagement({
             statusText = t('statusCustomAppend');
             statusClass = 'status-badge status-custom-append';
             break;
+          case 'env-override':
+            statusText = t('statusEnvOverride');
+            statusClass = 'status-badge status-env-override';
+            break;
+          case 'env-append':
+            statusText = t('statusEnvAppend');
+            statusClass = 'status-badge status-env-append';
+            break;
           case 'default':
           default:
             statusText = t('statusDefault');

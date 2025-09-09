@@ -61,18 +61,25 @@
     "of": "의",
     "total": "총"
   },
-  "profile": {
-    "management": "🔧 프로필 관리",
-    "managementDesc": "작업 파일 프로필을 관리합니다. 새 프로필을 생성하거나 기존 프로필을 편집하세요.",
-    "taskFolderPath": "작업 폴더 경로",
+  "project": {
+    "management": "🔧 프로젝트 관리",
+    "managementDesc": "작업 파일 프로젝트를 관리합니다. 새 프로젝트를 생성하거나 기존 프로젝트를 편집하세요.",
+    "taskFolderPath": "Shrimp 데이터 폴더 경로",
     "taskFolderPathPlaceholder": "작업 파일이 포함된 폴더 경로 입력",
-    "profileName": "프로필 이름",
-    "profileNamePlaceholder": "프로필 이름 입력",
+    "projectName": "프로젝트 이름",
+    "projectNamePlaceholder": "프로젝트 이름 입력",
     "projectRootPath": "프로젝트 루트 경로",
     "projectRootPathPlaceholder": "프로젝트 루트 경로 입력 (선택사항)",
-    "addProfile": "프로필 추가",
-    "editProfile": "프로필 편집",
-    "deleteProfile": "프로필 삭제"
+    "addProject": "프로젝트 추가",
+    "addNewProject": "새 프로젝트 추가",
+    "editProject": "프로젝트 편집",
+    "deleteProject": "프로젝트 삭제",
+    "history": "📊 프로젝트 기록",
+    "historyDesc": "프로젝트 작업 기록과 통계를 확인합니다.",
+    "historyEntries": "기록 항목",
+    "commitHistory": "커밋 기록",
+    "settings": "프로젝트 설정",
+    "editSettings": "프로젝트 설정 편집"
   },
   "task": {
     "number": "작업 번호",
@@ -115,14 +122,6 @@
     "assignAgent": "에이전트 일괄 할당",
     "delete": "일괄 삭제"
   },
-  "project": {
-    "history": "📊 프로젝트 기록",
-    "historyDesc": "프로젝트 작업 기록과 통계를 확인합니다.",
-    "historyEntries": "기록 항목",
-    "commitHistory": "커밋 기록",
-    "settings": "프로젝트 설정",
-    "editSettings": "프로젝트 설정 편집"
-  },
   "global": {
     "settings": "⚙️ 전역 설정",
     "settingsDesc": "애플리케이션 전역 설정을 구성합니다.",
@@ -130,16 +129,16 @@
     "openaiApiKeyPlaceholder": "OpenAI API 키 입력"
   },
   "notifications": {
-    "profileCreatedSuccess": "프로필이 성공적으로 생성되었습니다",
-    "profileUpdatedSuccess": "프로필이 성공적으로 업데이트되었습니다",
-    "profileDeletedSuccess": "프로필이 성공적으로 삭제되었습니다",
+    "projectCreatedSuccess": "프로젝트가 성공적으로 생성되었습니다",
+    "projectUpdatedSuccess": "프로젝트가 성공적으로 업데이트되었습니다",
+    "projectDeletedSuccess": "프로젝트가 성공적으로 삭제되었습니다",
     "taskUpdatedSuccess": "작업이 성공적으로 업데이트되었습니다",
     "settingsSaved": "설정이 성공적으로 저장되었습니다",
     "copiedToClipboard": "클립보드에 복사되었습니다"
   },
   "empty": {
     "noTasksFound": "작업을 찾을 수 없습니다",
-    "noProfilesFound": "프로필을 찾을 수 없습니다",
+    "noProjectsFound": "프로젝트를 찾을 수 없습니다",
     "noTemplatesFound": "템플릿을 찾을 수 없습니다",
     "noHistoryFound": "기록을 찾을 수 없습니다"
   },

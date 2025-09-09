@@ -1,0 +1,1 @@
+Get historical audit trail for tasks including all changes, updates, and state transitions. Provides comprehensive tracking of task lifecycle events with timestamps and change details.

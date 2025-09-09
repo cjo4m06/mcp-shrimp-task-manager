@@ -1,0 +1,62 @@
+{
+  "tasks": [
+    {
+      "id": "task-001",
+      "name": "Implement user authentication system",
+      "status": "completed",
+      "completedAt": "2024-01-15T10:30:00Z",
+      "summary": "## Key Accomplishments\n- Built JWT-based authentication\n- Implemented OAuth2 integration\n- Added password reset functionality\n- Created user session management\n\n## Implementation Details\n- Used bcrypt for password hashing\n- Integrated with Google and GitHub OAuth\n- Redis for session storage\n- Email verification system\n\n## Technical Challenges\n- Resolved token refresh race conditions\n- Fixed CORS issues with third-party OAuth\n- Optimized session validation performance\n\nVerification Score: 95"
+    },
+    {
+      "id": "task-002",
+      "name": "Create responsive dashboard UI",
+      "status": "completed",
+      "completedAt": "2024-01-20T14:00:00Z",
+      "summary": "# Accomplishments\n* Designed mobile-first dashboard layout\n* Built 5 interactive chart components\n* Implemented real-time data updates\n\n# Implementation\n* React with TypeScript\n* Tailwind CSS for styling\n* Chart.js for visualizations\n* WebSocket for live updates\n\n# Challenges\n* Cross-browser compatibility issues resolved\n* Performance optimization for large datasets"
+    },
+    {
+      "id": "task-003",
+      "name": "Database migration to PostgreSQL",
+      "status": "completed",
+      "completedAt": "2024-01-25T09:15:00Z",
+      "summary": "Successfully migrated from MySQL to PostgreSQL. Completed with 85/100 points.\n\n## What was done\n1. Exported all MySQL data\n2. Converted schema to PostgreSQL format\n3. Migrated 2.5M records\n4. Updated all queries in application\n5. Implemented connection pooling\n\n## How it was implemented\n1. Used pg-dump for data export\n2. Custom migration scripts for schema conversion\n3. Batch processing for large tables\n4. Knex.js for query abstraction\n\n## Problems solved\n1. Handled incompatible data types\n2. Resolved sequence/auto-increment differences\n3. Fixed timezone handling issues"
+    },
+    {
+      "id": "task-004",
+      "name": "Already migrated task",
+      "status": "completed",
+      "completedAt": "2024-01-10T11:00:00Z",
+      "summary": "This task already has completion details",
+      "completionDetails": {
+        "keyAccomplishments": ["Previously migrated"],
+        "implementationDetails": ["Already has structured data"],
+        "technicalChallenges": [],
+        "completedAt": "2024-01-10T11:00:00Z",
+        "verificationScore": 100
+      }
+    },
+    {
+      "id": "task-005",
+      "name": "Task without summary",
+      "status": "completed",
+      "completedAt": "2024-01-05T16:30:00Z"
+    },
+    {
+      "id": "task-006",
+      "name": "Pending task that shouldn't be migrated",
+      "status": "pending",
+      "summary": "## Accomplishments\n- This shouldn't be processed since it's not completed"
+    },
+    {
+      "id": "task-007",
+      "name": "Deploy microservices to Kubernetes",
+      "status": "completed",
+      "completedAt": "2024-02-01T13:45:00Z",
+      "summary": "Deployed all services to K8s cluster successfully.\n\n- Set up ingress controllers\n- Configured auto-scaling policies\n- Implemented health checks\n- Created CI/CD pipeline\n- Monitoring with Prometheus\n- Log aggregation with ELK stack\n\nChallenging parts: load balancer configuration, secret management with Vault, debugging network policies\n\nCompleted: 2024-02-01"
+    }
+  ],
+  "metadata": {
+    "projectName": "Test Project",
+    "lastUpdated": "2024-02-01T14:00:00Z"
+  }
+}

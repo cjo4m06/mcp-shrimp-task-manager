@@ -45,7 +45,7 @@ describe('TemplateManagement Component', () => {
     onResetTemplate: vi.fn(),
     onDuplicateTemplate: vi.fn(),
     onPreviewTemplate: vi.fn(),
-    onExportTemplates: vi.fn()
+    onActivateTemplate: vi.fn()
   };
 
   beforeEach(() => {
@@ -123,9 +123,8 @@ describe('TemplateManagement Component', () => {
         />
       );
 
-      expect(screen.getByText('🎨 Template Management')).toBeInTheDocument();
-      expect(screen.getByText(/Manage prompt templates for all task manager functions/)).toBeInTheDocument();
-      expect(screen.getByText('📤 Export Templates')).toBeInTheDocument();
+      expect(screen.getByText('Template Management')).toBeInTheDocument();
+      expect(screen.getByText('Manage and customize your prompt templates')).toBeInTheDocument();
     });
 
     it('handles empty data gracefully', () => {
@@ -150,7 +149,7 @@ describe('TemplateManagement Component', () => {
         />
       );
 
-      expect(screen.getByText('Loading templates... ⏳')).toBeInTheDocument();
+      expect(screen.getByText('Loading... ⏳')).toBeInTheDocument();
     });
 
     it('shows error state', () => {
@@ -179,11 +178,11 @@ describe('TemplateManagement Component', () => {
         />
       );
 
-      // Each template should have 4 action buttons
-      const editButtons = screen.getAllByTitle('Edit template');
-      const previewButtons = screen.getAllByTitle('Preview template');
-      const duplicateButtons = screen.getAllByTitle('Duplicate template');
-      const resetButtons = screen.getAllByTitle('Reset to default template');
+      // Each template should have 5 action buttons (edit, preview, duplicate, activate, reset)
+      const editButtons = screen.getAllByTitle('Edit');
+      const previewButtons = screen.getAllByTitle('Preview');
+      const duplicateButtons = screen.getAllByTitle('Duplicate');
+      const resetButtons = screen.getAllByTitle('Reset to Default');
 
       expect(editButtons).toHaveLength(4);
       expect(previewButtons).toHaveLength(4);
@@ -200,7 +199,7 @@ describe('TemplateManagement Component', () => {
         />
       );
 
-      const editButtons = screen.getAllByTitle('Edit template');
+      const editButtons = screen.getAllByTitle('Edit');
       fireEvent.click(editButtons[0]);
 
       expect(mockHandlers.onEditTemplate).toHaveBeenCalledWith(mockTemplates[0]);
@@ -215,7 +214,7 @@ describe('TemplateManagement Component', () => {
         />
       );
 
-      const previewButtons = screen.getAllByTitle('Preview template');
+      const previewButtons = screen.getAllByTitle('Preview');
       fireEvent.click(previewButtons[1]);
 
       expect(mockHandlers.onPreviewTemplate).toHaveBeenCalledWith(mockTemplates[1]);
@@ -230,7 +229,7 @@ describe('TemplateManagement Component', () => {
         />
       );
 
-      const duplicateButtons = screen.getAllByTitle('Duplicate template');
+      const duplicateButtons = screen.getAllByTitle('Duplicate');
       fireEvent.click(duplicateButtons[2]);
 
       expect(mockHandlers.onDuplicateTemplate).toHaveBeenCalledWith(mockTemplates[2]);
@@ -248,10 +247,10 @@ describe('TemplateManagement Component', () => {
         />
       );
 
-      const resetButtons = screen.getAllByTitle('Reset to default template');
+      const resetButtons = screen.getAllByTitle('Reset to Default');
       fireEvent.click(resetButtons[1]); // Custom template
 
-      expect(global.confirm).toHaveBeenCalledWith('Are you sure you want to reset "executeTask" template to default?');
+      expect(global.confirm).toHaveBeenCalledWith('Are you sure you want to reset executeTask template to default?');
       expect(mockHandlers.onResetTemplate).toHaveBeenCalledWith(mockTemplates[1]);
     });
 
@@ -267,7 +266,7 @@ describe('TemplateManagement Component', () => {
         />
       );
 
-      const resetButtons = screen.getAllByTitle('Reset to default template');
+      const resetButtons = screen.getAllByTitle('Reset to Default');
       fireEvent.click(resetButtons[1]);
 
       expect(global.confirm).toHaveBeenCalled();
@@ -283,7 +282,7 @@ describe('TemplateManagement Component', () => {
         />
       );
 
-      const resetButtons = screen.getAllByTitle('Reset to default template');
+      const resetButtons = screen.getAllByTitle('Reset to Default');
       const defaultTemplateResetButton = resetButtons[0]; // planTask is default
 
       expect(defaultTemplateResetButton).toBeDisabled();
@@ -314,7 +313,9 @@ describe('TemplateManagement Component', () => {
         />
       );
 
-      expect(screen.getByText('No templates found')).toBeInTheDocument();
+      // When filtering returns no results, it shows "0 of 0 templates" in pagination
+      expect(screen.getByText(/0 of 0 templates/)).toBeInTheDocument();
+      expect(screen.getByText(/filtered from 4 total/)).toBeInTheDocument();
     });
 
     it('filter is case insensitive', () => {
@@ -458,162 +459,6 @@ describe('TemplateManagement Component', () => {
     });
   });
 
-  describe('Export Functionality', () => {
-    beforeEach(() => {
-      mockHandlers.onExportTemplates.mockResolvedValue('# Mock export content\nMCP_PROMPT_PLAN_TASK="content"');
-    });
-
-    it('opens export modal when export button is clicked', async () => {
-      render(
-        <TemplateManagement 
-          data={mockTemplates}
-          globalFilter=""
-          {...mockHandlers}
-        />
-      );
-
-      const exportButton = screen.getByText('📤 Export Templates');
-      fireEvent.click(exportButton);
-
-      await waitFor(() => {
-        expect(screen.getByText('Export Template Configurations')).toBeInTheDocument();
-        expect(screen.getByText('.env file (Environment Variables)')).toBeInTheDocument();
-        expect(screen.getByText('mcp.json (MCP Configuration)')).toBeInTheDocument();
-      });
-
-      expect(mockHandlers.onExportTemplates).toHaveBeenCalledWith('env', true, true);
-    });
-
-    it('closes export modal when close button is clicked', async () => {
-      render(
-        <TemplateManagement 
-          data={mockTemplates}
-          globalFilter=""
-          {...mockHandlers}
-        />
-      );
-
-      const exportButton = screen.getByText('📤 Export Templates');
-      fireEvent.click(exportButton);
-
-      await waitFor(() => {
-        expect(screen.getByText('Export Template Configurations')).toBeInTheDocument();
-      });
-
-      const closeButton = screen.getByText('×');
-      fireEvent.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.queryByText('Export Template Configurations')).not.toBeInTheDocument();
-      });
-    });
-
-    it('changes export format when radio button is selected', async () => {
-      render(
-        <TemplateManagement 
-          data={mockTemplates}
-          globalFilter=""
-          {...mockHandlers}
-        />
-      );
-
-      const exportButton = screen.getByText('📤 Export Templates');
-      fireEvent.click(exportButton);
-
-      await waitFor(() => {
-        expect(screen.getByText('Export Template Configurations')).toBeInTheDocument();
-      });
-
-      const mcpJsonRadio = screen.getByLabelText('mcp.json (MCP Configuration)');
-      fireEvent.click(mcpJsonRadio);
-
-      await waitFor(() => {
-        expect(mockHandlers.onExportTemplates).toHaveBeenCalledWith('mcp.json', true, true);
-      });
-    });
-
-    it('toggles custom only checkbox', async () => {
-      render(
-        <TemplateManagement 
-          data={mockTemplates}
-          globalFilter=""
-          {...mockHandlers}
-        />
-      );
-
-      const exportButton = screen.getByText('📤 Export Templates');
-      fireEvent.click(exportButton);
-
-      await waitFor(() => {
-        expect(screen.getByText('Export Template Configurations')).toBeInTheDocument();
-      });
-
-      const customOnlyCheckbox = screen.getByLabelText('Export only modified templates (recommended)');
-      fireEvent.click(customOnlyCheckbox);
-
-      await waitFor(() => {
-        expect(mockHandlers.onExportTemplates).toHaveBeenCalledWith('env', false, true);
-      });
-    });
-
-    it('copies preview content to clipboard', async () => {
-      render(
-        <TemplateManagement 
-          data={mockTemplates}
-          globalFilter=""
-          {...mockHandlers}
-        />
-      );
-
-      const exportButton = screen.getByText('📤 Export Templates');
-      fireEvent.click(exportButton);
-
-      await waitFor(() => {
-        expect(screen.getByText('Export Template Configurations')).toBeInTheDocument();
-      });
-
-      const copyButton = screen.getByText('📋 Copy');
-      fireEvent.click(copyButton);
-
-      expect(navigator.clipboard.writeText).toHaveBeenCalledWith('# Mock export content\nMCP_PROMPT_PLAN_TASK="content"');
-    });
-
-    it('downloads export when download button is clicked', async () => {
-      render(
-        <TemplateManagement 
-          data={mockTemplates}
-          globalFilter=""
-          {...mockHandlers}
-        />
-      );
-
-      const exportButton = screen.getByText('📤 Export Templates');
-      fireEvent.click(exportButton);
-
-      await waitFor(() => {
-        expect(screen.getByText('Export Template Configurations')).toBeInTheDocument();
-      });
-
-      const downloadButton = screen.getByText('💾 Download');
-      fireEvent.click(downloadButton);
-
-      expect(mockHandlers.onExportTemplates).toHaveBeenCalledWith('env', true, false);
-    });
-
-    it('disables export button when loading or no data', () => {
-      render(
-        <TemplateManagement 
-          data={[]}
-          globalFilter=""
-          loading={true}
-          {...mockHandlers}
-        />
-      );
-
-      const exportButton = screen.getByText('📤 Export Templates');
-      expect(exportButton).toBeDisabled();
-    });
-  });
 
   describe('Edge Cases', () => {
     it('handles templates with missing fields', () => {

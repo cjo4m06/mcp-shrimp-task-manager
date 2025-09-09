@@ -1,7 +1,7 @@
 import { z } from "zod";
 import path from "path";
 import { fileURLToPath } from "url";
-import { getAllTasks } from "../../models/taskModel.js";
+import { getAllTasks, setInitialRequest } from "../../models/taskModel.js";
 import { TaskStatus, Task } from "../../types/index.js";
 import { getPlanTaskPrompt } from "../../prompts/index.js";
 import { getMemoryDir } from "../../utils/paths.js";
@@ -62,6 +62,22 @@ export async function planTask({
         (task) => task.status !== TaskStatus.COMPLETED
       );
     } catch (error) {}
+  }
+
+  // 如果不是參考現有任務（即新的規劃），儲存初始請求
+  // If not referencing existing tasks (i.e., new planning), save the initial request
+  if (!existingTasksReference) {
+    const initialRequestText = requirements 
+      ? `${description}\n\n要求: ${requirements}`
+      : description;
+    
+    try {
+      await setInitialRequest(initialRequestText, "Save initial user request");
+    } catch (error) {
+      console.error("Failed to save initial request:", error);
+      // 不要因為儲存初始請求失敗而中斷任務規劃
+      // Don't interrupt task planning due to failure to save initial request
+    }
   }
 
   // 使用prompt生成器獲取最終prompt

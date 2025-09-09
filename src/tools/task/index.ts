@@ -38,3 +38,24 @@ export { queryTask, queryTaskSchema } from "./queryTask.js";
 export { getTaskDetail, getTaskDetailSchema } from "./getTaskDetail.js";
 
 export { splitTasksRaw, splitTasksRawSchema } from "./splitTasksRaw.js";
+
+// getTaskHistory
+export { getTaskHistory, getTaskHistorySchema } from "./getTaskHistory.js";
+
+// createArchive
+export { createArchive, createArchiveSchema } from "./createArchive.js";
+
+// listArchives
+export { listArchives, listArchivesSchema } from "./listArchives.js";
+
+// restoreFromArchive
+export { restoreFromArchive, restoreFromArchiveSchema } from "./restoreFromArchive.js";
+
+// syncTaskState
+export { syncTaskState, syncTaskStateSchema } from "./syncTaskState.js";
+
+// getDeletedTasks
+export { getDeletedTasks, getDeletedTasksSchema } from "./getDeletedTasks.js";
+
+// recoverTask
+export { recoverTask, recoverTaskSchema } from "./recoverTask.js";

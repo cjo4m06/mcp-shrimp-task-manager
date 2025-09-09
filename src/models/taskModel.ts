@@ -6,6 +6,7 @@ import {
   TaskComplexityThresholds,
   TaskComplexityAssessment,
   RelatedFile,
+  TasksData,
 } from "../types/index.js";
 import fs from "fs/promises";
 import path from "path";
@@ -126,27 +127,58 @@ async function ensureDataDir() {
   }
 }
 
-// 讀取所有任務
-// Read all tasks
-async function readTasks(): Promise<Task[]> {
+// 讀取任務數據（包含初始請求）
+// Read tasks data (including initial request)
+async function readTasksData(): Promise<TasksData> {
   await ensureDataDir();
   const TASKS_FILE = await getTasksFilePath();
   const data = await fs.readFile(TASKS_FILE, "utf-8");
-  const tasks = JSON.parse(data).tasks;
+  const tasksData = JSON.parse(data);
 
-  // 將日期字串轉換回 Date 物件
-  // Convert date strings back to Date objects
-  return tasks.map((task: any) => ({
-    ...task,
-    createdAt: task.createdAt ? new Date(task.createdAt) : getLocalDate(),
-    updatedAt: task.updatedAt ? new Date(task.updatedAt) : getLocalDate(),
-    completedAt: task.completedAt ? new Date(task.completedAt) : undefined,
-  }));
+  // 處理舊格式的向後兼容性
+  // Handle backward compatibility with old format
+  if (Array.isArray(tasksData)) {
+    // 舊格式：直接是任務數組
+    // Old format: direct tasks array
+    return {
+      tasks: tasksData.map((task: any) => ({
+        ...task,
+        createdAt: task.createdAt ? new Date(task.createdAt) : getLocalDate(),
+        updatedAt: task.updatedAt ? new Date(task.updatedAt) : getLocalDate(),
+        completedAt: task.completedAt ? new Date(task.completedAt) : undefined,
+      })),
+      initialRequest: undefined,
+      createdAt: getLocalDate(),
+      updatedAt: getLocalDate(),
+    };
+  }
+
+  // 新格式：包含 tasks 和其他元數據
+  // New format: contains tasks and other metadata
+  const tasks = tasksData.tasks || [];
+  return {
+    tasks: tasks.map((task: any) => ({
+      ...task,
+      createdAt: task.createdAt ? new Date(task.createdAt) : getLocalDate(),
+      updatedAt: task.updatedAt ? new Date(task.updatedAt) : getLocalDate(),
+      completedAt: task.completedAt ? new Date(task.completedAt) : undefined,
+    })),
+    initialRequest: tasksData.initialRequest,
+    createdAt: tasksData.createdAt ? new Date(tasksData.createdAt) : getLocalDate(),
+    updatedAt: tasksData.updatedAt ? new Date(tasksData.updatedAt) : getLocalDate(),
+  };
 }
 
-// 寫入所有任務
-// Write all tasks
-async function writeTasks(tasks: Task[], commitMessage?: string): Promise<void> {
+// 讀取所有任務
+// Read all tasks
+async function readTasks(): Promise<Task[]> {
+  const tasksData = await readTasksData();
+  return tasksData.tasks;
+}
+
+// 寫入任務數據（包含初始請求）
+// Write tasks data (including initial request)
+async function writeTasksData(tasksData: TasksData, commitMessage?: string): Promise<void> {
   await ensureDataDir();
   const TASKS_FILE = await getTasksFilePath();
   const DATA_DIR = await getDataDir();
@@ -154,13 +186,31 @@ async function writeTasks(tasks: Task[], commitMessage?: string): Promise<void> 
   // Initialize git if needed
   await initGitIfNeeded(DATA_DIR);
   
+  // Update the updatedAt timestamp
+  tasksData.updatedAt = getLocalDate();
+  
   // Write the tasks file
-  await fs.writeFile(TASKS_FILE, JSON.stringify({ tasks }, null, 2));
+  await fs.writeFile(TASKS_FILE, JSON.stringify(tasksData, null, 2));
   
   // Commit the changes
   if (commitMessage) {
     await commitTaskChanges(DATA_DIR, commitMessage);
   }
+}
+
+// 寫入所有任務
+// Write all tasks
+async function writeTasks(tasks: Task[], commitMessage?: string): Promise<void> {
+  // 讀取現有數據以保留初始請求
+  // Read existing data to preserve initial request
+  const existingData = await readTasksData();
+  const tasksData: TasksData = {
+    ...existingData,
+    tasks,
+    updatedAt: getLocalDate(),
+  };
+  
+  await writeTasksData(tasksData, commitMessage);
 }
 
 // 獲取所有任務
@@ -228,9 +278,9 @@ export async function updateTask(
   // Check if task is completed，已完成的任務不允許更新（除非是明確允許的欄位）
   // Check if task is completed, completed tasks cannot be updated (unless explicitly allowed fields)
   if (tasks[taskIndex].status === TaskStatus.COMPLETED) {
-    // 僅允許更新 summary 欄位（任務摘要）和 relatedFiles 欄位
-    // Only allow updating summary field (task summary) and relatedFiles field
-    const allowedFields = ["summary", "relatedFiles"];
+    // 僅允許更新 summary、completionDetails 和 relatedFiles 欄位
+    // Only allow updating summary, completionDetails and relatedFiles fields
+    const allowedFields = ["summary", "completionDetails", "relatedFiles"];
     const attemptedFields = Object.keys(updates);
 
     const disallowedFields = attemptedFields.filter(
@@ -272,9 +322,20 @@ export async function updateTaskStatus(
 // Update task摘要
 export async function updateTaskSummary(
   taskId: string,
-  summary: string
+  summary: string,
+  completionDetails?: any
 ): Promise<Task | null> {
-  return await updateTask(taskId, { summary });
+  const updates: any = { summary };
+  
+  // If completionDetails is provided, store it (could be extended to a separate field if needed)
+  // For now, we'll append it to the summary in a structured way
+  if (completionDetails) {
+    // Store completion details in the task's notes or a dedicated field
+    // This maintains backward compatibility while enhancing data storage
+    updates.completionDetails = completionDetails;
+  }
+  
+  return await updateTask(taskId, updates);
 }
 
 // 更新任務
@@ -1200,5 +1261,571 @@ function filterCurrentTasks(
         );
       });
     });
+  }
+}
+
+// 獲取初始請求
+// Get initial request
+export async function getInitialRequest(): Promise<string | undefined> {
+  const tasksData = await readTasksData();
+  return tasksData.initialRequest;
+}
+
+// 設置初始請求
+// Set initial request
+export async function setInitialRequest(initialRequest: string, commitMessage?: string): Promise<void> {
+  const tasksData = await readTasksData();
+  tasksData.initialRequest = initialRequest;
+  
+  const message = commitMessage || "Update initial request";
+  await writeTasksData(tasksData, message);
+}
+
+// 獲取完整的任務數據（包含初始請求）
+// Get complete tasks data (including initial request)
+export async function getTasksData(): Promise<TasksData> {
+  return await readTasksData();
+}
+
+// ==============================================
+// History and Archive Functions
+// ==============================================
+
+interface TaskHistoryEntry {
+  timestamp: string;
+  commit: string;
+  message: string;
+  taskId?: string;
+  taskName?: string;
+  operation?: string;
+}
+
+interface TaskArchive {
+  filename: string;
+  timestamp: Date;
+  tasksCount: number;
+  size: number;
+}
+
+interface DeletedTaskInfo {
+  task: Task;
+  deletedAt: Date;
+  backupFile: string;
+}
+
+// 獲取任務操作歷史
+// Get task operation history
+export async function getTaskHistory(
+  options?: {
+    taskId?: string;
+    limit?: number;
+    since?: Date;
+    operation?: string;
+  }
+): Promise<TaskHistoryEntry[]> {
+  try {
+    const DATA_DIR = await getDataDir();
+    await initGitIfNeeded(DATA_DIR);
+    
+    let gitCommand = `cd "${DATA_DIR}" && git log --pretty=format:"%H|%ai|%s" --grep="\\[.*\\]" tasks.json`;
+    
+    if (options?.limit) {
+      gitCommand += ` -n ${options.limit}`;
+    }
+    
+    if (options?.since) {
+      const sinceDate = options.since.toISOString().split('T')[0];
+      gitCommand += ` --since="${sinceDate}"`;
+    }
+    
+    const { stdout } = await execAsync(gitCommand);
+    
+    if (!stdout.trim()) {
+      return [];
+    }
+    
+    const entries: TaskHistoryEntry[] = stdout
+      .trim()
+      .split('\n')
+      .map(line => {
+        const [commit, timestamp, message] = line.split('|');
+        
+        // Parse task information from commit message
+        const taskIdMatch = message.match(/ID:\s*([a-f0-9-]+)/i);
+        const taskNameMatch = message.match(/task:\s*([^\\n]+)/i);
+        const operationMatch = message.match(/^\\[.*?\\]\\s*([^:]+)/);
+        
+        return {
+          timestamp,
+          commit,
+          message,
+          taskId: taskIdMatch ? taskIdMatch[1] : undefined,
+          taskName: taskNameMatch ? taskNameMatch[1] : undefined,
+          operation: operationMatch ? operationMatch[1].trim() : undefined,
+        };
+      });
+    
+    // Filter by taskId if specified
+    let filteredEntries = entries;
+    if (options?.taskId) {
+      filteredEntries = entries.filter(entry => 
+        entry.taskId === options.taskId || 
+        entry.message.includes(options.taskId!)
+      );
+    }
+    
+    // Filter by operation if specified
+    if (options?.operation) {
+      filteredEntries = filteredEntries.filter(entry =>
+        entry.operation?.toLowerCase().includes(options.operation!.toLowerCase()) ||
+        entry.message.toLowerCase().includes(options.operation!.toLowerCase())
+      );
+    }
+    
+    return filteredEntries;
+  } catch (error) {
+    console.error('Error getting task history:', error);
+    return [];
+  }
+}
+
+// 創建任務存檔
+// Create task archive
+export async function createTaskArchive(
+  description?: string
+): Promise<{ success: boolean; archiveFile: string; message: string }> {
+  try {
+    const MEMORY_DIR = await getMemoryDir();
+    const tasksData = await readTasksData();
+    
+    // Ensure memory directory exists
+    try {
+      await fs.access(MEMORY_DIR);
+    } catch {
+      await fs.mkdir(MEMORY_DIR, { recursive: true });
+    }
+    
+    // Generate timestamp-based filename
+    const timestamp = getLocalISOString().replace(/[:.]/g, '-');
+    const archiveFile = path.join(MEMORY_DIR, `archive_${timestamp}.json`);
+    
+    // Create archive data with metadata
+    const archiveData = {
+      meta: {
+        createdAt: getLocalDate(),
+        description: description || 'Manual archive',
+        tasksCount: tasksData.tasks.length,
+        version: '1.0'
+      },
+      tasksData
+    };
+    
+    // Write archive file
+    await fs.writeFile(archiveFile, JSON.stringify(archiveData, null, 2));
+    
+    // Also commit current state before archiving
+    const DATA_DIR = await getDataDir();
+    await commitTaskChanges(DATA_DIR, `Create archive: ${description || 'Manual archive'}`);
+    
+    return {
+      success: true,
+      archiveFile,
+      message: `Archive created successfully: ${path.basename(archiveFile)}`
+    };
+  } catch (error) {
+    return {
+      success: false,
+      archiveFile: '',
+      message: `Failed to create archive: ${error instanceof Error ? error.message : String(error)}`
+    };
+  }
+}
+
+// 獲取已刪除的任務
+// Get deleted tasks
+export async function getDeletedTasks(
+  options?: {
+    limit?: number;
+    since?: Date;
+  }
+): Promise<DeletedTaskInfo[]> {
+  try {
+    const MEMORY_DIR = await getMemoryDir();
+    
+    // Ensure memory directory exists
+    try {
+      await fs.access(MEMORY_DIR);
+    } catch {
+      return []; // No memory directory means no deleted tasks
+    }
+    
+    // Get all backup files
+    const files = await fs.readdir(MEMORY_DIR);
+    const backupFiles = files.filter(file => 
+      file.startsWith('backup_deleted_') && file.endsWith('.json')
+    );
+    
+    const deletedTasks: DeletedTaskInfo[] = [];
+    
+    for (const file of backupFiles) {
+      try {
+        const filePath = path.join(MEMORY_DIR, file);
+        const stats = await fs.stat(filePath);
+        const content = await fs.readFile(filePath, 'utf-8');
+        const backupData = JSON.parse(content);
+        
+        // Extract timestamp from filename
+        const timestampMatch = file.match(/backup_deleted_(.+)\.json$/);
+        let deletedAt = stats.mtime;
+        
+        if (timestampMatch) {
+          try {
+            // Parse timestamp from filename
+            const timestamp = timestampMatch[1].replace(/-/g, ':').replace(/T/g, ' ');
+            deletedAt = new Date(timestamp);
+          } catch {
+            // Fall back to file modification time
+            deletedAt = stats.mtime;
+          }
+        }
+        
+        // Filter by date if specified
+        if (options?.since && deletedAt < options.since) {
+          continue;
+        }
+        
+        // Handle both single task and multiple tasks backup formats
+        const tasks = Array.isArray(backupData) ? backupData : [backupData];
+        
+        for (const task of tasks) {
+          if (task && task.id) {
+            deletedTasks.push({
+              task: {
+                ...task,
+                createdAt: task.createdAt ? new Date(task.createdAt) : new Date(),
+                updatedAt: task.updatedAt ? new Date(task.updatedAt) : new Date(),
+                completedAt: task.completedAt ? new Date(task.completedAt) : undefined,
+              },
+              deletedAt,
+              backupFile: filePath
+            });
+          }
+        }
+      } catch (error) {
+        console.warn(`Failed to read backup file ${file}:`, error);
+        continue;
+      }
+    }
+    
+    // Sort by deletion date (most recent first)
+    deletedTasks.sort((a, b) => b.deletedAt.getTime() - a.deletedAt.getTime());
+    
+    // Apply limit if specified
+    if (options?.limit && deletedTasks.length > options.limit) {
+      return deletedTasks.slice(0, options.limit);
+    }
+    
+    return deletedTasks;
+  } catch (error) {
+    console.error('Error getting deleted tasks:', error);
+    return [];
+  }
+}
+
+// 恢復已刪除的任務
+// Recover deleted task
+export async function recoverTask(
+  taskId: string
+): Promise<{ success: boolean; message: string; recoveredTask?: Task }> {
+  try {
+    // First check if task already exists
+    const existingTasks = await readTasks();
+    const existingTask = existingTasks.find(task => task.id === taskId);
+    
+    if (existingTask) {
+      return {
+        success: false,
+        message: 'Task already exists in current task list'
+      };
+    }
+    
+    // Find the deleted task
+    const deletedTasks = await getDeletedTasks();
+    const deletedTaskInfo = deletedTasks.find(info => info.task.id === taskId);
+    
+    if (!deletedTaskInfo) {
+      return {
+        success: false,
+        message: 'Deleted task not found in backups'
+      };
+    }
+    
+    // Restore the task with updated timestamp
+    const restoredTask: Task = {
+      ...deletedTaskInfo.task,
+      updatedAt: getLocalDate()
+    };
+    
+    // Add the task back to the current task list
+    const tasks = await readTasks();
+    tasks.push(restoredTask);
+    
+    // Save the updated task list
+    await writeTasks(tasks, `Recover task: ${restoredTask.name} (ID: ${taskId})`);
+    
+    return {
+      success: true,
+      message: `Task "${restoredTask.name}" recovered successfully`,
+      recoveredTask: restoredTask
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: `Failed to recover task: ${error instanceof Error ? error.message : String(error)}`
+    };
+  }
+}
+
+// 列出任務存檔
+// List task archives
+export async function listTaskArchives(): Promise<TaskArchive[]> {
+  try {
+    const MEMORY_DIR = await getMemoryDir();
+    
+    // Ensure memory directory exists
+    try {
+      await fs.access(MEMORY_DIR);
+    } catch {
+      return []; // No memory directory means no archives
+    }
+    
+    // Get all archive files
+    const files = await fs.readdir(MEMORY_DIR);
+    const archiveFiles = files.filter(file => 
+      file.startsWith('archive_') && file.endsWith('.json')
+    );
+    
+    const archives: TaskArchive[] = [];
+    
+    for (const file of archiveFiles) {
+      try {
+        const filePath = path.join(MEMORY_DIR, file);
+        const stats = await fs.stat(filePath);
+        const content = await fs.readFile(filePath, 'utf-8');
+        const archiveData = JSON.parse(content);
+        
+        // Extract timestamp from filename
+        const timestampMatch = file.match(/archive_(.+)\.json$/);
+        let timestamp = stats.mtime;
+        
+        if (timestampMatch) {
+          try {
+            // Parse timestamp from filename
+            const timestampStr = timestampMatch[1].replace(/-/g, ':').replace(/T/g, ' ');
+            timestamp = new Date(timestampStr);
+          } catch {
+            // Fall back to file modification time
+            timestamp = stats.mtime;
+          }
+        }
+        
+        // Get tasks count
+        let tasksCount = 0;
+        if (archiveData.meta && archiveData.meta.tasksCount) {
+          tasksCount = archiveData.meta.tasksCount;
+        } else if (archiveData.tasksData && archiveData.tasksData.tasks) {
+          tasksCount = archiveData.tasksData.tasks.length;
+        } else if (Array.isArray(archiveData.tasks)) {
+          tasksCount = archiveData.tasks.length;
+        }
+        
+        archives.push({
+          filename: file,
+          timestamp,
+          tasksCount,
+          size: stats.size
+        });
+      } catch (error) {
+        console.warn(`Failed to read archive file ${file}:`, error);
+        continue;
+      }
+    }
+    
+    // Sort by timestamp (most recent first)
+    archives.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    
+    return archives;
+  } catch (error) {
+    console.error('Error listing task archives:', error);
+    return [];
+  }
+}
+
+// 從存檔恢復任務
+// Restore tasks from archive
+export async function restoreFromArchive(
+  archiveFilename: string,
+  options?: {
+    merge?: boolean; // If true, merge with existing tasks; if false, replace all tasks
+    preserveIds?: boolean; // If true, keep original task IDs; if false, generate new IDs
+  }
+): Promise<{ success: boolean; message: string; restoredCount?: number }> {
+  try {
+    const MEMORY_DIR = await getMemoryDir();
+    const archiveFilePath = path.join(MEMORY_DIR, archiveFilename);
+    
+    // Check if archive exists
+    try {
+      await fs.access(archiveFilePath);
+    } catch {
+      return {
+        success: false,
+        message: 'Archive file not found'
+      };
+    }
+    
+    // Read archive data
+    const content = await fs.readFile(archiveFilePath, 'utf-8');
+    const archiveData = JSON.parse(content);
+    
+    // Extract tasks data from different archive formats
+    let tasksToRestore: Task[] = [];
+    
+    if (archiveData.tasksData && archiveData.tasksData.tasks) {
+      // New format with metadata
+      tasksToRestore = archiveData.tasksData.tasks;
+    } else if (Array.isArray(archiveData.tasks)) {
+      // Old format - direct tasks array
+      tasksToRestore = archiveData.tasks;
+    } else if (Array.isArray(archiveData)) {
+      // Very old format - direct array
+      tasksToRestore = archiveData;
+    } else {
+      return {
+        success: false,
+        message: 'Invalid archive format'
+      };
+    }
+    
+    // Process tasks with date conversion
+    const processedTasks: Task[] = tasksToRestore.map(task => ({
+      ...task,
+      id: options?.preserveIds ? task.id : uuidv4(), // Generate new ID if requested
+      createdAt: task.createdAt ? new Date(task.createdAt) : getLocalDate(),
+      updatedAt: getLocalDate(), // Always update the timestamp for restored tasks
+      completedAt: task.completedAt ? new Date(task.completedAt) : undefined,
+    }));
+    
+    // Handle merge vs replace
+    let finalTasks: Task[] = [];
+    
+    if (options?.merge) {
+      // Merge with existing tasks
+      const existingTasks = await readTasks();
+      const existingIds = new Set(existingTasks.map(t => t.id));
+      
+      // Only add tasks that don't already exist (by ID)
+      const newTasks = processedTasks.filter(task => !existingIds.has(task.id));
+      finalTasks = [...existingTasks, ...newTasks];
+    } else {
+      // Replace all tasks
+      finalTasks = processedTasks;
+    }
+    
+    // Save the tasks
+    const action = options?.merge ? 'merge' : 'replace';
+    await writeTasks(finalTasks, `Restore from archive: ${archiveFilename} (${action})`);
+    
+    // Calculate restored count properly for merge operations
+    let restoredCount = processedTasks.length;
+    if (options?.merge) {
+      const existingTasks = await readTasks();
+      const existingIds = new Set(existingTasks.map(t => t.id));
+      restoredCount = processedTasks.filter(task => !existingIds.has(task.id)).length;
+    }
+    
+    return {
+      success: true,
+      message: `Successfully restored ${restoredCount} tasks from archive`,
+      restoredCount
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: `Failed to restore from archive: ${error instanceof Error ? error.message : String(error)}`
+    };
+  }
+}
+
+// 同步任務狀態
+// Sync task state for frontend/backend alignment
+export async function syncTaskState(): Promise<{
+  success: boolean;
+  message: string;
+  stats?: {
+    totalTasks: number;
+    pendingTasks: number;
+    inProgressTasks: number;
+    completedTasks: number;
+    lastUpdated: Date;
+    gitCommits: number;
+    archives: number;
+    deletedTaskBackups: number;
+  };
+}> {
+  try {
+    // Get current task state
+    const tasksData = await readTasksData();
+    const tasks = tasksData.tasks;
+    
+    // Calculate task statistics
+    const pendingTasks = tasks.filter(t => t.status === TaskStatus.PENDING).length;
+    const inProgressTasks = tasks.filter(t => t.status === TaskStatus.IN_PROGRESS).length;
+    const completedTasks = tasks.filter(t => t.status === TaskStatus.COMPLETED).length;
+    
+    // Get git history count
+    let gitCommits = 0;
+    try {
+      const DATA_DIR = await getDataDir();
+      await initGitIfNeeded(DATA_DIR);
+      const { stdout } = await execAsync(`cd "${DATA_DIR}" && git rev-list --count HEAD 2>/dev/null || echo 0`);
+      gitCommits = parseInt(stdout.trim()) || 0;
+    } catch {
+      gitCommits = 0;
+    }
+    
+    // Get archive count
+    const archives = await listTaskArchives();
+    
+    // Get deleted task backups count
+    const deletedTasks = await getDeletedTasks();
+    
+    // Ensure git state is up to date
+    try {
+      const DATA_DIR = await getDataDir();
+      await commitTaskChanges(DATA_DIR, 'Sync task state');
+    } catch (error) {
+      console.warn('Failed to commit current state:', error);
+    }
+    
+    return {
+      success: true,
+      message: 'Task state synchronized successfully',
+      stats: {
+        totalTasks: tasks.length,
+        pendingTasks,
+        inProgressTasks,
+        completedTasks,
+        lastUpdated: tasksData.updatedAt || getLocalDate(),
+        gitCommits,
+        archives: archives.length,
+        deletedTaskBackups: deletedTasks.length
+      }
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: `Failed to sync task state: ${error instanceof Error ? error.message : String(error)}`
+    };
   }
 }

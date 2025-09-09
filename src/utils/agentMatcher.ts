@@ -192,9 +192,39 @@ export function matchAgentToTask(task: Task, availableAgents: Agent[]): string |
     return undefined;
   }
   
-  // Try to find an agent that matches the type
-  // Look for agents with the type keyword in their name
+  // First priority: Try to find an agent with exact type match
   let matchedAgent = availableAgents.find(agent => 
+    agent.type && agent.type.toLowerCase() === bestAgentType.type.toLowerCase()
+  );
+  
+  if (matchedAgent) {
+    return matchedAgent.name;
+  }
+  
+  // Second priority: Check capabilities if available
+  const taskText = `${task.name} ${task.description || ''} ${task.implementationGuide || ''}`.toLowerCase();
+  let bestCapabilityMatch: { agent: Agent; score: number } | null = null;
+  
+  for (const agent of availableAgents) {
+    if (agent.capabilities && agent.capabilities.length > 0) {
+      let capabilityScore = 0;
+      for (const capability of agent.capabilities) {
+        if (taskText.includes(capability.toLowerCase())) {
+          capabilityScore += 2;
+        }
+      }
+      if (capabilityScore > 0 && (!bestCapabilityMatch || capabilityScore > bestCapabilityMatch.score)) {
+        bestCapabilityMatch = { agent, score: capabilityScore };
+      }
+    }
+  }
+  
+  if (bestCapabilityMatch) {
+    return bestCapabilityMatch.agent.name;
+  }
+  
+  // Third priority: Look for agents with the type keyword in their name
+  matchedAgent = availableAgents.find(agent => 
     agent.name.toLowerCase().includes(bestAgentType.type.toLowerCase())
   );
   

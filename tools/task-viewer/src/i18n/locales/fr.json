@@ -55,18 +55,25 @@
     "of": "de",
     "total": "total"
   },
-  "profile": {
-    "management": "🔧 Gestion des Profils",
-    "managementDesc": "Gérez les profils de fichiers de tâches. Créez de nouveaux profils ou modifiez les profils existants.",
-    "taskFolderPath": "Chemin du Dossier de Tâches",
+  "project": {
+    "management": "🔧 Gestion de Projets",
+    "managementDesc": "Gérez les projets de fichiers de tâches. Créez de nouveaux projets ou modifiez les projets existants.",
+    "taskFolderPath": "Chemin du Dossier de Données Shrimp",
     "taskFolderPathPlaceholder": "Entrez le chemin du dossier contenant les fichiers de tâches",
-    "profileName": "Nom du Profil",
-    "profileNamePlaceholder": "Entrez le nom du profil",
+    "projectName": "Nom du Projet",
+    "projectNamePlaceholder": "Entrez le nom du projet",
     "projectRootPath": "Chemin Racine du Projet",
     "projectRootPathPlaceholder": "Entrez le chemin racine du projet (optionnel)",
-    "addProfile": "Ajouter un Profil",
-    "editProfile": "Modifier le Profil",
-    "deleteProfile": "Supprimer le Profil"
+    "addProject": "Ajouter un Projet",
+    "addNewProject": "Ajouter un Nouveau Projet",
+    "editProject": "Modifier le Projet",
+    "deleteProject": "Supprimer le Projet",
+    "history": "📊 Historique du Projet",
+    "historyDesc": "Visualisez l'historique des tâches du projet et les statistiques.",
+    "historyEntries": "Entrées d'Historique",
+    "commitHistory": "Historique des Commits",
+    "settings": "Paramètres du Projet",
+    "editSettings": "Modifier les Paramètres du Projet"
   },
   "task": {
     "number": "Numéro de Tâche",
@@ -109,14 +116,6 @@
     "assignAgent": "Assignation d'Agent en Lot",
     "delete": "Suppression en Lot"
   },
-  "project": {
-    "history": "📊 Historique du Projet",
-    "historyDesc": "Visualisez l'historique des tâches du projet et les statistiques.",
-    "historyEntries": "Entrées d'Historique",
-    "commitHistory": "Historique des Commits",
-    "settings": "Paramètres du Projet",
-    "editSettings": "Modifier les Paramètres du Projet"
-  },
   "global": {
     "settings": "⚙️ Paramètres Globaux",
     "settingsDesc": "Configurez les paramètres globaux de l'application.",
@@ -124,16 +123,16 @@
     "openaiApiKeyPlaceholder": "Entrez la Clé API OpenAI"
   },
   "notifications": {
-    "profileCreatedSuccess": "Profil créé avec succès",
-    "profileUpdatedSuccess": "Profil mis à jour avec succès",
-    "profileDeletedSuccess": "Profil supprimé avec succès",
+    "projectCreatedSuccess": "Projet créé avec succès",
+    "projectUpdatedSuccess": "Projet mis à jour avec succès",
+    "projectDeletedSuccess": "Projet supprimé avec succès",
     "taskUpdatedSuccess": "Tâche mise à jour avec succès",
     "settingsSaved": "Paramètres enregistrés avec succès",
     "copiedToClipboard": "Copié dans le presse-papiers"
   },
   "empty": {
     "noTasksFound": "Aucune tâche trouvée",
-    "noProfilesFound": "Aucun profil trouvé",
+    "noProjectsFound": "Aucun projet trouvé",
     "noTemplatesFound": "Aucun modèle trouvé",
     "noHistoryFound": "Aucun historique trouvé"
   },

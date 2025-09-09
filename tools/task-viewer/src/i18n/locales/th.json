@@ -1,5 +1,11 @@
 {
   "appTitle": "🦐 โปรแกรมดูตัวจัดการงาน Shrimp",
+  "unknown": "ไม่ทราบ",
+  "unknownTask": "งานที่ไม่รู้จัก",
+  "task.name": "ชื่องาน",
+  "task.status": "สถานะ",
+  "task.dependencies": "การพึ่งพา",
+  "actions": "การดำเนินการ",
   "header": {
     "appTitle": "🦐 โปรแกรมดูตัวจัดการงาน Shrimp",
     "version": "เวอร์ชัน",
@@ -55,18 +61,24 @@
     "of": "จาก",
     "total": "ทั้งหมด"
   },
-  "profile": {
-    "management": "🔧 จัดการโปรไฟล์",
-    "managementDesc": "จัดการโปรไฟล์ไฟล์งาน สร้างโปรไฟล์ใหม่หรือแก้ไขโปรไฟล์ที่มีอยู่",
+  "project": {
+    "management": "🔧 จัดการโครงการ",
+    "managementDesc": "จัดการไฟล์งานโครงการ สร้างโครงการใหม่หรือแก้ไขโครงการที่มีอยู่",
     "taskFolderPath": "เส้นทางโฟลเดอร์งาน",
     "taskFolderPathPlaceholder": "ใส่เส้นทางโฟลเดอร์ที่มีไฟล์งาน",
-    "profileName": "ชื่อโปรไฟล์",
-    "profileNamePlaceholder": "ใส่ชื่อโปรไฟล์",
+    "projectName": "ชื่อโครงการ",
+    "projectNamePlaceholder": "ใส่ชื่อโครงการ",
     "projectRootPath": "เส้นทางรากโครงการ",
     "projectRootPathPlaceholder": "ใส่เส้นทางรากโครงการ (ตัวเลือก)",
-    "addProfile": "เพิ่มโปรไฟล์",
-    "editProfile": "แก้ไขโปรไฟล์",
-    "deleteProfile": "ลบโปรไฟล์"
+    "addProject": "เพิ่มโครงการ",
+    "editProject": "แก้ไขโครงการ",
+    "deleteProject": "ลบโครงการ",
+    "history": "📊 ประวัติโครงการ",
+    "historyDesc": "ดูประวัติงานโครงการและสถิติ",
+    "historyEntries": "รายการประวัติ",
+    "commitHistory": "ประวัติคอมมิท",
+    "settings": "ตั้งค่าโครงการ",
+    "editSettings": "แก้ไขตั้งค่าโครงการ"
   },
   "task": {
     "number": "หมายเลขงาน",
@@ -109,14 +121,6 @@
     "assignAgent": "มอบหมายเอเจนต์แบบรวม",
     "delete": "ลบแบบรวม"
   },
-  "project": {
-    "history": "📊 ประวัติโครงการ",
-    "historyDesc": "ดูประวัติงานโครงการและสถิติ",
-    "historyEntries": "รายการประวัติ",
-    "commitHistory": "ประวัติคอมมิท",
-    "settings": "ตั้งค่าโครงการ",
-    "editSettings": "แก้ไขตั้งค่าโครงการ"
-  },
   "global": {
     "settings": "⚙️ ตั้งค่าทั่วไป",
     "settingsDesc": "กำหนดค่าตั้งค่าทั่วไปของแอปพลิเคชัน",
@@ -124,16 +128,16 @@
     "openaiApiKeyPlaceholder": "ใส่คีย์ API ของ OpenAI"
   },
   "notifications": {
-    "profileCreatedSuccess": "สร้างโปรไฟล์สำเร็จ",
-    "profileUpdatedSuccess": "อัปเดตโปรไฟล์สำเร็จ",
-    "profileDeletedSuccess": "ลบโปรไฟล์สำเร็จ",
+    "projectCreatedSuccess": "สร้างโครงการสำเร็จ",
+    "projectUpdatedSuccess": "อัปเดตโครงการสำเร็จ",
+    "projectDeletedSuccess": "ลบโครงการสำเร็จ",
     "taskUpdatedSuccess": "อัปเดตงานสำเร็จ",
     "settingsSaved": "บันทึกการตั้งค่าสำเร็จ",
     "copiedToClipboard": "คัดลอกไปยังคลิปบอร์ดแล้ว"
   },
   "empty": {
     "noTasksFound": "ไม่พบงาน",
-    "noProfilesFound": "ไม่พบโปรไฟล์",
+    "noProjectsFound": "ไม่พบโครงการ",
     "noTemplatesFound": "ไม่พบเทมเพลต",
     "noHistoryFound": "ไม่พบประวัติ"
   },
@@ -216,5 +220,11 @@
   "inProgress": "กำลังดำเนินการ",
   "pending": "รอดำเนินการ",
   "autoRefresh": "รีเฟรชอัตโนมัติ",
-  "searchTasksPlaceholder": "ค้นหางาน..."
+  "searchTasksPlaceholder": "ค้นหางาน...",
+  "task": "งาน",
+  "agent": "ตัวแทน",
+  "description": "คำอธิบาย",
+  "version": "เวอร์ชัน",
+  "created": "สร้างเมื่อ",
+  "updated": "อัปเดตเมื่อ"
 }

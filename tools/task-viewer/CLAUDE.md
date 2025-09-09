@@ -1,1 +1,2 @@
 - Whenever you want me to restart the server, let me know, and I will do it myself.
+- Built-in agents are located in /home/fire/claude/mcp-shrimp-task-manager/tools/task-viewer/.claude/agents/

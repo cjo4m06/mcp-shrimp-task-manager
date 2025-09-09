@@ -1,0 +1,59 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(npx:*)",
+      "Bash(pnpm:*)",
+      "Bash(bun:*)",
+      "Bash(tsx:*)",
+      "Bash(find:*)",
+      "Bash(mv:*)",
+      "Bash(grep:*)",
+      "Bash(npm:*)",
+      "Bash(ls:*)",
+      "Bash(cp:*)",
+      "Write",
+      "Edit",
+      "Bash(chmod:*)",
+      "Bash(touch:*)"
+    ],
+    "deny": []
+  },
+  "hooks": {
+    "PreToolUse": [],
+    "PostToolUse": [],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx tsx .claude/hooks/notification.ts --notify --speak"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx tsx .claude/hooks/stop.ts --chat --speak"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx tsx .claude/hooks/subagent_stop.ts --speak"
+          }
+        ]
+      }
+    ]
+  }
+}

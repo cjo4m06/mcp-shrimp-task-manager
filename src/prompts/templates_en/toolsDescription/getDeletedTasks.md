@@ -1,0 +1,1 @@
+Retrieve information about deleted tasks including deletion timestamp and reason. Useful for recovery or audit purposes.

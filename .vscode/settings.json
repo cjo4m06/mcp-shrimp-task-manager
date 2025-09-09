@@ -1,0 +1,6 @@
+{
+    "explorer.excludeGitIgnore": false,
+    "files.exclude": {
+        "**/*.snagx": true
+    }
+}

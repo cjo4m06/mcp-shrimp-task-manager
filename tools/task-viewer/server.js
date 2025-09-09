@@ -227,6 +227,12 @@ async function updateProject(projectId, updates) {
         project.taskPath = updates.taskPath;
         project.filePath = updates.taskPath;
     }
+    if (updates.robotEmojiTemplate !== undefined) {
+        project.robotEmojiTemplate = updates.robotEmojiTemplate;
+    }
+    if (updates.armEmojiTemplate !== undefined) {
+        project.armEmojiTemplate = updates.armEmojiTemplate;
+    }
     
     await saveSettings(projects);
     return project;
@@ -324,7 +330,11 @@ function getEnvironmentOverrides() {
             let functionName = key.replace('MCP_PROMPT_', '').toLowerCase();
             let isAppend = false;
             
-            if (functionName.endsWith('_append')) {
+            // Check for both APPEND_ prefix and _append suffix patterns
+            if (functionName.startsWith('append_')) {
+                functionName = functionName.replace('append_', '');
+                isAppend = true;
+            } else if (functionName.endsWith('_append')) {
                 functionName = functionName.replace('_append', '');
                 isAppend = true;
             }
@@ -388,8 +398,52 @@ async function getAllTemplates() {
 }
 
 async function getTemplate(functionName) {
+    // First try to get from the cached templates
     const templates = await getAllTemplates();
-    return templates[functionName] || null;
+    
+    // If template exists in cache, return it
+    if (templates[functionName]) {
+        return templates[functionName];
+    }
+    
+    // If not in cache, try to read it directly to distinguish between 
+    // "file doesn't exist" vs "file read error"
+    const customPath = path.join(TEMPLATES_DIR, functionName, 'index.md');
+    const defaultPath = path.join(DEFAULT_TEMPLATES_DIR, functionName, 'index.md');
+    
+    try {
+        // Try custom template first
+        const customContent = await fs.readFile(customPath, 'utf8');
+        return {
+            name: functionName,
+            content: customContent,
+            status: 'custom',
+            source: 'user-custom'
+        };
+    } catch (customErr) {
+        if (customErr.code !== 'ENOENT') {
+            // File exists but can't be read - this is a real error
+            throw new Error(`Error reading custom template: ${customErr.message}`);
+        }
+        
+        try {
+            // Try default template
+            const defaultContent = await fs.readFile(defaultPath, 'utf8');
+            return {
+                name: functionName,
+                content: defaultContent,
+                status: 'default',
+                source: 'built-in'
+            };
+        } catch (defaultErr) {
+            if (defaultErr.code !== 'ENOENT') {
+                // File exists but can't be read - this is a real error
+                throw new Error(`Error reading default template: ${defaultErr.message}`);
+            }
+            // Both files don't exist
+            return null;
+        }
+    }
 }
 
 async function saveCustomTemplate(functionName, content) {
@@ -451,7 +505,7 @@ async function serveStaticFile(req, res, filePath) {
 }
 
 // Initialize and start server
-async function startServer() {
+async function startServer(testPort = null) {
     projects = await loadSettings();
     
     const server = http.createServer(async (req, res) => {
@@ -640,6 +694,111 @@ async function startServer() {
                 }
             });
             
+        } else if (url.pathname === '/api/tasks/bulk-status-update' && req.method === 'PUT') {
+            // Handle bulk status update - reset completed tasks to pending
+            let body = '';
+            req.on('data', chunk => body += chunk.toString());
+            req.on('end', async () => {
+                try {
+                    const { projectId, taskIds, newStatus } = JSON.parse(body);
+                    
+                    // Validate input
+                    if (!projectId || !taskIds || !Array.isArray(taskIds) || !newStatus) {
+                        res.writeHead(400, { 'Content-Type': 'text/plain' });
+                        res.end('Invalid request: missing required fields');
+                        return;
+                    }
+                    
+                    // Find the project
+                    const project = projects.find(p => p.id === projectId);
+                    
+                    if (!project) {
+                        console.error('Project not found:', projectId, 'Available projects:', projects.map(p => p.id));
+                        res.writeHead(404, { 'Content-Type': 'text/plain' });
+                        res.end('Project not found');
+                        return;
+                    }
+                    
+                    // Read current tasks
+                    const data = await fs.readFile(project.path, 'utf8');
+                    const tasksData = JSON.parse(data);
+                    
+                    // Ensure tasks array exists
+                    if (!tasksData.tasks || !Array.isArray(tasksData.tasks)) {
+                        res.writeHead(500, { 'Content-Type': 'text/plain' });
+                        res.end('Invalid task data structure');
+                        return;
+                    }
+                    
+                    // Update status for each eligible task
+                    let updatedCount = 0;
+                    const updatedTasks = [];
+                    
+                    taskIds.forEach(taskId => {
+                        const taskIndex = tasksData.tasks.findIndex(t => t.id === taskId);
+                        
+                        if (taskIndex !== -1) {
+                            const task = tasksData.tasks[taskIndex];
+                            
+                            // Handle status transitions
+                            if ((task.status === 'completed' && newStatus === 'pending') || 
+                                (task.status === 'pending' && newStatus === 'completed') ||
+                                (task.status === 'in_progress' && newStatus === 'completed')) {
+                                
+                                if (newStatus === 'pending') {
+                                    // Reset to pending - clear completion data
+                                    tasksData.tasks[taskIndex] = {
+                                        ...task,
+                                        status: newStatus,
+                                        updatedAt: getLocalISOString(),
+                                        completedAt: undefined,
+                                        summary: undefined,
+                                        completionDetails: undefined
+                                    };
+                                } else if (newStatus === 'completed') {
+                                    // Mark as completed - add completion timestamp
+                                    tasksData.tasks[taskIndex] = {
+                                        ...task,
+                                        status: newStatus,
+                                        updatedAt: getLocalISOString(),
+                                        completedAt: getLocalISOString()
+                                    };
+                                }
+                                
+                                updatedTasks.push(tasksData.tasks[taskIndex]);
+                                updatedCount++;
+                                
+                                console.log(`Updated task ${taskId} from ${task.status} to ${newStatus}`);
+                            } else {
+                                console.log(`Skipped task ${taskId} - invalid transition from ${task.status} to ${newStatus}`);
+                            }
+                        } else {
+                            console.warn(`Task ${taskId} not found in project ${projectId}`);
+                        }
+                    });
+                    
+                    // Only write to file if there were actual updates
+                    if (updatedCount > 0) {
+                        await fs.writeFile(project.path, JSON.stringify(tasksData, null, 2));
+                        console.log(`Successfully updated ${updatedCount} task(s) to ${newStatus} status`);
+                    }
+                    
+                    // Return success response with details
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ 
+                        success: true, 
+                        updatedCount,
+                        message: `Updated ${updatedCount} of ${taskIds.length} task(s)`,
+                        updatedTasks: updatedTasks.map(t => ({ id: t.id, name: t.name, status: t.status }))
+                    }));
+                    
+                } catch (err) {
+                    console.error('Error updating task statuses:', err);
+                    res.writeHead(500, { 'Content-Type': 'text/plain' });
+                    res.end('Error updating task statuses: ' + err.message);
+                }
+            });
+            
         } else if (url.pathname.startsWith('/api/tasks/') && url.pathname.endsWith('/delete') && req.method === 'DELETE') {
             // Handle task delete
             const pathParts = url.pathname.split('/');
@@ -680,6 +839,255 @@ async function startServer() {
                 res.end('Error deleting task: ' + err.message);
             }
             
+        } else if (url.pathname.startsWith('/api/tasks/') && url.pathname.endsWith('/summarize') && req.method === 'POST') {
+            // Handle POST /api/tasks/{projectId}/summarize
+            const pathParts = url.pathname.split('/');
+            const projectId = pathParts[pathParts.length - 2]; // Get projectId from path
+            const project = projects.find(p => p.id === projectId);
+            
+            if (!project) {
+                res.writeHead(404, { 'Content-Type': 'text/plain' });
+                res.end('Project not found');
+                return;
+            }
+            
+            let body = '';
+            req.on('data', chunk => {
+                body += chunk.toString();
+            });
+            
+            req.on('end', async () => {
+                try {
+                    const { completedTasks, totalTasks, incompleteTasks } = JSON.parse(body);
+                    
+                    if (!Array.isArray(completedTasks) || completedTasks.length === 0) {
+                        res.writeHead(400, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'No completed tasks provided' }));
+                        return;
+                    }
+                    
+                    // Generate summary using OpenAI
+                    let summary;
+                    
+                    try {
+                        // Try to get OpenAI API key
+                        let openaiApiKey = null;
+                        try {
+                            const globalSettings = JSON.parse(await fs.readFile(GLOBAL_SETTINGS_FILE, 'utf8'));
+                            openaiApiKey = globalSettings.openAIKey || globalSettings.openaiApiKey;
+                        } catch (settingsErr) {
+                            // Try environment variable as fallback
+                            openaiApiKey = process.env.OPENAI_API_KEY;
+                        }
+
+                        if (openaiApiKey) {
+                            // Create the prompt for OpenAI
+                            const taskSummaries = completedTasks.map(task => `- ${task.name}: ${task.summary}`).join('\n');
+                            
+                            const incompleteTasksInfo = incompleteTasks && incompleteTasks.length > 0
+                                ? `\n\nINCOMPLETE TASKS:\n${incompleteTasks.map(task => `- ${task.name} (${task.status})`).join('\n')}`
+                                : '';
+                                
+                            const totalTasksInfo = totalTasks && completedTasks.length < totalTasks 
+                                ? `\n\nIMPORTANT: Only ${completedTasks.length} out of ${totalTasks} total tasks are completed. This is a PARTIAL progress report.${incompleteTasksInfo}`
+                                : totalTasks 
+                                    ? `\n\nAll ${completedTasks.length} tasks in this project are completed.`
+                                    : '';
+
+                            const prompt = `Generate an executive summary for these completed tasks:
+
+${taskSummaries}${totalTasksInfo}
+
+Create a brief, impactful summary that highlights business value and key achievements. If this is partial progress, clearly indicate remaining work and include the incomplete tasks in a red warning section.`;
+
+                            // Call OpenAI API
+                            const response = await new Promise((resolve, reject) => {
+                                const postData = JSON.stringify({
+                                    model: 'gpt-4',
+                                    messages: [
+                                        {
+                                            role: 'system',
+                                            content: `You are an experienced Project Manager who excels at delivering concise executive reports. 
+
+Your reports use:
+✅ Green checkmarks for completed items
+🚀 Rockets for launches/deployments  
+🎯 Targets for objectives met
+🔧 Wrenches for technical implementations
+📊 Charts for metrics/analysis
+⚡ Lightning for performance improvements
+🛡️ Shields for security features
+📝 Notes for documentation
+
+Format your response with:
+- **Bold** markdown headings for sections
+- Bullet points with relevant emojis
+- Maximum 150 words total
+- Focus on business value and outcomes
+- No technical jargon
+
+IMPORTANT: 
+- If there are 7 or fewer completed tasks, list ALL of them individually. Only use "X more" notation if there are 8+ completed tasks.
+- If this is partial progress (not all tasks completed), clearly indicate this in the Project Status and mention remaining work.
+
+Structure for COMPLETE projects:
+**Project Status:**
+🎉 All X tasks completed successfully
+
+**Key Deliverables:**
+• ✅ [List ALL completed tasks if 7 or fewer, otherwise first 5 + "X more"]
+
+**Impact:**
+Business value achieved
+
+Structure for PARTIAL progress:
+**Project Status:**  
+🚧 X of Y tasks completed (Y% progress)
+
+**Completed Deliverables:**
+• ✅ [List completed tasks]
+
+**⚠️ Remaining Tasks:**
+• ❌ [List incomplete tasks by name]
+
+**Impact:**
+Progress achieved so far and remaining scope`
+                                        },
+                                        {
+                                            role: 'user',
+                                            content: prompt
+                                        }
+                                    ],
+                                    max_tokens: 300,
+                                    temperature: 0.2
+                                });
+
+                                const options = {
+                                    hostname: 'api.openai.com',
+                                    port: 443,
+                                    path: '/v1/chat/completions',
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${openaiApiKey}`,
+                                        'Content-Length': Buffer.byteLength(postData)
+                                    }
+                                };
+
+                                const req = https.request(options, (res) => {
+                                    let data = '';
+                                    res.on('data', (chunk) => data += chunk);
+                                    res.on('end', () => {
+                                        if (res.statusCode === 200) {
+                                            try {
+                                                const result = JSON.parse(data);
+                                                resolve(result.choices[0].message.content.trim());
+                                            } catch (parseErr) {
+                                                reject(new Error('Invalid JSON from OpenAI'));
+                                            }
+                                        } else {
+                                            reject(new Error('OpenAI API error: ' + res.statusCode + ' - ' + data));
+                                        }
+                                    });
+                                });
+
+                                req.on('error', reject);
+                                req.write(postData);
+                                req.end();
+                            });
+
+                            summary = response;
+                        } else {
+                            // Fallback to basic summary generation if no OpenAI key
+                            // Show all tasks if 7 or fewer, otherwise show first 5 with remaining count
+                            const maxToShow = completedTasks.length <= 7 ? completedTasks.length : 5;
+                            const taskList = completedTasks.slice(0, maxToShow).map(task => `• ✅ ${task.name}`).join('\n');
+                            const remaining = completedTasks.length > maxToShow ? `\n• ➕ ${completedTasks.length - maxToShow} additional tasks completed` : '';
+                            
+                            // Create a more descriptive impact based on task summaries
+                            const impact = completedTasks.length > 0 && completedTasks[0].summary 
+                                ? `📊 ${completedTasks.filter(t => t.summary).length} features fully implemented and tested`
+                                : `📊 All ${completedTasks.length} objectives achieved`;
+                            
+                            const isPartialProgress = totalTasks && completedTasks.length < totalTasks;
+                            const statusLine = isPartialProgress 
+                                ? `🚧 ${completedTasks.length} of ${totalTasks} tasks completed (${Math.round((completedTasks.length / totalTasks) * 100)}% progress)`
+                                : `🚀 ${completedTasks.length} task${completedTasks.length === 1 ? '' : 's'} completed successfully`;
+                            
+                            const sectionTitle = isPartialProgress ? 'Completed Deliverables' : 'Key Deliverables';
+                            
+                            // Add warning section for incomplete tasks
+                            const warningSection = isPartialProgress && incompleteTasks && incompleteTasks.length > 0
+                                ? `\n\n**⚠️ Remaining Tasks:**\n${incompleteTasks.map(task => `• ❌ ${task.name}`).join('\n')}`
+                                : '';
+                            
+                            const impactMessage = isPartialProgress 
+                                ? `Partial progress achieved. Project completion pending ${totalTasks - completedTasks.length} remaining task${totalTasks - completedTasks.length === 1 ? '' : 's'}.`
+                                : impact;
+                            
+                            summary = `**Project Status:**\n${statusLine}\n\n**${sectionTitle}:**\n${taskList}${remaining}${warningSection}\n\n**Impact:**\n${impactMessage}`;
+                        }
+                    } catch (openaiError) {
+                        console.error('Error generating AI summary, using fallback:', openaiError);
+                        // Fallback summary generation
+                        // Show all tasks if 7 or fewer, otherwise show first 5 with remaining count
+                        const maxToShow = completedTasks.length <= 7 ? completedTasks.length : 5;
+                        const taskList = completedTasks.slice(0, maxToShow).map(task => `• ✅ ${task.name}`).join('\n');
+                        const remaining = completedTasks.length > maxToShow ? `\n• ➕ ${completedTasks.length - maxToShow} additional tasks completed` : '';
+                        
+                        // Create a more descriptive impact based on task summaries
+                        const impact = completedTasks.length > 0 && completedTasks[0].summary 
+                            ? `📊 ${completedTasks.filter(t => t.summary).length} features fully implemented and tested`
+                            : `📊 All ${completedTasks.length} objectives achieved`;
+                        
+                        const isPartialProgress = totalTasks && completedTasks.length < totalTasks;
+                        const statusLine = isPartialProgress 
+                            ? `🚧 ${completedTasks.length} of ${totalTasks} tasks completed (${Math.round((completedTasks.length / totalTasks) * 100)}% progress)`
+                            : `🚀 ${completedTasks.length} task${completedTasks.length === 1 ? '' : 's'} completed successfully`;
+                        
+                        const sectionTitle = isPartialProgress ? 'Completed Deliverables' : 'Key Deliverables';
+                        
+                        // Add warning section for incomplete tasks
+                        const warningSection = isPartialProgress && incompleteTasks && incompleteTasks.length > 0
+                            ? `\n\n**⚠️ Remaining Tasks:**\n${incompleteTasks.map(task => `• ❌ ${task.name}`).join('\n')}`
+                            : '';
+                        
+                        const impactMessage = isPartialProgress 
+                            ? `Partial progress achieved. Project completion pending ${totalTasks - completedTasks.length} remaining task${totalTasks - completedTasks.length === 1 ? '' : 's'}.`
+                            : impact;
+                        
+                        finalSummary = `**Project Status:**\n${statusLine}\n\n**${sectionTitle}:**\n${taskList}${remaining}${warningSection}\n\n**Impact:**\n${impactMessage}`;
+                    }
+                    
+                    // Save the summary to tasks.json
+                    try {
+                        const data = await fs.readFile(project.path, 'utf8');
+                        let tasksData = JSON.parse(data);
+                        
+                        // Handle backward compatibility
+                        if (Array.isArray(tasksData)) {
+                            tasksData = { tasks: tasksData };
+                        }
+                        
+                        tasksData.summary = summary;
+                        tasksData.summaryGeneratedAt = getLocalISOString();
+                        
+                        await fs.writeFile(project.path, JSON.stringify(tasksData, null, 2), 'utf8');
+                        
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ summary: summary }));
+                    } catch (fileErr) {
+                        console.error('Error saving summary:', fileErr);
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Failed to save summary' }));
+                    }
+                } catch (err) {
+                    console.error('Error generating summary:', err);
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Invalid request data' }));
+                }
+            });
+            
         } else if (url.pathname.startsWith('/api/tasks/')) {
             const projectId = url.pathname.split('?')[0].split('/').pop();
             const project = projects.find(p => p.id === projectId);
@@ -718,7 +1126,12 @@ async function startServer() {
                 console.log(`File last modified: ${stats.mtime}`);
                 
                 const data = await fs.readFile(project.path, 'utf8');
-                const tasksData = JSON.parse(data);
+                let tasksData = JSON.parse(data);
+                
+                // Handle backward compatibility - old format was just an array of tasks
+                if (Array.isArray(tasksData)) {
+                    tasksData = { tasks: tasksData };
+                }
                 
                 // Log task status for debugging
                 const task880f = tasksData.tasks?.find(t => t.id === '880f4dd8-a603-4bb9-8d4d-5033887d0e0f');
@@ -726,10 +1139,14 @@ async function startServer() {
                     console.log(`Task 880f4dd8 status: ${task880f.status}`);
                 }
                 
-                // Add projectRoot to the response
-                if (project.projectRoot) {
-                    tasksData.projectRoot = project.projectRoot;
-                }
+                // Prepare response with all available data
+                const response = {
+                    tasks: tasksData.tasks || [],
+                    initialRequest: tasksData.initialRequest || null,
+                    summary: tasksData.summary || null,
+                    summaryGeneratedAt: tasksData.summaryGeneratedAt || null,
+                    projectRoot: project.projectRoot || null
+                };
                 
                 res.writeHead(200, { 
                     'Content-Type': 'application/json',
@@ -737,7 +1154,7 @@ async function startServer() {
                     'Pragma': 'no-cache',
                     'Expires': '0'
                 });
-                res.end(JSON.stringify(tasksData));
+                res.end(JSON.stringify(response));
             } catch (err) {
                 console.error(`Error reading file ${project.path}:`, err);
                 res.writeHead(500, { 'Content-Type': 'text/plain' });
@@ -808,7 +1225,9 @@ async function startServer() {
                             timestamp,
                             taskCount: tasks.length,
                             stats,
-                            hasData: tasks.length > 0
+                            hasData: tasks.length > 0,
+                            initialRequest: data.initialRequest || null,
+                            summary: data.summary || null
                         };
                     } catch (err) {
                         console.error(`Error reading memory file ${filename}:`, err);
@@ -830,7 +1249,6 @@ async function startServer() {
             }
             
         } else if (url.pathname.startsWith('/api/history/') && url.pathname.split('/').length === 5) {
-            // Handle /api/history/{projectId}/{filename}
             const pathParts = url.pathname.split('/');
             const projectId = pathParts[3];
             const filename = pathParts[4];
@@ -849,41 +1267,146 @@ async function startServer() {
                 return;
             }
             
-            try {
-                const tasksPath = project.path || project.filePath;
-                const memoryDir = path.join(path.dirname(tasksPath), 'memory');
-                const filePath = path.join(memoryDir, filename);
-                
-                // Check if file exists
-                const fileExists = await fs.access(filePath).then(() => true).catch(() => false);
-                if (!fileExists) {
-                    res.writeHead(404, { 'Content-Type': 'text/plain' });
-                    res.end('History file not found');
-                    return;
-                }
-                
-                // Read and parse the memory file
-                const content = await fs.readFile(filePath, 'utf8');
-                const data = JSON.parse(content);
-                
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(data));
-                
-            } catch (err) {
-                console.error('Error loading history file:', err);
-                if (err instanceof SyntaxError) {
-                    res.writeHead(400, { 'Content-Type': 'text/plain' });
-                    res.end('Invalid JSON in memory file');
-                } else {
+            if (req.method === 'DELETE') {
+                // Handle DELETE /api/history/{projectId}/{filename}
+                try {
+                    const tasksPath = project.path || project.filePath;
+                    const memoryDir = path.join(path.dirname(tasksPath), 'memory');
+                    const filePath = path.join(memoryDir, filename);
+                    
+                    // Check if file exists
+                    const fileExists = await fs.access(filePath).then(() => true).catch(() => false);
+                    if (!fileExists) {
+                        res.writeHead(404, { 'Content-Type': 'text/plain' });
+                        res.end('History file not found');
+                        return;
+                    }
+                    
+                    // Delete the file
+                    await fs.unlink(filePath);
+                    
+                    console.log(`[History] Deleted history file: ${filePath}`);
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: true, message: 'History entry deleted successfully' }));
+                    
+                } catch (err) {
+                    console.error('Error deleting history file:', err);
                     res.writeHead(500, { 'Content-Type': 'text/plain' });
-                    res.end('Error loading history file');
+                    res.end('Error deleting history file: ' + err.message);
+                }
+            } else {
+                // Handle GET /api/history/{projectId}/{filename}
+                try {
+                    const tasksPath = project.path || project.filePath;
+                    const memoryDir = path.join(path.dirname(tasksPath), 'memory');
+                    const filePath = path.join(memoryDir, filename);
+                    
+                    // Check if file exists
+                    const fileExists = await fs.access(filePath).then(() => true).catch(() => false);
+                    if (!fileExists) {
+                        res.writeHead(404, { 'Content-Type': 'text/plain' });
+                        res.end('History file not found');
+                        return;
+                    }
+                    
+                    // Read and parse the memory file
+                    const content = await fs.readFile(filePath, 'utf8');
+                    const data = JSON.parse(content);
+                    
+                    // Generate initial request if missing
+                    if (!data.initialRequest && data.tasks && data.tasks.length > 0) {
+                        // Generate a descriptive initial request from task data
+                        const taskCategories = {};
+                        
+                        // Group tasks by common themes
+                        data.tasks.forEach(task => {
+                            // Extract key themes from task names
+                            const name = task.name.toLowerCase();
+                            if (name.includes('test')) {
+                                taskCategories.testing = (taskCategories.testing || 0) + 1;
+                            } else if (name.includes('fix') || name.includes('bug')) {
+                                taskCategories.bugfixes = (taskCategories.bugfixes || 0) + 1;
+                            } else if (name.includes('add') || name.includes('create') || name.includes('implement')) {
+                                taskCategories.features = (taskCategories.features || 0) + 1;
+                            } else if (name.includes('update') || name.includes('refactor')) {
+                                taskCategories.improvements = (taskCategories.improvements || 0) + 1;
+                            } else if (name.includes('document')) {
+                                taskCategories.documentation = (taskCategories.documentation || 0) + 1;
+                            } else {
+                                taskCategories.other = (taskCategories.other || 0) + 1;
+                            }
+                        });
+                        
+                        // Build the generated initial request
+                        const parts = [];
+                        
+                        // Add main task types
+                        const mainCategories = Object.entries(taskCategories)
+                            .filter(([key]) => key !== 'other')
+                            .sort(([,a], [,b]) => b - a)
+                            .slice(0, 3);
+                        
+                        if (mainCategories.length > 0) {
+                            const categoryDescriptions = {
+                                testing: 'write tests',
+                                bugfixes: 'fix bugs',
+                                features: 'implement new features',
+                                improvements: 'improve existing functionality',
+                                documentation: 'update documentation'
+                            };
+                            
+                            const descriptions = mainCategories.map(([cat]) => categoryDescriptions[cat]);
+                            if (descriptions.length === 1) {
+                                parts.push(`Request to ${descriptions[0]}`);
+                            } else if (descriptions.length === 2) {
+                                parts.push(`Request to ${descriptions[0]} and ${descriptions[1]}`);
+                            } else {
+                                const last = descriptions.pop();
+                                parts.push(`Request to ${descriptions.join(', ')}, and ${last}`);
+                            }
+                        }
+                        
+                        // Add some specific task examples
+                        const exampleTasks = data.tasks
+                            .filter(t => t.name.length < 60)
+                            .slice(0, 3)
+                            .map(t => t.name);
+                        
+                        if (exampleTasks.length > 0) {
+                            parts.push(`Tasks include: ${exampleTasks.join(', ')}`);
+                        }
+                        
+                        // Add task count
+                        parts.push(`(${data.tasks.length} total tasks)`);
+                        
+                        data.initialRequest = parts.join('. ');
+                        data.generatedInitialRequest = true; // Mark as generated
+                    }
+                    
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify(data));
+                    
+                } catch (err) {
+                    console.error('Error loading history file:', err);
+                    if (err instanceof SyntaxError) {
+                        res.writeHead(400, { 'Content-Type': 'text/plain' });
+                        res.end('Invalid JSON in memory file');
+                    } else {
+                        res.writeHead(500, { 'Content-Type': 'text/plain' });
+                        res.end('Error loading history file');
+                    }
                 }
             }
             
-        } else if (url.pathname === '/api/readme' && req.method === 'GET') {
-            // Serve README.md file
+        } else if (url.pathname.startsWith('/api/readme') && req.method === 'GET') {
+            // Serve README.md file (with language-specific support)
             try {
-                const readmePath = path.join(__dirname, 'README.md');
+                // Extract language suffix from path (e.g., /api/readme-ko -> ko)
+                const pathParts = url.pathname.split('-');
+                const languageSuffix = pathParts.length > 1 ? `-${pathParts[1]}` : '';
+                const readmeFilename = `README${languageSuffix}.md`;
+                const readmePath = path.join(__dirname, readmeFilename);
+                
                 const data = await fs.readFile(readmePath, 'utf8');
                 res.writeHead(200, { 
                     'Content-Type': 'text/markdown; charset=utf-8',
@@ -891,9 +1414,16 @@ async function startServer() {
                 });
                 res.end(data);
             } catch (err) {
-                console.error('Error reading README:', err);
-                res.writeHead(404, { 'Content-Type': 'text/plain' });
-                res.end('README not found');
+                // If language-specific README not found, return 404 so client can fallback
+                if (url.pathname !== '/api/readme') {
+                    console.error(`Language-specific README not found: ${url.pathname}`, err.message);
+                    res.writeHead(404, { 'Content-Type': 'text/plain' });
+                    res.end('Language-specific README not found');
+                } else {
+                    console.error('Error reading README:', err);
+                    res.writeHead(404, { 'Content-Type': 'text/plain' });
+                    res.end('README not found');
+                }
             }
 
         // Template management API routes
@@ -901,11 +1431,13 @@ async function startServer() {
             // List all templates with status
             try {
                 const templates = await getAllTemplates();
-                const templateList = Object.values(templates).map(template => ({
+                const templateList = Object.entries(templates).map(([functionName, template]) => ({
+                    functionName: functionName,
                     name: template.name,
                     status: template.status,
                     source: template.source,
-                    contentLength: template.content.length
+                    contentLength: template.content.length,
+                    category: template.category || 'general'
                 }));
                 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -929,7 +1461,10 @@ async function startServer() {
                     }
                     
                     res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify(template));
+                    res.end(JSON.stringify({
+                        ...template,
+                        functionName: functionName
+                    }));
                 } catch (err) {
                     res.writeHead(500, { 'Content-Type': 'text/plain' });
                     res.end('Error loading template: ' + err.message);
@@ -1960,11 +2495,15 @@ async function startServer() {
         }
     });
 
-    server.listen(PORT, '127.0.0.1', () => {
-        console.log(`\n🦐 Shrimp Task Manager Viewer Server v${VERSION}`);
-        console.log('===============================================');
-        console.log(`Server is running at: http://localhost:${PORT}`);
-        console.log(`Also accessible at: http://127.0.0.1:${PORT}`);
+    const listenPort = testPort !== null ? testPort : PORT;
+    
+    // Return a promise that resolves when the server is ready
+    return new Promise((resolve, reject) => {
+        server.listen(listenPort, '127.0.0.1', () => {
+            console.log(`\n🦐 Shrimp Task Manager Viewer Server v${VERSION}`);
+            console.log('===============================================');
+            console.log(`Server is running at: http://localhost:${listenPort}`);
+            console.log(`Also accessible at: http://127.0.0.1:${listenPort}`);
         console.log(`\nSettings file: ${SETTINGS_FILE}`);
         console.log('    ');
         console.log('Available projects:');
@@ -1982,15 +2521,20 @@ async function startServer() {
         console.log('  • Auto-refresh functionality');
         console.log('  • Profile management via web interface');
         console.log('\nOpen your browser to view tasks!');
+        
+        resolve(server);
     });
-
-    return server;
+    
+    server.on('error', reject);
+    });
 }
 
-// Start the server
-startServer().catch(err => {
-    console.error('Failed to start server:', err);
-    process.exit(1);
-});
+// Start the server only if not being imported for testing
+if (process.env.NODE_ENV !== 'test') {
+    startServer().catch(err => {
+        console.error('Failed to start server:', err);
+        process.exit(1);
+    });
+}
 
 export { startServer };

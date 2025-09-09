@@ -2,6 +2,9 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import http from 'http';
 import path from 'path';
 
+// Set NODE_ENV to test to prevent server from auto-starting
+process.env.NODE_ENV = 'test';
+
 // Mock os module first
 vi.mock('os', () => ({
   default: {
@@ -10,16 +13,25 @@ vi.mock('os', () => ({
   }
 }));
 
-// Mock fs module
-const mockFs = {
+// Mock fs module - create promises interface that matches fs.promises
+const mockFsPromises = {
   readFile: vi.fn(),
   writeFile: vi.fn(),
-  mkdir: vi.fn()
+  mkdir: vi.fn(),
+  readdir: vi.fn(),
+  stat: vi.fn(),
+  access: vi.fn(),
+  rm: vi.fn()
 };
 
-vi.mock('fs', () => ({
-  promises: mockFs
-}));
+vi.mock('fs', () => {
+  console.log('Setting up fs mock');
+  
+  return {
+    default: {},
+    promises: mockFsPromises
+  };
+});
 
 // Import server after mocks are set up
 const { startServer } = await import('../server.js');
@@ -27,11 +39,54 @@ const { startServer } = await import('../server.js');
 describe('Server', () => {
   let server;
   const mockSettingsFile = path.join('/mock/home', '.shrimp-task-viewer-settings.json');
+  const mockGlobalSettingsFile = path.join('/mock/home', '.shrimp-task-viewer-global-settings.json');
   const mockTempDir = '/mock/tmp/shrimp-task-viewer';
   
   beforeEach(() => {
-    // Reset all mocks
-    vi.clearAllMocks();
+    // Reset all mock functions and set up default implementations
+    mockFsPromises.readFile.mockClear();
+    mockFsPromises.writeFile.mockClear();
+    mockFsPromises.mkdir.mockClear();
+    mockFsPromises.readdir.mockClear();
+    mockFsPromises.stat.mockClear();
+    mockFsPromises.access.mockClear();
+    mockFsPromises.rm.mockClear();
+
+    // Set up default implementations
+    mockFsPromises.readFile.mockImplementation((filePath, encoding) => {
+      console.log('Mock fs.readFile called with:', filePath, encoding);
+      if (filePath === mockSettingsFile) {
+        return Promise.resolve(JSON.stringify({
+          agents: [],
+          projects: [],
+          lastUpdated: new Date().toISOString(),
+          version: '3.1.0'
+        }));
+      }
+      if (filePath === mockGlobalSettingsFile) {
+        return Promise.resolve(JSON.stringify({
+          openAIKey: 'test-api-key',
+          lastUpdated: new Date().toISOString()
+        }));
+      }
+      const error = new Error('ENOENT: no such file or directory');
+      error.code = 'ENOENT';
+      return Promise.reject(error);
+    });
+
+    mockFsPromises.writeFile.mockImplementation((filePath, data) => {
+      console.log('Mock fs.writeFile called with:', filePath);
+      return Promise.resolve();
+    });
+
+    mockFsPromises.mkdir.mockImplementation(() => Promise.resolve());
+    mockFsPromises.readdir.mockImplementation(() => Promise.resolve([]));
+    mockFsPromises.stat.mockImplementation(() => Promise.resolve({ 
+      isDirectory: () => false,
+      isFile: () => true 
+    }));
+    mockFsPromises.access.mockImplementation(() => Promise.resolve());
+    mockFsPromises.rm.mockImplementation(() => Promise.resolve());
   });
 
   afterEach(async () => {
@@ -50,27 +105,27 @@ describe('Server', () => {
         { id: 'agent2', name: 'Agent 2', path: '/path/to/agent2.json' }
       ];
       
-      mockFs.readFile.mockResolvedValue(JSON.stringify({
+      mockFsPromises.readFile.mockResolvedValue(JSON.stringify({
         agents: mockAgents,
         lastUpdated: '2024-01-01T00:00:00.000Z',
         version: '2.0.0'
       }));
 
       // Start server to trigger loadSettings
-      server = await startServer();
+      server = await startServer(0);
       
-      expect(mockFs.readFile).toHaveBeenCalledWith(mockSettingsFile, 'utf8');
+      expect(mockFsPromises.readFile).toHaveBeenCalledWith(mockSettingsFile, 'utf8');
     });
 
     it('should create default settings if file does not exist', async () => {
       const error = new Error('ENOENT: no such file or directory');
       error.code = 'ENOENT';
-      mockFs.readFile.mockRejectedValue(error);
-      mockFs.writeFile.mockResolvedValue();
+      mockFsPromises.readFile.mockRejectedValue(error);
+      mockFsPromises.writeFile.mockResolvedValue();
 
-      server = await startServer();
+      server = await startServer(0);
 
-      expect(mockFs.writeFile).toHaveBeenCalledWith(
+      expect(mockFsPromises.writeFile).toHaveBeenCalledWith(
         mockSettingsFile,
         expect.stringContaining('"agents": []')
       );
@@ -81,11 +136,11 @@ describe('Server', () => {
         { id: 'test-agent', name: 'Test Agent', path: '/test/path.json' }
       ];
       
-      mockFs.readFile.mockResolvedValue(JSON.stringify({ agents: [] }));
-      mockFs.writeFile.mockResolvedValue();
-      mockFs.mkdir.mockResolvedValue();
+      mockFsPromises.readFile.mockResolvedValue(JSON.stringify({ agents: [] }));
+      mockFsPromises.writeFile.mockResolvedValue();
+      mockFsPromises.mkdir.mockResolvedValue();
 
-      server = await startServer();
+      server = await startServer(0);
 
       // Make request to add profile to trigger saveSettings
       const response = await makeRequest(server, '/api/add-profile', {
@@ -94,7 +149,7 @@ describe('Server', () => {
         body: 'name=Test+Agent&taskFile=' + encodeURIComponent('{"tasks":[]}')
       });
 
-      expect(mockFs.writeFile).toHaveBeenCalledWith(
+      expect(mockFsPromises.writeFile).toHaveBeenCalledWith(
         mockSettingsFile,
         expect.stringMatching(/"agents":\s*\[[\s\S]*\]/)
       );
@@ -103,7 +158,7 @@ describe('Server', () => {
 
   describe('API Endpoints', () => {
     beforeEach(async () => {
-      mockFs.readFile.mockImplementation((filePath) => {
+      mockFsPromises.readFile.mockImplementation((filePath) => {
         if (filePath === mockSettingsFile) {
           return Promise.resolve(JSON.stringify({
             agents: [
@@ -122,10 +177,10 @@ describe('Server', () => {
         return Promise.reject(new Error('File not found'));
       });
       
-      mockFs.writeFile.mockResolvedValue();
-      mockFs.mkdir.mockResolvedValue();
+      mockFsPromises.writeFile.mockResolvedValue();
+      mockFsPromises.mkdir.mockResolvedValue();
       
-      server = await startServer();
+      server = await startServer(0);
     });
 
     describe('GET /api/agents', () => {
@@ -166,7 +221,7 @@ describe('Server', () => {
           path: expect.stringContaining('tasks.json')
         });
 
-        expect(mockFs.writeFile).toHaveBeenCalledWith(
+        expect(mockFsPromises.writeFile).toHaveBeenCalledWith(
           expect.stringContaining('tasks.json'),
           '{"tasks":[]}'
         );
@@ -249,7 +304,7 @@ describe('Server', () => {
 
         expect(response.statusCode).toBe(200);
         // Should have updated, not added new
-        expect(mockFs.writeFile).toHaveBeenCalledWith(
+        expect(mockFsPromises.writeFile).toHaveBeenCalledWith(
           mockSettingsFile,
           expect.stringContaining('"agents": [')
         );
@@ -265,7 +320,7 @@ describe('Server', () => {
         expect(response.statusCode).toBe(200);
         expect(response.body).toBe('Profile removed');
         
-        expect(mockFs.writeFile).toHaveBeenCalledWith(
+        expect(mockFsPromises.writeFile).toHaveBeenCalledWith(
           mockSettingsFile,
           expect.not.stringContaining('agent1')
         );
@@ -311,7 +366,7 @@ describe('Server', () => {
       });
 
       it('should handle file read errors', async () => {
-        mockFs.readFile.mockImplementation((filePath) => {
+        mockFsPromises.readFile.mockImplementation((filePath) => {
           if (filePath === mockSettingsFile) {
             return Promise.resolve(JSON.stringify({
               agents: [{ id: 'agent-error', name: 'Error Agent', path: '/error/path.json' }]
@@ -344,7 +399,7 @@ describe('Server', () => {
 
   describe('Static File Serving', () => {
     beforeEach(async () => {
-      mockFs.readFile.mockImplementation((filePath) => {
+      mockFsPromises.readFile.mockImplementation((filePath) => {
         if (filePath === mockSettingsFile) {
           return Promise.resolve(JSON.stringify({ agents: [] }));
         } else if (filePath.endsWith('index.html')) {
@@ -359,7 +414,7 @@ describe('Server', () => {
         return Promise.reject(error);
       });
       
-      server = await startServer();
+      server = await startServer(0);
     });
 
     it('should serve index.html for root path', async () => {
@@ -405,7 +460,7 @@ describe('Server', () => {
     });
 
     it('should handle missing dist directory', async () => {
-      mockFs.readFile.mockRejectedValue(new Error('ENOENT'));
+      mockFsPromises.readFile.mockRejectedValue(new Error('ENOENT'));
 
       const response = await makeRequest(server, '/');
 
@@ -416,20 +471,20 @@ describe('Server', () => {
 
   describe('Error Handling', () => {
     it('should handle server startup errors', async () => {
-      mockFs.readFile.mockRejectedValue(new Error('Permission denied'));
-      mockFs.writeFile.mockRejectedValue(new Error('Permission denied'));
+      mockFsPromises.readFile.mockRejectedValue(new Error('Permission denied'));
+      mockFsPromises.writeFile.mockRejectedValue(new Error('Permission denied'));
 
       await expect(startServer()).rejects.toThrow();
     });
 
     it('should handle malformed JSON in settings file', async () => {
-      mockFs.readFile.mockResolvedValue('{ invalid json }');
-      mockFs.writeFile.mockResolvedValue();
+      mockFsPromises.readFile.mockResolvedValue('{ invalid json }');
+      mockFsPromises.writeFile.mockResolvedValue();
 
-      server = await startServer();
+      server = await startServer(0);
       
       // Should create new settings file
-      expect(mockFs.writeFile).toHaveBeenCalledWith(
+      expect(mockFsPromises.writeFile).toHaveBeenCalledWith(
         mockSettingsFile,
         expect.stringContaining('"agents": []')
       );

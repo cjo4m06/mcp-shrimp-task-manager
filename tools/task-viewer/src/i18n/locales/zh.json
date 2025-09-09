@@ -103,20 +103,20 @@
     "to": "至",
     "filteredFrom": "筛选自"
   },
-  "profile": {
+  "project": {
     "management": "🔧 项目管理",
     "managementDesc": "管理任务文件配置文件。创建新配置文件或编辑现有配置文件。",
     "taskFolderPath": "任务文件夹路径",
     "taskFolderPathPlaceholder": "/path/to/shrimp_data_folder",
-    "profileName": "项目名称",
-    "profileNamePlaceholder": "例如，团队 Alpha 任务",
+    "projectName": "项目名称",
+    "projectNamePlaceholder": "例如，团队 Alpha 任务",
     "projectRootPath": "项目根路径",
     "projectRootPathPlaceholder": "例如，/home/user/my-project",
-    "addProfile": "添加项目",
-    "editProfile": "编辑项目",
-    "deleteProfile": "删除项目",
-    "addNewProfile": "添加新项目",
-    "profileNameTitle": "为此项目输入描述性名称",
+    "addProject": "添加项目",
+    "editProject": "编辑项目",
+    "deleteProject": "删除项目",
+    "addNewProject": "添加新项目",
+    "projectNameTitle": "为此项目输入描述性名称",
     "taskFolderPathTitle": "输入包含 tasks.json 的虾米数据文件夹路径",
     "tip": "提示",
     "navigateToFolder": "在终端中导航到您的虾米数据文件夹并",
@@ -129,7 +129,7 @@
     "addProject": "添加项目",
     "projectRoot": "项目根目录",
     "taskPath": "任务路径",
-    "editProfileNameTitle": "编辑项目名称",
+    "editProjectNameTitle": "编辑项目名称",
     "projectRootEditPlaceholder": "例如，/home/user/projects/my-project",
     "projectRootEditTitle": "设置项目根路径以启用 VS Code 文件链接",
     "projectRootEditHint": "设置此项以启用任务文件的可点击 VS Code 链接",
@@ -228,10 +228,10 @@
     "noTasksInHistory": "此历史快照不包含任务",
     "taskRowTitle": "来自历史快照的任务详情",
     "editProjectSettings": "编辑项目设置",
-    "chooseProfileTitle": "从上面的下拉菜单中选择项目",
-    "selectProfileToViewTasks": "选择项目以查看任务",
-    "noProfilesAvailable": "没有可用的项目",
-    "noProfilesClickAddTab": "没有可用的项目。点击\"添加项目\"创建一个。",
+    "chooseProjectTitle": "从上面的下拉菜单中选择项目",
+    "selectProjectToViewTasks": "选择项目以查看任务",
+    "noProjectsAvailable": "没有可用的项目",
+    "noProjectsClickAddTab": "没有可用的项目。点击\"添加项目\"创建一个。",
     "loadingTasksFromFile": "从文件加载任务",
     "loadingTasks": "加载任务中... ⏳"
   },
@@ -246,14 +246,14 @@
     "claudeFolderPathPlaceholder": "例如：~/.config/claude"
   },
   "notifications": {
-    "profileCreatedSuccess": "配置文件创建成功",
-    "profileUpdatedSuccess": "配置文件更新成功",
-    "profileDeletedSuccess": "配置文件删除成功",
+    "projectCreatedSuccess": "项目创建成功",
+    "projectUpdatedSuccess": "项目更新成功",
+    "projectDeletedSuccess": "项目删除成功",
     "taskUpdatedSuccess": "任务更新成功",
     "settingsSaved": "设置保存成功",
     "copiedToClipboard": "已复制到剪贴板",
-    "profileAddedSuccess": "项目\"{{name}}\"添加成功！",
-    "profileRemovedSuccess": "项目\"{{name}}\"删除成功！",
+    "projectAddedSuccess": "项目\"{{name}}\"添加成功！",
+    "projectRemovedSuccess": "项目\"{{name}}\"删除成功！",
     "templateSavedSuccess": "模板\"{{name}}\"保存成功！",
     "templateResetSuccess": "模板\"{{name}}\"重置为默认！",
     "templateDuplicatedSuccess": "模板复制为\"{{name}}\"！",
@@ -261,7 +261,7 @@
   },
   "empty": {
     "noTasksFound": "未找到任务",
-    "noProfilesFound": "未找到配置文件",
+    "noProjectsFound": "未找到项目",
     "noTemplatesFound": "未找到模板",
     "noHistoryFound": "未找到历史记录"
   },
@@ -299,10 +299,10 @@
     "refreshTemplateData": "刷新模板数据",
     "searchTasksPlaceholder": "🔍 搜索任务...",
     "searchTasksTitle": "按任何文本内容搜索和筛选任务",
-    "refreshCurrentProfile": "刷新当前项目数据 - 从文件重新加载任务"
+    "refreshCurrentProject": "刷新当前项目数据 - 从文件重新加载任务"
   },
   "confirmation": {
-    "confirmRemoveProfile": "您确定要删除此项目吗？此操作无法撤消。",
+    "confirmRemoveProject": "您确定要删除此项目吗？此操作无法撤消。",
     "confirmResetTemplate": "您确定要将 {{name}} 重置为默认吗？这将删除任何自定义设置。"
   },
   "tasks": "任务",
@@ -313,5 +313,25 @@
   "inProgress": "进行中",
   "pending": "待处理",
   "autoRefresh": "自动刷新",
-  "searchTasksPlaceholder": "搜索任务..."
+  "searchTasksPlaceholder": "搜索任务...",
+  "archive": "归档",
+  "archiveButton": "归档任务",
+  "archiveModal": {
+    "title": "归档当前任务",
+    "message": "是否归档此项目的所有当前任务？",
+    "projectName": "项目",
+    "taskCount": "任务总数"
+  },
+  "archiveTab": "归档",
+  "archivedTaskLists": "已归档任务列表",
+  "importArchive": "导入",
+  "deleteArchive": "删除",
+  "viewArchive": "查看",
+  "appendTasks": "添加到当前任务",
+  "replaceTasks": "替换所有当前任务",
+  "importWarning": "警告：这将删除所有当前任务",
+  "archiveSuccess": "任务归档成功",
+  "noArchivesFound": "未找到已归档的任务列表",
+  "initialRequest": "初始请求",
+  "noInitialRequest": "未提供初始请求"
 }

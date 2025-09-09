@@ -1,5 +1,11 @@
 {
   "appTitle": "🦐 Shrimp Görev Yöneticisi Görüntüleyici",
+  "unknown": "Bilinmeyen",
+  "unknownTask": "Bilinmeyen Görev",
+  "task.name": "Görev Adı",
+  "task.status": "Durum",
+  "task.dependencies": "Bağımlılıklar",
+  "actions": "Eylemler",
   "header": {
     "appTitle": "🦐 Shrimp Görev Yöneticisi Görüntüleyici",
     "version": "Sürüm",
@@ -61,20 +67,20 @@
     "to": "ile",
     "filteredFrom": "filtrelendi"
   },
-  "profile": {
-    "management": "🔧 Profil Yönetimi",
-    "managementDesc": "Görev dosyası profillerini yönetin. Yeni profiller oluşturun veya mevcut olanları düzenleyin.",
+  "project": {
+    "management": "🔧 Proje Yönetimi",
+    "managementDesc": "Görev dosyası projelerini yönetin. Yeni projeler oluşturun veya mevcut olanları düzenleyin.",
     "taskFolderPath": "Görev Klasörü Yolu",
     "taskFolderPathPlaceholder": "/yol/to/shrimp_veri_klasoru",
-    "profileName": "Proje Adı",
-    "profileNamePlaceholder": "örn., Takım Alpha Görevleri",
+    "projectName": "Proje Adı",
+    "projectNamePlaceholder": "örn., Takım Alpha Görevleri",
     "projectRootPath": "Proje Kök Yolu",
     "projectRootPathPlaceholder": "örn., /home/kullanici/projem",
-    "addProfile": "Proje Ekle",
-    "editProfile": "Proje Düzenle",
-    "deleteProfile": "Proje Sil",
-    "addNewProfile": "Yeni Proje Ekle",
-    "profileNameTitle": "Bu proje için açıklayıcı bir ad girin",
+    "addProject": "Proje Ekle",
+    "editProject": "Proje Düzenle",
+    "deleteProject": "Proje Sil",
+    "addNewProject": "Yeni Proje Ekle",
+    "projectNameTitle": "Bu proje için açıklayıcı bir ad girin",
     "taskFolderPathTitle": "tasks.json içeren shrimp veri klasörünüzün yolunu girin",
     "tip": "İpucu",
     "navigateToFolder": "Terminalde shrimp veri klasörünüze gidin ve",
@@ -84,10 +90,9 @@
     "projectRootHint": "Bu, VS Code'da açılan tıklanabilir dosya bağlantılarını etkinleştirir",
     "optional": "isteğe bağlı",
     "cancelAndCloseDialog": "İptal et ve bu diyalogu kapat",
-    "addProject": "Proje Ekle",
     "projectRoot": "Proje Kökü",
     "taskPath": "Görev Yolu",
-    "editProfileNameTitle": "Proje adını düzenle",
+    "editProjectNameTitle": "Proje adını düzenle",
     "projectRootEditPlaceholder": "örn., /home/kullanici/projeler/projem",
     "projectRootEditTitle": "VS Code dosya bağlantılarını etkinleştirmek için proje kök yolunu ayarla",
     "projectRootEditHint": "Görev dosyaları için tıklanabilir VS Code bağlantılarını etkinleştirmek için bunu ayarlayın",
@@ -186,10 +191,10 @@
     "noTasksInHistory": "Bu geçmiş anlık görüntüsü görev içermiyor",
     "taskRowTitle": "Geçmiş anlık görüntüsünden görev detayları",
     "editProjectSettings": "Proje Ayarlarını Düzenle",
-    "chooseProfileTitle": "Yukarıdaki açılır menüden bir proje seçin",
-    "selectProfileToViewTasks": "Görevleri görüntülemek için bir proje seçin",
-    "noProfilesAvailable": "Mevcut proje yok",
-    "noProfilesClickAddTab": "Mevcut proje yok. Bir tane oluşturmak için \"Proje Ekle\"ye tıklayın.",
+    "chooseProjectTitle": "Yukarıdaki açılır menüden bir proje seçin",
+    "selectProjectToViewTasks": "Görevleri görüntülemek için bir proje seçin",
+    "noProjectsAvailable": "Mevcut proje yok",
+    "noProjectsClickAddTab": "Mevcut proje yok. Bir tane oluşturmak için \"Proje Ekle\"ye tıklayın.",
     "loadingTasksFromFile": "Dosyadan görevler yükleniyor",
     "loadingTasks": "Görevler yükleniyor... ⏳"
   },
@@ -204,14 +209,14 @@
     "claudeFolderPathPlaceholder": "örn., ~/.config/claude"
   },
   "notifications": {
-    "profileCreatedSuccess": "Profil başarıyla oluşturuldu",
-    "profileUpdatedSuccess": "Profil başarıyla güncellendi",
-    "profileDeletedSuccess": "Profil başarıyla silindi",
+    "projectCreatedSuccess": "Proje başarıyla oluşturuldu",
+    "projectUpdatedSuccess": "Proje başarıyla güncellendi",
+    "projectDeletedSuccess": "Proje başarıyla silindi",
     "taskUpdatedSuccess": "Görev başarıyla güncellendi",
     "settingsSaved": "Ayarlar başarıyla kaydedildi",
     "copiedToClipboard": "Panoya kopyalandı",
-    "profileAddedSuccess": "Proje \"{{name}}\" başarıyla eklendi!",
-    "profileRemovedSuccess": "Proje \"{{name}}\" başarıyla kaldırıldı!",
+    "projectAddedSuccess": "Proje \"{{name}}\" başarıyla eklendi!",
+    "projectRemovedSuccess": "Proje \"{{name}}\" başarıyla kaldırıldı!",
     "templateSavedSuccess": "Şablon \"{{name}}\" başarıyla kaydedildi!",
     "templateResetSuccess": "Şablon \"{{name}}\" varsayılana sıfırlandı!",
     "templateDuplicatedSuccess": "Şablon \"{{name}}\" olarak çoğaltıldı!",
@@ -219,7 +224,7 @@
   },
   "empty": {
     "noTasksFound": "Görev bulunamadı",
-    "noProfilesFound": "Profil bulunamadı",
+    "noProjectsFound": "Proje bulunamadı",
     "noTemplatesFound": "Şablon bulunamadı",
     "noHistoryFound": "Geçmiş bulunamadı"
   },
@@ -257,10 +262,10 @@
     "refreshTemplateData": "Şablon verilerini yenile",
     "searchTasksPlaceholder": "🔍 Görevleri ara...",
     "searchTasksTitle": "Herhangi bir metin içeriğine göre görevleri ara ve filtrele",
-    "refreshCurrentProfile": "Mevcut proje verilerini yenile - dosyadan görevleri yeniden yükle"
+    "refreshCurrentProject": "Mevcut proje verilerini yenile - dosyadan görevleri yeniden yükle"
   },
   "confirmation": {
-    "confirmRemoveProfile": "Bu projeyi kaldırmak istediğinizden emin misiniz? Bu eylem geri alınamaz.",
+    "confirmRemoveProject": "Bu projeyi kaldırmak istediğinizden emin misiniz? Bu eylem geri alınamaz.",
     "confirmResetTemplate": "{{name}} şablonunu varsayılana sıfırlamak istediğinizden emin misiniz? Bu, tüm özelleştirmeleri kaldıracak."
   },
   "projects": "Projeler",
@@ -277,5 +282,11 @@
   "inProgress": "DEVAM EDİYOR",
   "pending": "BEKLİYOR",
   "autoRefresh": "Otomatik Yenile",
-  "searchTasksPlaceholder": "Görev ara..."
+  "searchTasksPlaceholder": "Görev ara...",
+  "task": "Görev",
+  "agent": "Temsilci",
+  "description": "Açıklama",
+  "version": "Sürüm",
+  "created": "Oluşturuldu",
+  "updated": "Güncellendi"
 }

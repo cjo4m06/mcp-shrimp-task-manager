@@ -48,6 +48,21 @@ export interface RelatedFile {
   // lineEnd?: number; // Ending line of related code block (optional)
 }
 
+// 任務完成詳細資訊：儲存任務完成時的結構化數據
+// Task completion details: Stores structured data when task is completed
+export interface TaskCompletionDetails {
+  keyAccomplishments: string[]; // 主要成就清單
+  // keyAccomplishments: string[]; // List of key accomplishments
+  implementationDetails: string[]; // 實施細節清單
+  // implementationDetails: string[]; // List of implementation details
+  technicalChallenges: string[]; // 技術挑戰清單
+  // technicalChallenges: string[]; // List of technical challenges
+  completedAt: Date; // 完成時間戳
+  // completedAt: Date; // Completion timestamp
+  verificationScore: number; // 驗證分數 (0-100)
+  // verificationScore: number; // Verification score (0-100)
+}
+
 // 任務介面：定義任務的完整數據結構
 // Task interface: Defines the complete data structure of tasks
 export interface Task {
@@ -93,6 +108,11 @@ export interface Task {
   // New field: Save verification standards and inspection methods
   verificationCriteria?: string; // 明確的驗證標準、測試要點和驗收條件
   // verificationCriteria?: string; // Clear verification standards, test points and acceptance conditions
+
+  // 任務完成詳細資訊：儲存結構化的完成數據（必填於任務完成時）
+  // Task completion details: Stores structured completion data (required when task is completed)
+  completionDetails?: TaskCompletionDetails; // 任務完成時的結構化詳細資訊
+  // completionDetails?: TaskCompletionDetails; // Structured detailed information when task is completed
 }
 
 // 任務複雜度級別：定義任務的複雜程度分類
@@ -156,4 +176,91 @@ export interface TaskComplexityAssessment {
   };
   recommendations: string[]; // 處理建議列表
   // recommendations: string[]; // List of processing recommendations
+}
+
+// 任務數據結構：包含任務列表和初始請求
+// Tasks data structure: Contains task list and initial request
+export interface TasksData {
+  tasks: Task[];
+  initialRequest?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+// 檔案管理相關接口：支援任務檔案功能
+// Archive management related interfaces: Support task archive functionality
+
+// 檔案元數據：定義檔案的基本信息和統計數據
+// Archive metadata: Defines basic information and statistics of archives
+export interface ArchiveMetadata {
+  id: string; // 檔案的唯一標識符
+  // id: string; // Unique identifier of the archive
+  name: string; // 檔案的名稱或標題
+  // name: string; // Name or title of the archive
+  description: string; // 檔案的詳細描述
+  // description: string; // Detailed description of the archive
+  createdAt: Date; // 檔案創建的時間戳
+  // createdAt: Date; // Timestamp when the archive was created
+  taskCount: number; // 檔案中包含的任務數量
+  // taskCount: number; // Number of tasks contained in the archive
+  filePath: string; // 檔案在文件系統中的存儲路徑
+  // filePath: string; // Storage path of the archive in the file system
+}
+
+// 任務歷史記錄條目：記錄任務狀態變更和操作歷史
+// Task history entry: Records task state changes and operation history
+export interface TaskHistoryEntry {
+  timestamp: Date; // 操作發生的時間戳
+  // timestamp: Date; // Timestamp when the operation occurred
+  operation: string; // 執行的操作類型（如：創建、修改、完成、刪除等）
+  // operation: string; // Type of operation performed (e.g., create, modify, complete, delete)
+  taskId: string; // 相關任務的唯一標識符
+  // taskId: string; // Unique identifier of the related task
+  taskName: string; // 任務名稱的快照，便於歷史記錄查看
+  // taskName: string; // Snapshot of task name for easy history viewing
+  details: string; // 操作的詳細描述或變更內容
+  // details: string; // Detailed description of the operation or change content
+  userId?: string; // 執行操作的用戶標識符（如適用）
+  // userId?: string; // Identifier of the user who performed the operation (if applicable)
+}
+
+// 同步狀態：記錄任務數據的同步狀態和衝突信息
+// Sync status: Records synchronization status and conflict information of task data
+export interface SyncStatus {
+  isInSync: boolean; // 數據是否與遠程或其他源同步
+  // isInSync: boolean; // Whether data is synchronized with remote or other sources
+  lastSyncTime?: Date; // 最後一次同步的時間戳
+  // lastSyncTime?: Date; // Timestamp of the last synchronization
+  conflicts: string[]; // 當前存在的衝突列表
+  // conflicts: string[]; // List of current conflicts
+  resolvedConflicts: string[]; // 已解決的衝突歷史記錄
+  // resolvedConflicts: string[]; // History of resolved conflicts
+}
+
+// 已刪除任務信息：擴展任務接口以支持刪除任務的恢復功能
+// Deleted task information: Extends Task interface to support recovery of deleted tasks
+export interface DeletedTaskInfo extends Task {
+  deletedAt: Date; // 任務被刪除的時間戳
+  // deletedAt: Date; // Timestamp when the task was deleted
+  backupSource: string; // 備份來源的標識或路徑
+  // backupSource: string; // Identifier or path of the backup source
+}
+
+// 恢復操作結果：記錄任務恢復操作的執行結果
+// Recovery result: Records the execution result of task recovery operations
+export interface RecoveryResult {
+  success: boolean; // 恢復操作是否成功
+  // success: boolean; // Whether the recovery operation was successful
+  recoveredTaskIds: string[]; // 成功恢復的任務ID列表
+  // recoveredTaskIds: string[]; // List of successfully recovered task IDs
+  failedTaskIds: string[]; // 恢復失敗的任務ID列表
+  // failedTaskIds: string[]; // List of task IDs that failed to recover
+  errors: string[]; // 恢復過程中遇到的錯誤信息
+  // errors: string[]; // Error messages encountered during recovery
+  warnings: string[]; // 恢復過程中的警告信息
+  // warnings: string[]; // Warning messages during recovery
+  totalProcessed: number; // 總共處理的任務數量
+  // totalProcessed: number; // Total number of tasks processed
+  timestamp: Date; // 恢復操作執行的時間戳
+  // timestamp: Date; // Timestamp when the recovery operation was executed
 }

@@ -9,13 +9,17 @@ import {
 } from '@tanstack/react-table';
 import TaskDetailView from './TaskDetailView';
 import { useTranslation } from 'react-i18next';
+import MDEditor from '@uiw/react-md-editor';
 
 function HistoryTasksView({ 
   tasks = [], 
   historyEntry,
   loading = false, 
   error = '',
-  onBack
+  onBack,
+  initialRequest = '',
+  summary = '',
+  generatedInitialRequest = false
 }) {
   const { t } = useTranslation();
   const [selectedTask, setSelectedTask] = useState(null);
@@ -193,6 +197,57 @@ function HistoryTasksView({
           </>
         )}
       </div>
+
+      {/* Initial Request Section */}
+      {initialRequest && (
+        <div className="task-detail-section collapsible-section" style={{ marginBottom: '20px' }}>
+          <h3 className="collapsible-header">
+            {t('initialRequest', 'Initial Request')}
+            {generatedInitialRequest && (
+              <span style={{ 
+                marginLeft: '10px', 
+                fontSize: '12px', 
+                color: '#facc15',
+                fontWeight: 'normal',
+                backgroundColor: 'rgba(250, 204, 21, 0.1)',
+                padding: '2px 8px',
+                borderRadius: '4px',
+                border: '1px solid rgba(250, 204, 21, 0.3)'
+              }}>
+                ⚡ Auto-generated
+              </span>
+            )}
+            <span className="expand-icon expanded">▼</span>
+          </h3>
+          <div className="collapsible-content expanded">
+            <div className="detail-content">
+              {initialRequest.replace(/\n要求:/g, '\nRequirements:').replace(/\n需求:/g, '\nRequirements:')}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Summary Section */}
+      {summary && (
+        <div className="task-detail-section collapsible-section" style={{ marginBottom: '20px' }}>
+          <h3 className="collapsible-header">
+            Summary
+            <span className="expand-icon expanded">▼</span>
+          </h3>
+          <div className="collapsible-content expanded">
+            <div className="detail-content">
+              <MDEditor.Markdown 
+                source={summary}
+                style={{
+                  backgroundColor: 'transparent',
+                  color: 'inherit'
+                }}
+                data-color-mode="dark"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {tasks.length === 0 ? (
         <div className="empty-tasks">

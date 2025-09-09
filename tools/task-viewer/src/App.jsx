@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import TaskTable from './components/TaskTable';
+import FinalSummary from './components/FinalSummary';
 import ReleaseNotes from './components/ReleaseNotes';
 import Help from './components/Help';
 import TemplateManagement from './components/TemplateManagement';
@@ -9,27 +10,49 @@ import ActivationDialog from './components/ActivationDialog';
 import DuplicateTemplateView from './components/DuplicateTemplateView';
 import HistoryView from './components/HistoryView';
 import HistoryTasksView from './components/HistoryTasksView';
+import ArchiveView from './components/ArchiveView';
+import ArchiveDetailView from './components/ArchiveDetailView';
 import GlobalSettingsView from './components/GlobalSettingsView';
 import SubAgentsView from './components/SubAgentsView';
 import ProjectAgentsView from './components/ProjectAgentsView';
 import ToastContainer from './components/ToastContainer';
 import LanguageSelector from './components/LanguageSelector';
 import ChatAgent from './components/ChatAgent';
+import ErrorBoundary from './components/ErrorBoundary';
+import DebugPanel from './components/DebugPanel';
+import ExportModal from './components/ExportModal';
+import ArchiveModal from './components/ArchiveModal';
+import ImportArchiveModal from './components/ImportArchiveModal';
 import { useTranslation } from 'react-i18next';
 import { parseUrlState, updateUrl, pushUrlState, getInitialUrlState, cleanUrlStateForTab } from './utils/urlStateSync';
 import NestedTabs from './components/NestedTabs';
+import { debugLog, performanceMonitor } from './utils/debug';
+import { usePerformanceMonitoring } from './utils/optimizedHooks';
+import { exportToCSV, exportToMarkdown } from './utils/exportUtils';
 
 function AppContent() {
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language;
   
+  // Performance monitoring for the main App component
+  const performanceData = usePerformanceMonitoring('AppContent', {
+    currentLanguage,
+    renderTime: Date.now()
+  });
+  
   // Initialize URL state
   const [urlStateInitialized, setUrlStateInitialized] = useState(false);
   const initialUrlState = useMemo(() => getInitialUrlState(), []);
   
-  const [profiles, setProfiles] = useState([]);
+  const [profiles, setProfiles] = useState(() => {
+    // Ensure profiles is always initialized as an array
+    debugLog('AppContent', 'Profiles State Init', { initialValue: [] });
+    return [];
+  });
   const [selectedProfile, setSelectedProfile] = useState(initialUrlState.profile || '');
   const [tasks, setTasks] = useState([]);
+  const [initialRequest, setInitialRequest] = useState('');
+  const [summary, setSummary] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [autoRefresh, setAutoRefresh] = useState(() => {
@@ -41,6 +64,7 @@ function AppContent() {
     return saved !== null ? Number(saved) : 30;
   });
   const [globalFilter, setGlobalFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'completed', 'in_progress', 'pending'
   const [showAddProfile, setShowAddProfile] = useState(false);
   const [draggedTabIndex, setDraggedTabIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
@@ -72,9 +96,13 @@ function AppContent() {
   const [globalSettingsLoaded, setGlobalSettingsLoaded] = useState(false);
   
   // Inner project tab state (tasks, history, settings)
-  const [projectInnerTab, setProjectInnerTab] = useState(initialUrlState.projectTab || 'tasks'); // 'tasks', 'history', 'settings'
+  const [projectInnerTab, setProjectInnerTab] = useState(initialUrlState.projectTab || 'tasks'); // 'tasks', 'history', 'archive', 'settings'
   const [agentsTabRefresh, setAgentsTabRefresh] = useState(0); // Trigger for refreshing agents view
   const [tasksTabRefresh, setTasksTabRefresh] = useState(0); // Trigger for refreshing tasks view
+  
+  // Emoji template states
+  const [robotEmojiTemplate, setRobotEmojiTemplate] = useState('');
+  const [armEmojiTemplate, setArmEmojiTemplate] = useState('');
   
   // History management states
   const [historyView, setHistoryView] = useState(initialUrlState.history || ''); // 'list' or 'details' or '' for normal view
@@ -83,12 +111,74 @@ function AppContent() {
   const [historyError, setHistoryError] = useState('');
   const [selectedHistoryEntry, setSelectedHistoryEntry] = useState(null);
   const [selectedHistoryTasks, setSelectedHistoryTasks] = useState([]);
+  const [selectedHistoryInitialRequest, setSelectedHistoryInitialRequest] = useState('');
+  const [selectedHistorySummary, setSelectedHistorySummary] = useState('');
+  const [selectedHistoryGeneratedRequest, setSelectedHistoryGeneratedRequest] = useState(false);
   
   // Toast notifications state
   const [toasts, setToasts] = useState([]);
   
   // Current task state for chat context
   const [currentTask, setCurrentTask] = useState(null);
+  
+  // Initial request collapse state
+  const [initialRequestCollapsed, setInitialRequestCollapsed] = useState(() => {
+    const saved = localStorage.getItem('initialRequestCollapsed');
+    return saved !== null ? saved === 'true' : false;
+  });
+
+  // Export modal state
+  const [showExportModal, setShowExportModal] = useState(false);
+
+  // Archive modal states
+  const [showArchiveModal, setShowArchiveModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [selectedArchive, setSelectedArchive] = useState(null);
+  const [archiveView, setArchiveView] = useState('list'); // 'list' or 'details'
+  
+  // History import modal state
+  const [showImportHistoryModal, setShowImportHistoryModal] = useState(false);
+  const [archives, setArchives] = useState([]);
+
+
+  // Helper function to ensure profiles is always an array
+  const getSafeProfiles = () => {
+    const safe = Array.isArray(profiles) ? profiles : [];
+    if (!Array.isArray(profiles)) {
+      debugLog('AppContent', 'Profiles Not Array', { profiles, type: typeof profiles });
+    }
+    return safe;
+  };
+
+  // Safe wrapper for setProfiles to ensure it's always an array
+  const setSafeProfiles = (value) => {
+    try {
+      if (typeof value === 'function') {
+        setProfiles(prev => {
+          try {
+            const result = value(prev);
+            const safeResult = Array.isArray(result) ? result : [];
+            if (!Array.isArray(result)) {
+              debugLog('AppContent', 'Non-Array Profiles Function Result', { result, type: typeof result });
+            }
+            return safeResult;
+          } catch (err) {
+            debugLog('AppContent', 'Error in Profiles Function', { error: err.message, prev });
+            return Array.isArray(prev) ? prev : [];
+          }
+        });
+      } else {
+        const safeValue = Array.isArray(value) ? value : [];
+        if (!Array.isArray(value)) {
+          debugLog('AppContent', 'Non-Array Profiles Value', { value, type: typeof value });
+        }
+        setProfiles(safeValue);
+      }
+    } catch (err) {
+      debugLog('AppContent', 'Error in setSafeProfiles', { error: err.message, value });
+      setProfiles([]);  // Emergency fallback
+    }
+  };
 
   // Toast helper functions
   const showToast = (message, type = 'success', duration = 3000) => {
@@ -98,6 +188,261 @@ function AppContent() {
 
   const removeToast = (id) => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
+  };
+
+  // Export handler function
+  const handleExport = async ({ format, selectedStatuses, filteredTasks }) => {
+    try {
+      let content;
+      let filename;
+      let mimeType;
+
+      if (format === 'csv') {
+        content = exportToCSV(filteredTasks);
+        filename = 'tasks.csv';
+        mimeType = 'text/csv';
+      } else if (format === 'markdown') {
+        content = exportToMarkdown(filteredTasks, initialRequest);
+        filename = 'tasks.md';
+        mimeType = 'text/markdown';
+      } else {
+        showToast('Invalid export format', 'error');
+        return false;
+      }
+
+      // Create and trigger download
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      showToast(t('exportSuccess', { 
+        count: filteredTasks.length, 
+        format: format.toUpperCase() 
+      }), 'success');
+
+      return true;
+    } catch (err) {
+      console.error('Export error:', err);
+      showToast('Failed to export tasks: ' + err.message, 'error');
+      return false;
+    }
+  };
+
+  // Archive handler function
+  const handleArchive = () => {
+    if (!selectedProfile || tasks.length === 0) {
+      showToast('No tasks to archive', 'error');
+      return;
+    }
+
+    try {
+      // Create archive object
+      const archiveData = {
+        id: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+        projectId: selectedProfile,
+        projectName: profiles?.find(p => p.id === selectedProfile)?.name || 'Unknown Project',
+        initialRequest: initialRequest || '',
+        tasks: tasks,
+        stats: {
+          total: tasks.length,
+          completed: tasks.filter(t => t.status === 'completed').length,
+          inProgress: tasks.filter(t => t.status === 'in_progress').length,
+          pending: tasks.filter(t => t.status === 'pending').length
+        },
+        summary: summary || ''
+      };
+
+      // Get existing archives from localStorage
+      const storageKey = `task-archives-${selectedProfile}`;
+      const existingArchives = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      
+      // Add new archive to the beginning
+      const updatedArchives = [archiveData, ...existingArchives];
+      
+      // Limit to 50 archives to prevent localStorage overflow
+      const limitedArchives = updatedArchives.slice(0, 50);
+      
+      // Save to localStorage
+      localStorage.setItem(storageKey, JSON.stringify(limitedArchives));
+      
+      // Update state
+      setArchives(limitedArchives);
+      
+      showToast(`Archived ${tasks.length} tasks successfully`, 'success');
+    } catch (err) {
+      console.error('Archive error:', err);
+      showToast('Failed to archive tasks: ' + err.message, 'error');
+    }
+  };
+
+  // Handle archive deletion
+  const handleDeleteArchive = (archive) => {
+    if (!archive || !selectedProfile) return;
+
+    try {
+      const storageKey = `task-archives-${selectedProfile}`;
+      const existingArchives = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      
+      // Remove the archive by ID
+      const updatedArchives = existingArchives.filter(a => a.id !== archive.id);
+      
+      // Save to localStorage
+      localStorage.setItem(storageKey, JSON.stringify(updatedArchives));
+      
+      // Update state
+      setArchives(updatedArchives);
+      
+      showToast('Archive deleted successfully', 'success');
+    } catch (err) {
+      console.error('Delete archive error:', err);
+      showToast('Failed to delete archive: ' + err.message, 'error');
+    }
+  };
+
+  // Handle archive import
+  const handleImportArchive = (mode) => {
+    if (!selectedArchive || !selectedProfile) {
+      showToast('No archive selected for import', 'error');
+      return;
+    }
+
+    try {
+      let newTasks = [...selectedArchive.tasks];
+      
+      if (mode === 'append') {
+        // Add archived tasks to existing tasks
+        const existingTaskIds = new Set(tasks.map(t => t.id));
+        
+        // Filter out tasks that already exist to avoid duplicates
+        const uniqueArchivedTasks = newTasks.filter(t => !existingTaskIds.has(t.id));
+        
+        if (uniqueArchivedTasks.length === 0) {
+          showToast('All tasks from this archive already exist', 'info');
+          setShowImportModal(false);
+          return;
+        }
+        
+        newTasks = [...tasks, ...uniqueArchivedTasks];
+        showToast(`Appended ${uniqueArchivedTasks.length} tasks from archive`, 'success');
+      } else if (mode === 'replace') {
+        // Replace all current tasks with archived tasks
+        showToast(`Replaced ${tasks.length} tasks with ${newTasks.length} archived tasks`, 'success');
+      }
+
+      // Update tasks state
+      setTasks(newTasks);
+      
+      // Update initial request if present
+      if (selectedArchive.initialRequest) {
+        setInitialRequest(selectedArchive.initialRequest);
+      }
+      
+      // Update summary if present
+      if (selectedArchive.summary) {
+        setSummary(selectedArchive.summary);
+      }
+
+      // Close modal
+      setShowImportModal(false);
+      setSelectedArchive(null);
+    } catch (err) {
+      console.error('Import archive error:', err);
+      showToast('Failed to import archive: ' + err.message, 'error');
+    }
+  };
+
+  // Handle viewing archive
+  const handleViewArchive = (archive) => {
+    setSelectedArchive(archive);
+    setArchiveView('details');
+  };
+
+  // Handle history deletion
+  const handleDeleteHistory = async (historyEntry) => {
+    if (!historyEntry || !selectedProfile) return;
+
+    // Show confirmation dialog
+    if (!window.confirm(`Are you sure you want to delete this history entry from ${new Date(historyEntry.timestamp).toLocaleDateString()}?`)) {
+      return;
+    }
+
+    try {
+      // Call API to delete history file
+      const response = await fetch(`/api/history/${selectedProfile}/${historyEntry.filename}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete history: ${response.status}`);
+      }
+
+      // Update state - remove the deleted entry
+      setHistoryData(prevData => prevData.filter(h => h.filename !== historyEntry.filename));
+      
+      showToast('History entry deleted successfully', 'success');
+    } catch (err) {
+      console.error('Delete history error:', err);
+      showToast('Failed to delete history: ' + err.message, 'error');
+    }
+  };
+
+  // Handle history import
+  const handleImportHistory = (mode) => {
+    if (!selectedHistoryEntry || !selectedProfile) {
+      showToast('No history entry selected for import', 'error');
+      return;
+    }
+
+    try {
+      let newTasks = [...selectedHistoryTasks];
+      
+      if (mode === 'append') {
+        // Add history tasks to existing tasks
+        const existingTaskIds = new Set(tasks.map(t => t.id));
+        
+        // Filter out tasks that already exist to avoid duplicates
+        const uniqueHistoryTasks = newTasks.filter(t => !existingTaskIds.has(t.id));
+        
+        if (uniqueHistoryTasks.length === 0) {
+          showToast('All tasks from this history already exist', 'info');
+          setShowImportHistoryModal(false);
+          return;
+        }
+        
+        newTasks = [...tasks, ...uniqueHistoryTasks];
+        showToast(`Appended ${uniqueHistoryTasks.length} tasks from history`, 'success');
+      } else if (mode === 'replace') {
+        // Replace all current tasks with history tasks
+        showToast(`Replaced ${tasks.length} tasks with ${newTasks.length} history tasks`, 'success');
+      }
+
+      // Update tasks state
+      setTasks(newTasks);
+      
+      // Update initial request if present
+      if (selectedHistoryInitialRequest) {
+        setInitialRequest(selectedHistoryInitialRequest);
+      }
+      
+      // Update summary if present
+      if (selectedHistorySummary) {
+        setSummary(selectedHistorySummary);
+      }
+
+      // Close modal and reset selection
+      setShowImportHistoryModal(false);
+      setSelectedHistoryEntry(null);
+    } catch (err) {
+      console.error('Import history error:', err);
+      showToast('Failed to import history: ' + err.message, 'error');
+    }
   };
 
   // Auto-refresh interval
@@ -118,6 +463,29 @@ function AppContent() {
   useEffect(() => {
     loadProfiles();
   }, []);
+  
+  // Track the previous selected profile to detect actual profile switches
+  const prevSelectedProfileRef = useRef(selectedProfile);
+  
+  // Update emoji template states when selected profile changes
+  useEffect(() => {
+    const currentProfile = getSafeProfiles().find(p => p.id === selectedProfile);
+    
+    // Only update templates if we're switching to a different profile
+    // or if this is the first load (templates are empty)
+    if (currentProfile && (
+      prevSelectedProfileRef.current !== selectedProfile || 
+      !robotEmojiTemplate || 
+      !armEmojiTemplate
+    )) {
+      setRobotEmojiTemplate(currentProfile.robotEmojiTemplate || 
+        'use the built in subagent located in [AGENT] to complete this shrimp task: [UUID] please when u start working mark the shrimp task as in progress');
+      setArmEmojiTemplate(currentProfile.armEmojiTemplate || 
+        'Use task planner to execute this task: [UUID] using the role of [AGENT_NAME] agent. Apply the [AGENT_NAME] agent\'s specialized knowledge and approach, but execute the task yourself without launching a sub-agent. Please mark the task as in progress when you start working.');
+    }
+    
+    prevSelectedProfileRef.current = selectedProfile;
+  }, [selectedProfile, profiles, robotEmojiTemplate, armEmojiTemplate]); // Include all dependencies
   
   // Note: Environment variable checking is now handled in GlobalSettingsView component
 
@@ -149,7 +517,7 @@ function AppContent() {
       if (urlState.tab && urlState.tab !== selectedOuterTab) {
         setSelectedOuterTab(urlState.tab);
         
-        if (urlState.tab === 'projects' && urlState.profile && profiles.some(p => p.id === urlState.profile)) {
+        if (urlState.tab === 'projects' && urlState.profile && getSafeProfiles().some(p => p.id === urlState.profile)) {
           setSelectedProfile(urlState.profile);
           loadTasks(urlState.profile);
         } else if (urlState.tab === 'templates') {
@@ -159,7 +527,7 @@ function AppContent() {
       
       // Update profile if on projects tab
       if (urlState.tab === 'projects' && urlState.profile && urlState.profile !== selectedProfile) {
-        if (profiles.some(p => p.id === urlState.profile)) {
+        if (getSafeProfiles().some(p => p.id === urlState.profile)) {
           setSelectedProfile(urlState.profile);
           loadTasks(urlState.profile);
         }
@@ -170,6 +538,9 @@ function AppContent() {
         setProjectInnerTab(urlState.projectTab);
         if (urlState.projectTab === 'history' && !historyData.length && urlState.profile) {
           loadHistory(urlState.profile);
+        }
+        if (urlState.projectTab === 'archive' && urlState.profile) {
+          loadArchives(urlState.profile);
         }
       }
       
@@ -205,6 +576,11 @@ function AppContent() {
   useEffect(() => {
     localStorage.setItem('autoRefresh', autoRefresh.toString());
   }, [autoRefresh]);
+
+  // Save initial request collapse state to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('initialRequestCollapsed', initialRequestCollapsed.toString());
+  }, [initialRequestCollapsed]);
   
   useEffect(() => {
     localStorage.setItem('refreshInterval', refreshInterval.toString());
@@ -242,27 +618,62 @@ function AppContent() {
       const response = await fetch('/api/agents');
       if (!response.ok) throw new Error('Failed to load profiles');
       const data = await response.json();
-      setProfiles(data);
+      
+      // Restore tab order from localStorage if it exists
+      let orderedProfiles = Array.isArray(data) ? data : [];
+      try {
+        const savedOrder = localStorage.getItem('profileTabOrder');
+        if (savedOrder) {
+          const profileOrder = JSON.parse(savedOrder);
+          const orderedData = [];
+          const remainingProfiles = [...orderedProfiles];
+          
+          // Add profiles in saved order
+          profileOrder.forEach(profileId => {
+            const profileIndex = remainingProfiles.findIndex(p => p.id === profileId);
+            if (profileIndex !== -1) {
+              orderedData.push(remainingProfiles[profileIndex]);
+              remainingProfiles.splice(profileIndex, 1);
+            }
+          });
+          
+          // Add any new profiles that weren't in the saved order
+          orderedData.push(...remainingProfiles);
+          
+          orderedProfiles = orderedData;
+          debugLog('AppContent', 'Tab order restored from localStorage', { 
+            savedOrder: profileOrder, 
+            restoredProfiles: orderedProfiles.map(p => p.id)
+          });
+        }
+      } catch (error) {
+        debugLog('AppContent', 'Failed to restore tab order from localStorage', { error: error.message });
+        // Continue with original order if restoration fails
+      }
+      
+      // Ensure profiles is always an array to prevent TypeError
+      setSafeProfiles(orderedProfiles);
       
       // On initial load, restore state from URL
-      if (!urlStateInitialized && data.length > 0) {
+      const safeProfiles = orderedProfiles;
+      if (!urlStateInitialized && safeProfiles.length > 0) {
         setUrlStateInitialized(true);
         
         // If on projects tab and profile is specified in URL
         if (initialUrlState.tab === 'projects' && initialUrlState.profile) {
-          if (data.some(p => p.id === initialUrlState.profile)) {
+          if (safeProfiles.some(p => p.id === initialUrlState.profile)) {
             handleProfileChange(initialUrlState.profile);
           } else {
             // Profile not found, use first one
-            handleProfileChange(data[0].id);
+            handleProfileChange(safeProfiles[0].id);
           }
         } else if (initialUrlState.tab === 'projects') {
           // No profile in URL, use saved or first profile
           const savedProfile = localStorage.getItem('selectedProfile');
-          if (savedProfile && data.some(p => p.id === savedProfile)) {
+          if (savedProfile && safeProfiles.some(p => p.id === savedProfile)) {
             handleProfileChange(savedProfile);
           } else {
-            handleProfileChange(data[0].id);
+            handleProfileChange(safeProfiles[0].id);
           }
         } else if (initialUrlState.tab === 'templates') {
           loadTemplates();
@@ -280,6 +691,8 @@ function AppContent() {
       }
     } catch (err) {
       setError('Failed to load profiles: ' + err.message);
+      // Ensure profiles remains an empty array even on error to prevent TypeError
+      setSafeProfiles([]);
     }
   };
 
@@ -290,6 +703,7 @@ function AppContent() {
   const loadTasks = async (profileId, forceRefresh = false) => {
     if (!profileId) {
       setTasks([]);
+      setInitialRequest('');
       return;
     }
 
@@ -304,6 +718,8 @@ function AppContent() {
       const cachedData = tasksCache.get(profileId);
       setTasks(cachedData.tasks);
       setProjectRoot(cachedData.projectRoot);
+      setInitialRequest(cachedData.initialRequest || '');
+      setSummary(cachedData.summary || '');
       return;
     }
 
@@ -319,6 +735,7 @@ function AppContent() {
       
       const data = await response.json();
       console.log('Received tasks data:', data.tasks?.length, 'tasks');
+      console.log('Initial request in data:', data.initialRequest);
       
       // Check if there's a message about missing tasks.json
       if (data.message && data.tasks?.length === 0) {
@@ -330,14 +747,20 @@ function AppContent() {
       // Cache the data
       tasksCache.set(profileId, {
         tasks: data.tasks || [],
-        projectRoot: data.projectRoot || null
+        projectRoot: data.projectRoot || null,
+        initialRequest: data.initialRequest || '',
+        summary: data.summary || ''
       });
       
       setTasks(data.tasks || []);
       setProjectRoot(data.projectRoot || null);
+      setInitialRequest(data.initialRequest || '');
+      setSummary(data.summary || '');
     } catch (err) {
       setError('❌ Error loading tasks: ' + err.message);
       setTasks([]);
+      setInitialRequest('');
+      setSummary('');
     } finally {
       setLoading(false);
       loadingRef.current = false;
@@ -364,6 +787,9 @@ function AppContent() {
       setHistoryData([]);
       setSelectedHistoryEntry(null);
       setSelectedHistoryTasks([]);
+      setSelectedHistoryInitialRequest('');
+      setSelectedHistorySummary('');
+      setSelectedHistoryGeneratedRequest(false);
     }
     
     // Clear any stuck loading state and force reload
@@ -396,14 +822,18 @@ function AppContent() {
       setHistoryData([]);
       setSelectedHistoryEntry(null);
       setSelectedHistoryTasks([]);
+      setSelectedHistoryInitialRequest('');
+      setSelectedHistorySummary('');
+      setSelectedHistoryGeneratedRequest(false);
       
       // When switching back to projects, ensure a profile is selected
       if (!selectedProfile || selectedProfile === 'release-notes' || selectedProfile === 'help' || selectedProfile === 'templates') {
         const savedProfile = localStorage.getItem('selectedProfile');
-        if (savedProfile && profiles.some(p => p.id === savedProfile)) {
+        const safeProfiles = getSafeProfiles();
+        if (savedProfile && safeProfiles.some(p => p.id === savedProfile)) {
           handleProfileChange(savedProfile);
-        } else {
-          handleProfileChange(profiles[0].id);
+        } else if (safeProfiles.length > 0) {
+          handleProfileChange(safeProfiles[0].id);
         }
       }
     }
@@ -507,17 +937,18 @@ function AppContent() {
         throw new Error('Failed to remove profile');
       }
 
-      // Find profile name for toast
-      const profile = profiles.find(p => p.id === profileId);
+      // Find profile name for toast with defensive check
+      const profile = getSafeProfiles().find(p => p.id === profileId);
       const profileName = profile ? profile.name : profileId;
       
       // Show success toast
-      showToast(t('profileRemovedSuccess', { name: profileName }), 'success');
+      showToast(t('projectRemovedSuccess', { name: profileName }), 'success');
       
       // If we're removing the currently selected profile, clear selection
       if (selectedProfile === profileId) {
         setSelectedProfile('');
         setTasks([]);
+        setInitialRequest('');
       }
 
       await loadProfiles();
@@ -542,10 +973,13 @@ function AppContent() {
 
       const updatedProfile = await response.json();
       
-      // Update profiles in state
-      setProfiles(prev => prev.map(p => 
-        p.id === profileId ? { ...p, ...updatedProfile } : p
-      ));
+      // Update profiles in state with defensive check
+      setSafeProfiles(prev => {
+        const safeProfiles = Array.isArray(prev) ? prev : [];
+        return safeProfiles.map(p => 
+          p.id === profileId ? { ...p, ...updatedProfile } : p
+        );
+      });
 
       // Update projectRoot if it was changed
       if (updates.projectRoot !== undefined) {
@@ -822,13 +1256,37 @@ function AppContent() {
       
       const data = await response.json();
       setSelectedHistoryTasks(data.tasks || []);
+      setSelectedHistoryInitialRequest(data.initialRequest || '');
+      setSelectedHistorySummary(data.summary || '');
+      setSelectedHistoryGeneratedRequest(data.generatedInitialRequest || false);
       setSelectedHistoryEntry(historyEntry);
       setHistoryView('details');
     } catch (err) {
       setHistoryError('❌ Error loading history tasks: ' + err.message);
       setSelectedHistoryTasks([]);
+      setSelectedHistoryInitialRequest('');
+      setSelectedHistorySummary('');
+      setSelectedHistoryGeneratedRequest(false);
     } finally {
       setHistoryLoading(false);
+    }
+  };
+
+  // Archive management function
+  const loadArchives = (profileId) => {
+    if (!profileId) {
+      setArchives([]);
+      return;
+    }
+
+    try {
+      const storageKey = `task-archives-${profileId}`;
+      const archivedData = localStorage.getItem(storageKey);
+      const archives = archivedData ? JSON.parse(archivedData) : [];
+      setArchives(archives);
+    } catch (err) {
+      console.error('Error loading archives:', err);
+      setArchives([]);
     }
   };
 
@@ -841,7 +1299,14 @@ function AppContent() {
 
   const handleDragOver = (e, index) => {
     e.preventDefault(); // Required to allow drop
-    setDragOverIndex(index); // Visual feedback for drop target
+    e.dataTransfer.dropEffect = 'move';
+    
+    // Clear drag-over state if index is -1 (leaving element)
+    if (index === -1) {
+      setDragOverIndex(null);
+    } else {
+      setDragOverIndex(index); // Visual feedback for drop target
+    }
   };
 
   const handleDragEnd = () => {
@@ -867,10 +1332,22 @@ function AppContent() {
     // Insert at new position
     newProfiles.splice(dropIndex, 0, draggedProfile);
     
+    // Save the new tab order to localStorage
+    try {
+      const profileOrder = newProfiles.map(profile => profile.id);
+      localStorage.setItem('profileTabOrder', JSON.stringify(profileOrder));
+      debugLog('AppContent', 'Tab order saved to localStorage', { profileOrder });
+    } catch (error) {
+      debugLog('AppContent', 'Failed to save tab order to localStorage', { error: error.message });
+    }
+    
     // Update state and clear drag indicators
-    setProfiles(newProfiles);
+    setSafeProfiles(newProfiles);
     setDraggedTabIndex(null);
     setDragOverIndex(null);
+    
+    // Show success feedback
+    showToast('Project tab order updated', 'success');
   };
 
   // Memoized task statistics to avoid recalculation on every render
@@ -880,12 +1357,31 @@ function AppContent() {
     const inProgress = tasks.filter(t => t.status === 'in_progress').length;
     const pending = tasks.filter(t => t.status === 'pending').length;
     
+    debugLog('AppContent', 'Stats Calculated', { total, completed, inProgress, pending });
     return { total, completed, inProgress, pending };
   }, [tasks]);
+  
+  // Debug panel state - only include relevant app state
+  const debugAppState = useMemo(() => ({
+    selectedProfile,
+    selectedOuterTab,
+    projectInnerTab,
+    urlStateInitialized,
+    loading,
+    stats,
+    profiles: profiles.length,
+    tasks: tasks.length,
+    currentLanguage,
+    performanceStats: {
+      renderCount: performanceData.renderCount,
+      lifespan: performanceData.getLifespan()
+    }
+  }), [selectedProfile, selectedOuterTab, projectInnerTab, urlStateInitialized, loading, stats, profiles.length, tasks.length, currentLanguage, performanceData]);
 
   return (
-    <div className="app">
-      <ToastContainer toasts={toasts} removeToast={removeToast} />
+    <ErrorBoundary name="AppContent" logProps={false}>
+      <div className="app">
+        <ToastContainer toasts={toasts} removeToast={removeToast} />
       
       {showActivationDialog && (
         <ActivationDialog 
@@ -902,7 +1398,7 @@ function AppContent() {
         <h1>{t('appTitle')}</h1>
         <div className="header-content">
           <div className="version-info">
-            <span>{t('version')} 3.0.0</span> • 
+            <span>{t('header.version')} 4.1.0</span> • 
             <a href="#" onClick={(e) => {
               e.preventDefault();
               handleOuterTabChange('release-notes');
@@ -913,7 +1409,7 @@ function AppContent() {
               e.preventDefault();
               handleOuterTabChange('readme');
             }}>
-              {t('help')}
+              {t('header.help')}
             </a> • 
             <a href="#" onClick={(e) => {
               e.preventDefault();
@@ -933,10 +1429,22 @@ function AppContent() {
           handleRemoveProfile={handleRemoveProfile}
           setShowAddProfile={setShowAddProfile}
           projectInnerTab={projectInnerTab}
+          tasks={tasks}
           setProjectInnerTab={(tab) => {
             setProjectInnerTab(tab);
             if (tab === 'history' && !historyData.length && selectedProfile) {
               loadHistory(selectedProfile);
+            }
+            if (tab === 'archive' && selectedProfile) {
+              loadArchives(selectedProfile);
+              // Reset archive view to list when entering archive tab
+              setArchiveView('list');
+              setSelectedArchive(null);
+            }
+            // Reset archive view when leaving archive tab
+            if (projectInnerTab === 'archive' && tab !== 'archive') {
+              setArchiveView('list');
+              setSelectedArchive(null);
             }
             // Trigger refresh for agents tab to reset viewing state
             if (tab === 'agents') {
@@ -997,25 +1505,87 @@ function AppContent() {
                   </div>
 
                   <div className="stats-grid" name="task-statistics-display">
-                    <div className="stat-card" name="total-tasks-counter" title="Total number of tasks in this profile">
+                    <div 
+                      className={`stat-card clickable-stat ${statusFilter === 'all' ? 'active' : ''}`}
+                      name="total-tasks-counter" 
+                      title="Click to show all tasks"
+                      onClick={() => setStatusFilter('all')}
+                    >
                       <h3>{t('totalTasks')}</h3>
                       <div className="value">{stats.total}</div>
                     </div>
-                    <div className="stat-card" name="completed-tasks-counter" title="Number of completed tasks">
+                    <div 
+                      className={`stat-card clickable-stat ${statusFilter === 'completed' ? 'active' : ''}`}
+                      name="completed-tasks-counter" 
+                      title="Click to filter by completed tasks"
+                      onClick={() => setStatusFilter('completed')}
+                    >
                       <h3>{t('completed')}</h3>
                       <div className="value">{stats.completed}</div>
                     </div>
-                    <div className="stat-card" name="in-progress-tasks-counter" title="Number of tasks currently in progress">
+                    <div 
+                      className={`stat-card clickable-stat ${statusFilter === 'in_progress' ? 'active' : ''}`}
+                      name="in-progress-tasks-counter" 
+                      title="Click to filter by tasks in progress"
+                      onClick={() => setStatusFilter('in_progress')}
+                    >
                       <h3>{t('inProgress')}</h3>
                       <div className="value">{stats.inProgress}</div>
                     </div>
-                    <div className="stat-card" name="pending-tasks-counter" title="Number of pending tasks">
+                    <div 
+                      className={`stat-card clickable-stat ${statusFilter === 'pending' ? 'active' : ''}`}
+                      name="pending-tasks-counter" 
+                      title="Click to filter by pending tasks"
+                      onClick={() => setStatusFilter('pending')}
+                    >
                       <h3>{t('pending')}</h3>
                       <div className="value">{stats.pending}</div>
                     </div>
                   </div>
 
                   <div className="controls-right" name="right-side-controls">
+                    <button
+                      name="export-tasks-button"
+                      className="export-button"
+                      onClick={() => setShowExportModal(true)}
+                      disabled={loading || !selectedProfile || tasks.length === 0}
+                      title="Export tasks to CSV or Markdown"
+                      style={{
+                        padding: '8px 12px',
+                        marginRight: '8px',
+                        backgroundColor: '#4fbdba',
+                        border: 'none',
+                        borderRadius: '4px',
+                        color: '#fff',
+                        cursor: tasks.length > 0 && selectedProfile && !loading ? 'pointer' : 'not-allowed',
+                        fontSize: '14px',
+                        opacity: tasks.length > 0 && selectedProfile && !loading ? 1 : 0.5
+                      }}
+                    >
+                      📤 Export
+                    </button>
+
+                    <button
+                      name="archive-tasks-button"
+                      className="archive-button"
+                      onClick={() => setShowArchiveModal(true)}
+                      disabled={loading || !selectedProfile || tasks.length === 0}
+                      title="Archive current tasks"
+                      style={{
+                        padding: '8px 12px',
+                        marginRight: '8px',
+                        backgroundColor: '#8b5cf6',
+                        border: 'none',
+                        borderRadius: '4px',
+                        color: '#fff',
+                        cursor: tasks.length > 0 && selectedProfile && !loading ? 'pointer' : 'not-allowed',
+                        fontSize: '14px',
+                        opacity: tasks.length > 0 && selectedProfile && !loading ? 1 : 0.5
+                      }}
+                    >
+                      📦 Archive
+                    </button>
+
                     <button 
                       name="refresh-profile-button"
                       className="refresh-button profile-refresh"
@@ -1058,11 +1628,85 @@ function AppContent() {
                   </div>
                 </div>
 
+                {/* Initial Request Display */}
+                {initialRequest && (
+                  <div style={{
+                    backgroundColor: '#16213e',
+                    border: '1px solid #2c3e50',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                    overflow: 'hidden'
+                  }}>
+                    <div 
+                      style={{
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        color: '#4fbdba',
+                        padding: '16px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        cursor: 'pointer',
+                        borderBottom: initialRequestCollapsed ? 'none' : '1px solid #2c3e50'
+                      }}
+                      onClick={() => setInitialRequestCollapsed(!initialRequestCollapsed)}
+                      title={initialRequestCollapsed ? 'Click to expand' : 'Click to collapse'}
+                    >
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}>
+                        <span style={{
+                          fontSize: '16px'
+                        }}>📋</span>
+                        {t('initialRequest', 'Initial Request')}
+                      </div>
+                      <span style={{
+                        fontSize: '16px',
+                        transition: 'transform 0.2s ease',
+                        transform: initialRequestCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)'
+                      }}>
+                        ▼
+                      </span>
+                    </div>
+                    {!initialRequestCollapsed && (
+                      <div style={{
+                        fontSize: '14px',
+                        color: '#b8c5d6',
+                        lineHeight: '1.5',
+                        whiteSpace: 'pre-wrap',
+                        padding: '16px',
+                        transition: 'all 0.3s ease'
+                      }}>
+                        {initialRequest.replace(/\n要求:/g, '\nRequirements:').replace(/\n需求:/g, '\nRequirements:')}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Summarize - positioned at task list level */}
+                <FinalSummary
+                  tasks={tasks}
+                  projectId={selectedProfile}
+                  onSummaryGenerated={(summary) => {
+                    // Update the summary state when generated
+                    setSummary(summary);
+                  }}
+                  existingSummary={summary}
+                />
+
                 <TaskTable 
                   data={tasks} 
                   globalFilter={globalFilter}
                   onGlobalFilterChange={setGlobalFilter}
+                  statusFilter={statusFilter}
                   projectRoot={projectRoot}
+                  emojiTemplates={{
+                    robot: robotEmojiTemplate || getSafeProfiles().find(p => p.id === selectedProfile)?.robotEmojiTemplate,
+                    arm: armEmojiTemplate || getSafeProfiles().find(p => p.id === selectedProfile)?.armEmojiTemplate
+                  }}
                   onDetailViewChange={(inDetailView, inEditMode, taskId) => {
                     setIsInDetailView(inDetailView);
                     setIsInEditMode(inEditMode || false);
@@ -1131,10 +1775,16 @@ function AppContent() {
                     historyEntry={selectedHistoryEntry}
                     loading={historyLoading}
                     error={historyError}
+                    initialRequest={selectedHistoryInitialRequest}
+                    summary={selectedHistorySummary}
+                    generatedInitialRequest={selectedHistoryGeneratedRequest}
                     onBack={() => {
                       setHistoryView('list');
                       setSelectedHistoryEntry(null);
                       setSelectedHistoryTasks([]);
+                      setSelectedHistoryInitialRequest('');
+                      setSelectedHistorySummary('');
+                      setSelectedHistoryGeneratedRequest(false);
                     }}
                   />
                 ) : (
@@ -1144,7 +1794,41 @@ function AppContent() {
                     error={historyError}
                     onViewTasks={loadHistoryTasks}
                     onBack={null} // No back button needed in tab view
+                    onDeleteHistory={handleDeleteHistory}
+                    onImportHistory={(historyEntry) => {
+                      setSelectedHistoryEntry(historyEntry);
+                      setShowImportHistoryModal(true);
+                      // Load the full history data for import
+                      loadHistoryTasks(historyEntry);
+                    }}
                     profileId={selectedProfile}
+                  />
+                )}
+              </div>
+            ),
+            archive: (
+              <div className="content-container" name="archive-content-area">
+                {archiveView === 'details' && selectedArchive ? (
+                  <ArchiveDetailView
+                    archive={selectedArchive}
+                    onBack={() => {
+                      setArchiveView('list');
+                      setSelectedArchive(null);
+                    }}
+                    projectRoot={projectRoot}
+                  />
+                ) : (
+                  <ArchiveView
+                    archives={archives}
+                    loading={false}
+                    error=""
+                    onViewArchive={handleViewArchive}
+                    onDeleteArchive={handleDeleteArchive}
+                    onImportArchive={(archive) => {
+                      setSelectedArchive(archive);
+                      setShowImportModal(true);
+                    }}
+                    projectId={selectedProfile}
                   />
                 )}
               </div>
@@ -1182,24 +1866,25 @@ function AppContent() {
               <div className="content-container" name="settings-content-area">
                 <div className="settings-panel">
                   <h2>{t('projectSettings')}</h2>
-                  {profiles.find(p => p.id === selectedProfile) && (
-                    <form name="settings-form" onSubmit={(e) => {
+                  {getSafeProfiles().find(p => p.id === selectedProfile) && (
+                    <form name="settings-form" onSubmit={async (e) => {
                       e.preventDefault();
                       const formData = new FormData(e.target);
                       const name = formData.get('name');
                       const taskPath = formData.get('taskPath');
                       const projectRoot = formData.get('projectRoot');
-                      
                       // Validate task path format
                       if (taskPath && !taskPath.trim().endsWith('.json')) {
                         setError('Task path must point to a .json file');
                         return;
                       }
                       
-                      handleUpdateProfile(selectedProfile, { 
+                      await handleUpdateProfile(selectedProfile, { 
                         name: name.trim(),
                         taskPath: taskPath?.trim() || null,
-                        projectRoot: projectRoot || null 
+                        projectRoot: projectRoot || null,
+                        robotEmojiTemplate: robotEmojiTemplate?.trim() || null,
+                        armEmojiTemplate: armEmojiTemplate?.trim() || null
                       });
                       showToast(t('settingsSaved'), 'success');
                     }}>
@@ -1209,7 +1894,7 @@ function AppContent() {
                           type="text" 
                           id="settingsProfileName"
                           name="name"
-                          defaultValue={profiles.find(p => p.id === selectedProfile)?.name}
+                          defaultValue={getSafeProfiles().find(p => p.id === selectedProfile)?.name}
                           placeholder="e.g., Team Alpha Tasks"
                           title="Edit the profile name"
                           required
@@ -1221,7 +1906,7 @@ function AppContent() {
                           type="text" 
                           id="settingsTaskPath"
                           name="taskPath"
-                          defaultValue={profiles.find(p => p.id === selectedProfile)?.taskPath || profiles.find(p => p.id === selectedProfile)?.filePath || profiles.find(p => p.id === selectedProfile)?.path || ''}
+                          defaultValue={getSafeProfiles().find(p => p.id === selectedProfile)?.taskPath || getSafeProfiles().find(p => p.id === selectedProfile)?.filePath || getSafeProfiles().find(p => p.id === selectedProfile)?.path || ''}
                           placeholder={t('taskPathPlaceholder')}
                           title={t('taskPathTitle')}
                           required
@@ -1236,7 +1921,7 @@ function AppContent() {
                           type="text" 
                           id="settingsProjectRoot"
                           name="projectRoot"
-                          defaultValue={profiles.find(p => p.id === selectedProfile)?.projectRoot || ''}
+                          defaultValue={getSafeProfiles().find(p => p.id === selectedProfile)?.projectRoot || ''}
                           placeholder={t('projectRootEditPlaceholder')}
                           title={t('projectRootEditTitle')}
                         />
@@ -1244,6 +1929,62 @@ function AppContent() {
                           {t('projectRootEditHint')}
                         </span>
                       </div>
+                      
+                      {/* Emoji Template Configuration */}
+                      <div className="form-group" name="robot-emoji-template-group">
+                        <label htmlFor="robotEmojiTemplate">
+                          🤖 {t('robotEmojiTemplate') || 'Robot Emoji Template'}:
+                        </label>
+                        <textarea 
+                          id="robotEmojiTemplate"
+                          name="robotEmojiTemplate"
+                          rows="5"
+                          cols="80"
+                          value={robotEmojiTemplate}
+                          onChange={(e) => setRobotEmojiTemplate(e.target.value)}
+                          placeholder="use the built in subagent located in [AGENT] to complete this shrimp task: [UUID] please when u start working mark the shrimp task as in progress"
+                          title="Template for robot emoji button. Use [AGENT] for agent path and [UUID] for task ID"
+                          style={{ 
+                            fontFamily: 'monospace', 
+                            fontSize: '12px',
+                            width: '100%',
+                            minWidth: '600px',
+                            minHeight: '120px',
+                            resize: 'vertical'
+                          }}
+                        />
+                        <span className="form-hint">
+                          Use [AGENT] for agent path and [UUID] for task ID. Example: "use the built in subagent located in [AGENT] to complete this shrimp task: [UUID]"
+                        </span>
+                      </div>
+                      
+                      <div className="form-group" name="arm-emoji-template-group">
+                        <label htmlFor="armEmojiTemplate">
+                          🦾 {t('armEmojiTemplate') || 'Mechanical Arm Emoji Template'}:
+                        </label>
+                        <textarea 
+                          id="armEmojiTemplate"
+                          name="armEmojiTemplate"
+                          rows="5"
+                          cols="80"
+                          value={armEmojiTemplate}
+                          onChange={(e) => setArmEmojiTemplate(e.target.value)}
+                          placeholder="Use task planner to execute this task: [UUID] using the role of [AGENT_NAME] agent"
+                          title="Template for mechanical arm emoji button. Use [AGENT_NAME] for agent name and [UUID] for task ID"
+                          style={{ 
+                            fontFamily: 'monospace', 
+                            fontSize: '12px',
+                            width: '100%',
+                            minWidth: '600px',
+                            minHeight: '120px',
+                            resize: 'vertical'
+                          }}
+                        />
+                        <span className="form-hint">
+                          Use [AGENT_NAME] for agent name and [UUID] for task ID. Special case: When agent is 'task manager', a simpler template is used.
+                        </span>
+                      </div>
+                      
                       <div className="form-actions" name="settings-form-buttons">
                         <button 
                           type="submit" 
@@ -1394,6 +2135,58 @@ function AppContent() {
           }}
         />
 
+      {/* Export Modal */}
+      <ExportModal 
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        onExport={handleExport}
+        tasks={tasks}
+      />
+
+      {/* Archive Modal */}
+      <ArchiveModal
+        isOpen={showArchiveModal}
+        onClose={() => setShowArchiveModal(false)}
+        onConfirm={handleArchive}
+        projectName={profiles?.find(p => p.id === selectedProfile)?.name || 'Unknown Project'}
+        tasks={tasks}
+        initialRequest={initialRequest}
+      />
+
+      {/* Import Archive Modal */}
+      <ImportArchiveModal
+        isOpen={showImportModal}
+        onClose={() => {
+          setShowImportModal(false);
+          setSelectedArchive(null);
+        }}
+        onImport={handleImportArchive}
+        archive={selectedArchive}
+        currentTaskCount={tasks.length}
+      />
+
+      {/* Import History Modal - reuse ImportArchiveModal */}
+      <ImportArchiveModal
+        isOpen={showImportHistoryModal}
+        onClose={() => {
+          setShowImportHistoryModal(false);
+          setSelectedHistoryEntry(null);
+        }}
+        onImport={handleImportHistory}
+        archive={selectedHistoryEntry ? {
+          id: selectedHistoryEntry.filename,
+          date: selectedHistoryEntry.timestamp,
+          projectName: selectedProfile,
+          tasks: selectedHistoryTasks,
+          initialRequest: selectedHistoryInitialRequest,
+          summary: selectedHistorySummary,
+          stats: selectedHistoryEntry.stats
+        } : null}
+        currentTaskCount={tasks.length}
+      />
+
+
+
       {showAddProfile && (
         <div className="modal-overlay" name="add-profile-modal-overlay" onClick={() => setShowAddProfile(false)} title="Click outside to close">
           <div className="modal-content" name="add-profile-modal" onClick={(e) => e.stopPropagation()} title="Add new profile form">
@@ -1457,7 +2250,7 @@ function AppContent() {
                   className="primary-btn"
                   title="Create the new profile with the provided information"
                 >
-                  Add Profile
+                  {t('addProject')}
                 </button>
                 <button 
                   type="button" 
@@ -1485,7 +2278,7 @@ function AppContent() {
           currentTask={currentTask}
           tasks={tasks}
           profileId={selectedProfile}
-          profileName={profiles.find(p => p.id === selectedProfile)?.name}
+          profileName={getSafeProfiles().find(p => p.id === selectedProfile)?.name}
           projectRoot={projectRoot}
           showToast={showToast}
           projectInnerTab={projectInnerTab}
@@ -1541,7 +2334,17 @@ function AppContent() {
           }}
         />
       )}
-    </div>
+      
+      {/* Debug Panel - Available in development mode */}
+      <DebugPanel 
+        appState={debugAppState} 
+        onStateUpdate={(updates) => {
+          // Handle debug panel state updates if needed
+          debugLog('DebugPanel', 'State Update Request', updates);
+        }} 
+      />
+      </div>
+    </ErrorBoundary>
   );
 }
 

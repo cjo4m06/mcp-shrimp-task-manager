@@ -1,5 +1,11 @@
 {
   "appTitle": "🦐 Shrimp Task Manager Viewer",
+  "unknown": "Unknown",
+  "unknownTask": "Unknown Task",
+  "task.name": "Task Name",
+  "task.status": "Status",
+  "task.dependencies": "Dependencies",
+  "actions": "Actions",
   "projects": "Projects",
   "releaseNotes": "Release Notes",
   "readme": "README",
@@ -61,18 +67,25 @@
     "of": "of",
     "total": "total"
   },
-  "profile": {
-    "management": "🔧 Profile Management",
-    "managementDesc": "Manage task file profiles. Create new profiles or edit existing ones.",
-    "taskFolderPath": "Task Folder Path",
+  "project": {
+    "management": "🔧 Project Management",
+    "managementDesc": "Manage task file projects. Create new projects or edit existing ones.",
+    "taskFolderPath": "Shrimp Data Folder Path",
     "taskFolderPathPlaceholder": "Enter folder path containing task files",
-    "profileName": "Profile Name",
-    "profileNamePlaceholder": "Enter profile name",
+    "projectName": "Project Name",
+    "projectNamePlaceholder": "Enter project name",
     "projectRootPath": "Project Root Path",
     "projectRootPathPlaceholder": "Enter project root path (optional)",
-    "addProfile": "Add Profile",
-    "editProfile": "Edit Profile",
-    "deleteProfile": "Delete Profile"
+    "addProject": "Add Project",
+    "editProject": "Edit Project",
+    "deleteProject": "Delete Project",
+    "addNewProject": "Add New Project",
+    "history": "📊 Project History",
+    "historyDesc": "View project task history and statistics.",
+    "historyEntries": "History Entries",
+    "commitHistory": "Commit History",
+    "settings": "Project Settings",
+    "editSettings": "Edit Project Settings"
   },
   "task": {
     "number": "Task Number",
@@ -114,14 +127,6 @@
     "deselectAll": "Deselect All",
     "assignAgent": "Bulk Assign Agent",
     "delete": "Bulk Delete"
-  },
-  "project": {
-    "history": "📊 Project History",
-    "historyDesc": "View project task history and statistics.",
-    "historyEntries": "History Entries",
-    "commitHistory": "Commit History",
-    "settings": "Project Settings",
-    "editSettings": "Edit Project Settings"
   },
   "global": {
     "settings": "⚙️ Global Settings",
@@ -167,16 +172,16 @@
     }
   },
   "notifications": {
-    "profileCreatedSuccess": "Profile created successfully",
-    "profileUpdatedSuccess": "Profile updated successfully",
-    "profileDeletedSuccess": "Profile deleted successfully",
+    "projectCreatedSuccess": "Project created successfully",
+    "projectUpdatedSuccess": "Project updated successfully",
+    "projectDeletedSuccess": "Project deleted successfully",
     "taskUpdatedSuccess": "Task updated successfully",
     "settingsSaved": "Settings saved successfully",
     "copiedToClipboard": "Copied to clipboard"
   },
   "empty": {
     "noTasksFound": "No tasks found",
-    "noProfilesFound": "No profiles found",
+    "noProjectsFound": "No projects found",
     "noTemplatesFound": "No templates found",
     "noHistoryFound": "No history found"
   },
@@ -216,5 +221,40 @@
   "inProgress": "IN PROGRESS",
   "pending": "PENDING",
   "autoRefresh": "Auto Refresh",
-  "searchTasksPlaceholder": "Search tasks..."
+  "searchTasksPlaceholder": "Search tasks...",
+  "task": "Task",
+  "agent": "Agent",
+  "description": "Description",
+  "version": "Version",
+  "created": "Created",
+  "updated": "Updated",
+  "clickToCopyUuid": "Click to copy UUID",
+  "confirmDeleteTask": "Are you sure you want to delete this task?",
+  "clickToViewTaskDetails": "Click to view task details",
+  "showing": "Showing",
+  "to": "to",
+  "of": "of",
+  "filteredFrom": "filtered from",
+  "noTasksMessage": "No tasks found. Create your first task to get started.",
+  "page": "Page",
+  "archive": "Archive",
+  "archiveButton": "Archive Tasks",
+  "archiveModal": {
+    "title": "Archive Current Tasks",
+    "message": "Archive all current tasks for this project?",
+    "projectName": "Project",
+    "taskCount": "Total Tasks"
+  },
+  "archiveTab": "Archive",
+  "archivedTaskLists": "Archived Task Lists",
+  "importArchive": "Import",
+  "deleteArchive": "Delete",
+  "viewArchive": "View",
+  "appendTasks": "Append to current tasks",
+  "replaceTasks": "Replace all current tasks",
+  "importWarning": "Warning: This will remove all current tasks",
+  "archiveSuccess": "Tasks archived successfully",
+  "noArchivesFound": "No archived task lists found",
+  "initialRequest": "Initial Request",
+  "noInitialRequest": "No initial request provided"
 }

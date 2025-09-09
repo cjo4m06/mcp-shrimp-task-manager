@@ -121,6 +121,7 @@ export const translations = {
     inProgress: "In Progress",
     pending: "Pending",
     autoRefresh: "Auto-refresh",
+    initialRequest: "Initial Request",
     
     // History management
     backToTasks: "Back to Tasks",
@@ -251,6 +252,20 @@ export const translations = {
     confirmDeleteTask: "Are you sure you want to delete this task?",
     taskDeletedSuccess: "Task deleted successfully",
     deleteTask: "Delete task",
+    
+    // Bulk status reset
+    resetToPending: "Reset to Pending",
+    resetTasksConfirmTitle: "Reset Tasks to Pending",
+    resetTasksConfirmMessage: "This will reset {count} completed task(s) back to pending status. Completion data will be cleared.",
+    resetTasksSuccess: "Successfully reset {count} task(s) to pending status",
+    resetTasksFailed: "Failed to update task statuses",
+    
+    // Bulk mark as completed
+    markAsCompleted: "Mark as Completed",
+    markTasksCompleted: "Mark Tasks as Completed",
+    markTasksCompletedMessage: "Are you sure you want to mark {count} task(s) as completed?",
+    markTasksCompletedSuccess: "Successfully marked {count} task(s) as completed",
+    markTasksCompletedFailed: "Failed to mark tasks as completed",
     
     // Agent functionality
     subAgents: "Sub-Agents",
@@ -386,6 +401,7 @@ export const translations = {
     inProgress: "进行中",
     pending: "待处理",
     autoRefresh: "自动刷新",
+    initialRequest: "初始请求",
     
     // History management
     backToTasks: "返回任务",
@@ -515,6 +531,20 @@ export const translations = {
     confirmDeleteTask: "您确定要删除此任务吗？",
     taskDeletedSuccess: "任务删除成功",
     deleteTask: "删除任务",
+    
+    // Bulk status reset
+    resetToPending: "重置为待处理",
+    resetTasksConfirmTitle: "重置任务为待处理",
+    resetTasksConfirmMessage: "这将把 {count} 个已完成的任务重置为待处理状态。完成数据将被清除。",
+    resetTasksSuccess: "成功重置 {count} 个任务为待处理状态",
+    resetTasksFailed: "更新任务状态失败",
+    
+    // Bulk mark as completed
+    markAsCompleted: "标记为已完成",
+    markTasksCompleted: "标记任务为已完成",
+    markTasksCompletedMessage: "确定要将 {count} 个任务标记为已完成吗？",
+    markTasksCompletedSuccess: "成功标记 {count} 个任务为已完成",
+    markTasksCompletedFailed: "标记任务为已完成失败",
     
     // Agent functionality
     subAgents: "子代理",
@@ -650,6 +680,7 @@ export const translations = {
     inProgress: "En Progreso",
     pending: "Pendientes",
     autoRefresh: "Actualización automática",
+    initialRequest: "Solicitud Inicial",
     
     // History management
     backToTasks: "Volver a Tareas",
@@ -780,6 +811,20 @@ export const translations = {
     taskDeletedSuccess: "Tarea eliminada exitosamente",
     deleteTask: "Eliminar tarea",
     
+    // Bulk status reset
+    resetToPending: "Restablecer a Pendiente",
+    resetTasksConfirmTitle: "Restablecer Tareas a Pendiente",
+    resetTasksConfirmMessage: "Esto restablecerá {count} tarea(s) completada(s) al estado pendiente. Los datos de finalización se borrarán.",
+    resetTasksSuccess: "Se restablecieron con éxito {count} tarea(s) al estado pendiente",
+    resetTasksFailed: "Error al actualizar los estados de las tareas",
+    
+    // Bulk mark as completed
+    markAsCompleted: "Marcar como Completado",
+    markTasksCompleted: "Marcar Tareas como Completadas",
+    markTasksCompletedMessage: "¿Está seguro de que desea marcar {count} tarea(s) como completada(s)?",
+    markTasksCompletedSuccess: "Se marcaron exitosamente {count} tarea(s) como completada(s)",
+    markTasksCompletedFailed: "Error al marcar las tareas como completadas",
+    
     // Agent functionality
     subAgents: "Sub-Agentes",
     agents: "Agentes",
@@ -851,6 +896,7 @@ export const translations = {
     inProgress: "Em Progresso",
     pending: "Pendentes",
     autoRefresh: "Atualização automática",
+    initialRequest: "Solicitação Inicial",
     
     // History management
     backToTasks: "Voltar às Tarefas",
@@ -974,6 +1020,20 @@ export const translations = {
     taskDeletedSuccess: "Tarefa excluída com sucesso",
     deleteTask: "Excluir tarefa",
     
+    // Bulk status reset
+    resetToPending: "Redefinir para Pendente",
+    resetTasksConfirmTitle: "Redefinir Tarefas para Pendente",
+    resetTasksConfirmMessage: "Isso redefinirá {count} tarefa(s) concluída(s) para o status pendente. Os dados de conclusão serão apagados.",
+    resetTasksSuccess: "Redefinidas com sucesso {count} tarefa(s) para o status pendente",
+    resetTasksFailed: "Falha ao atualizar os status das tarefas",
+    
+    // Bulk mark as completed
+    markAsCompleted: "Marcar como Concluído",
+    markTasksCompleted: "Marcar Tarefas como Concluídas",
+    markTasksCompletedMessage: "Tem certeza de que deseja marcar {count} tarefa(s) como concluída(s)?",
+    markTasksCompletedSuccess: "Marcou com sucesso {count} tarefa(s) como concluída(s)",
+    markTasksCompletedFailed: "Falha ao marcar as tarefas como concluídas",
+    
     // Agent functionality
     subAgents: "Sub-Agentes",
     agents: "Agentes",
@@ -1070,6 +1130,7 @@ export const translations = {
     inProgress: "Devam Eden",
     pending: "Bekleyen",
     autoRefresh: "Otomatik yenileme",
+    initialRequest: "İlk Talep",
     
     // History management
     backToTasks: "Görevlere Geri Dön",
@@ -1193,6 +1254,20 @@ export const translations = {
     taskDeletedSuccess: "Görev başarıyla silindi",
     deleteTask: "Görevi sil",
     
+    // Bulk status reset
+    resetToPending: "Beklemeye Sıfırla",
+    resetTasksConfirmTitle: "Görevleri Beklemeye Sıfırla",
+    resetTasksConfirmMessage: "Bu işlem {count} tamamlanmış görevi beklemede durumuna sıfırlayacak. Tamamlanma verileri silinecek.",
+    resetTasksSuccess: "{count} görev başarıyla beklemede durumuna sıfırlandı",
+    resetTasksFailed: "Görev durumları güncellenemedi",
+    
+    // Bulk mark as completed
+    markAsCompleted: "Tamamlandı Olarak İşaretle",
+    markTasksCompleted: "Görevleri Tamamlandı Olarak İşaretle",
+    markTasksCompletedMessage: "{count} görevi tamamlandı olarak işaretlemek istediğinizden emin misiniz?",
+    markTasksCompletedSuccess: "{count} görev başarıyla tamamlandı olarak işaretlendi",
+    markTasksCompletedFailed: "Görevler tamamlandı olarak işaretlenemedi",
+    
     // Agent functionality
     subAgents: "Alt Ajanlar",
     agents: "Ajanlar",
@@ -1311,6 +1386,20 @@ export const translations = {
     inProgress: "진행 중",
     completed: "완료됨",
     
+    // Bulk status reset
+    resetToPending: '대기 중으로 재설정',
+    resetTasksConfirmTitle: '작업을 대기 중으로 재설정',
+    resetTasksConfirmMessage: '{count}개의 완료된 작업을 대기 중 상태로 재설정합니다. 완료 데이터가 삭제됩니다.',
+    resetTasksSuccess: '{count}개의 작업을 대기 중 상태로 성공적으로 재설정했습니다',
+    resetTasksFailed: '작업 상태 업데이트 실패',
+    
+    // Bulk mark as completed
+    markAsCompleted: '완료로 표시',
+    markTasksCompleted: '작업을 완료로 표시',
+    markTasksCompletedMessage: '{count}개의 작업을 완료로 표시하시겠습니까?',
+    markTasksCompletedSuccess: '{count}개의 작업을 성공적으로 완료로 표시했습니다',
+    markTasksCompletedFailed: '작업을 완료로 표시하는데 실패했습니다',
+    
     // Task actions
     viewDetails: "세부정보 보기",
     editTask: "작업 편집",
@@ -1395,6 +1484,7 @@ export const translations = {
     completedTasks: "완료된 작업",
     pendingTasks: "대기 중 작업",
     inProgressTasks: "진행 중 작업",
+    initialRequest: "초기 요청",
     
     // Agent related
     viewAgent: "에이전트 보기",
@@ -1485,6 +1575,20 @@ export const translations = {
     inProgress: "進行中",
     completed: "完了",
     
+    // Bulk status reset
+    resetToPending: '保留中にリセット',
+    resetTasksConfirmTitle: 'タスクを保留中にリセット',
+    resetTasksConfirmMessage: '{count}個の完了タスクを保留中状態にリセットします。完了データは削除されます。',
+    resetTasksSuccess: '{count}個のタスクを保留中状態に正常にリセットしました',
+    resetTasksFailed: 'タスクステータスの更新に失敗しました',
+    
+    // Bulk mark as completed
+    markAsCompleted: '完了としてマーク',
+    markTasksCompleted: 'タスクを完了としてマーク',
+    markTasksCompletedMessage: '{count}個のタスクを完了としてマークしますか？',
+    markTasksCompletedSuccess: '{count}個のタスクを正常に完了としてマークしました',
+    markTasksCompletedFailed: 'タスクを完了としてマークできませんでした',
+    
     // Task actions
     viewDetails: "詳細表示",
     editTask: "タスク編集",
@@ -1569,6 +1673,7 @@ export const translations = {
     completedTasks: "完了タスク",
     pendingTasks: "保留中タスク",
     inProgressTasks: "進行中タスク",
+    initialRequest: "初期リクエスト",
     
     // Agent related
     viewAgent: "エージェント表示",

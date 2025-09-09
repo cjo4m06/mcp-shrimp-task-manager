@@ -1,0 +1,92 @@
+#!/bin/bash
+
+echo "🦐 Stopping Shrimp Task Manager services..."
+
+# Function to kill processes safely
+kill_processes() {
+    local pattern="$1"
+    local description="$2"
+    
+    # Get PIDs matching the pattern
+    local pids=$(ps aux | grep -E "$pattern" | grep -v grep | grep -v "stop.sh" | awk '{print $2}')
+    
+    if [ -n "$pids" ]; then
+        echo "  Stopping $description..."
+        for pid in $pids; do
+            # Get process command for logging
+            local cmd=$(ps -p $pid -o comm= 2>/dev/null)
+            if [ -n "$cmd" ]; then
+                echo "    Killing PID $pid ($cmd)"
+                kill -TERM $pid 2>/dev/null || true
+            fi
+        done
+        
+        # Give processes time to terminate gracefully
+        sleep 1
+        
+        # Force kill any remaining processes
+        for pid in $pids; do
+            if kill -0 $pid 2>/dev/null; then
+                echo "    Force killing PID $pid"
+                kill -KILL $pid 2>/dev/null || true
+            fi
+        done
+    else
+        echo "  No $description found"
+    fi
+}
+
+# Stop Vite dev servers (specific to task-viewer)
+kill_processes "task-viewer/node_modules/.*/vite" "Vite dev servers"
+
+# Stop task-viewer servers
+kill_processes "task-viewer/server\.js" "Task Viewer API servers"
+
+# Stop concurrently processes for task-viewer
+kill_processes "task-viewer/node_modules/.*/concurrently" "Concurrently processes"
+
+# Stop esbuild services for task-viewer
+kill_processes "task-viewer/node_modules/.*esbuild.*--service" "ESBuild services"
+
+# Stop main shrimp task manager processes
+kill_processes "mcp-shrimp-task-manager/dist/index\.js" "Shrimp Task Manager instances"
+
+# Stop Playwright test servers for task-viewer
+kill_processes "task-viewer.*playwright.*test-server" "Playwright test servers"
+
+# Check for any remaining processes on known ports
+echo ""
+echo "Checking ports..."
+
+# Function to check and kill process on port
+check_port() {
+    local port=$1
+    local description=$2
+    
+    local pid=$(lsof -ti:$port 2>/dev/null)
+    if [ -n "$pid" ]; then
+        echo "  Found process on port $port (PID: $pid) - $description"
+        kill -TERM $pid 2>/dev/null || true
+        sleep 0.5
+        kill -KILL $pid 2>/dev/null || true
+    else
+        echo "  Port $port is free - $description"
+    fi
+}
+
+# Check common Shrimp Task Manager ports only
+# Note: Excluding ports 5173 and 3000 as they may be used by other applications
+check_port 9998 "Task Viewer API"
+check_port 9999 "Task Viewer Dev (primary)"
+check_port 10000 "Task Viewer Dev (alt 1)"
+check_port 10001 "Task Viewer Dev (alt 2)"
+check_port 10002 "Task Viewer Dev (alt 3)"
+
+echo ""
+echo "✅ Shrimp Task Manager services stopped"
+echo ""
+echo "Remaining node processes (for reference):"
+ps aux | grep node | grep -v grep | grep -v "stop.sh" | head -5
+
+echo ""
+echo "Note: Other Node.js processes have been preserved"

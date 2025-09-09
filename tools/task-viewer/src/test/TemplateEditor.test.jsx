@@ -3,6 +3,40 @@ import { render, screen, fireEvent, waitFor, within } from '@testing-library/rea
 import userEvent from '@testing-library/user-event';
 import TemplateEditor from '../components/TemplateEditor';
 
+// Mock MDEditor component
+vi.mock('@uiw/react-md-editor', () => {
+  const MockMDEditor = ({ value, onChange, textareaProps, ...props }) => (
+    <div className="w-md-editor" data-testid="md-editor">
+      <div className="w-md-editor-text">
+        <textarea
+          value={value || ''}
+          onChange={(e) => onChange && onChange(e.target.value)}
+          placeholder={textareaProps?.placeholder}
+          data-testid="md-editor-textarea"
+          {...textareaProps}
+        />
+      </div>
+      <div className="w-md-editor-preview" data-testid="md-editor-preview">
+        <div dangerouslySetInnerHTML={{ __html: value || '' }} />
+      </div>
+    </div>
+  );
+
+  const MockMarkdown = ({ source }) => (
+    <div className="markdown-preview" data-testid="markdown-preview">
+      {source}
+    </div>
+  );
+
+  // Attach Markdown as a property of the MockMDEditor
+  MockMDEditor.Markdown = MockMarkdown;
+
+  return {
+    default: MockMDEditor,
+    Markdown: MockMarkdown,
+  };
+});
+
 describe('TemplateEditor Component', () => {
   const mockTemplate = {
     functionName: 'planTask',
@@ -39,7 +73,7 @@ describe('TemplateEditor Component', () => {
   });
 
   describe('Rendering', () => {
-    it('renders modal with correct title and content', () => {
+    it('renders with correct title and content', () => {
       render(
         <TemplateEditor 
           template={mockTemplate}
@@ -47,8 +81,12 @@ describe('TemplateEditor Component', () => {
         />
       );
 
-      expect(screen.getByText('Edit Template: planTask')).toBeInTheDocument();
-      expect(screen.getByDisplayValue(/## Task Analysis/)).toBeInTheDocument();
+      // Check for the header with template name
+      expect(screen.getByText(/Edit Template: planTask/)).toBeInTheDocument();
+      // Check if MDEditor is rendered
+      expect(screen.getByTestId('md-editor')).toBeInTheDocument();
+      // Check content in the textarea
+      expect(screen.getByTestId('md-editor-textarea')).toHaveValue(mockTemplate.content);
     });
 
     it('renders mode selection toggles', () => {
@@ -59,15 +97,15 @@ describe('TemplateEditor Component', () => {
         />
       );
 
-      expect(screen.getByLabelText('Override Mode')).toBeInTheDocument();
-      expect(screen.getByLabelText('Append Mode')).toBeInTheDocument();
-      
-      // Override should be selected by default
-      expect(screen.getByLabelText('Override Mode')).toBeChecked();
-      expect(screen.getByLabelText('Append Mode')).not.toBeChecked();
+      // Check for radio buttons by their roles
+      const radioButtons = screen.getAllByRole('radio');
+      expect(radioButtons.length).toBe(2);
+      // First radio (override) should be checked by default
+      expect(radioButtons[0]).toBeChecked();
+      expect(radioButtons[1]).not.toBeChecked();
     });
 
-    it('renders edit and preview toggle buttons', () => {
+    it('renders MDEditor with content', () => {
       render(
         <TemplateEditor 
           template={mockTemplate}
@@ -75,8 +113,9 @@ describe('TemplateEditor Component', () => {
         />
       );
 
-      expect(screen.getByText('✏️ Edit')).toBeInTheDocument();
-      expect(screen.getByText('👁️ Preview')).toBeInTheDocument();
+      // MDEditor should be rendered with content
+      expect(screen.getByTestId('md-editor')).toBeInTheDocument();
+      expect(screen.getByTestId('md-editor-textarea')).toHaveValue(mockTemplate.content);
     });
 
     it('renders action buttons', () => {
@@ -87,6 +126,7 @@ describe('TemplateEditor Component', () => {
         />
       );
 
+      // Check for specific button text/translations
       expect(screen.getByText('💾 Save Template')).toBeInTheDocument();
       expect(screen.getByText('Cancel')).toBeInTheDocument();
     });
@@ -101,7 +141,8 @@ describe('TemplateEditor Component', () => {
       );
 
       expect(screen.getByText('Saving...')).toBeInTheDocument();
-      expect(screen.getByText('💾 Save Template').closest('button')).toBeDisabled();
+      const saveButton = screen.getByRole('button', { name: /saving/i });
+      expect(saveButton).toBeDisabled();
     });
 
     it('shows error message', () => {
@@ -135,7 +176,7 @@ describe('TemplateEditor Component', () => {
       expect(screen.getByLabelText('Override Mode')).not.toBeChecked();
     });
 
-    it('shows correct mode description', () => {
+    it('updates placeholder text based on mode', async () => {
       render(
         <TemplateEditor 
           template={mockTemplate}
@@ -143,12 +184,17 @@ describe('TemplateEditor Component', () => {
         />
       );
 
-      expect(screen.getByText(/Completely replace the existing template/)).toBeInTheDocument();
+      // Override mode should be selected by default
+      const textarea = screen.getByTestId('md-editor-textarea');
+      expect(textarea).toHaveAttribute('placeholder', 'Enter the complete template content...');
       
+      // Switch to append mode
       const appendModeRadio = screen.getByLabelText('Append Mode');
       fireEvent.click(appendModeRadio);
 
-      expect(screen.getByText(/Add content after the existing template/)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(textarea).toHaveAttribute('placeholder', 'Enter content to append to the default template...');
+      });
     });
   });
 
@@ -162,8 +208,9 @@ describe('TemplateEditor Component', () => {
       );
 
       const textarea = screen.getByDisplayValue(/## Task Analysis/);
-      await userEvent.clear(textarea);
-      await userEvent.type(textarea, '## New Content\n{description}');
+      
+      // Use fireEvent directly to avoid userEvent special character handling
+      fireEvent.change(textarea, { target: { value: '## New Content\n{description}' } });
 
       expect(textarea.value).toBe('## New Content\n{description}');
     });
@@ -177,12 +224,24 @@ describe('TemplateEditor Component', () => {
       );
 
       const textarea = screen.getByDisplayValue(/## Task Analysis/);
-      await userEvent.clear(textarea);
+      
+      // Clear using fireEvent to properly trigger onChange
+      fireEvent.change(textarea, { target: { value: '' } });
 
       const saveButton = screen.getByText('💾 Save Template');
-      fireEvent.click(saveButton);
-
-      expect(screen.getByText('Template content cannot be empty')).toBeInTheDocument();
+      
+      // Button should be disabled when content is empty, preventing save
+      expect(saveButton).toBeDisabled();
+      
+      // Fill content and verify button is enabled
+      fireEvent.change(textarea, { target: { value: 'Some content' } });
+      expect(saveButton).not.toBeDisabled();
+      
+      // Clear again and verify button is disabled again
+      fireEvent.change(textarea, { target: { value: '' } });
+      expect(saveButton).toBeDisabled();
+      
+      // onSave should not be called since button is disabled
       expect(mockHandlers.onSave).not.toHaveBeenCalled();
     });
 
@@ -195,15 +254,19 @@ describe('TemplateEditor Component', () => {
       );
 
       const textarea = screen.getByDisplayValue(/## Task Analysis/);
-      await userEvent.clear(textarea);
-      await userEvent.type(textarea, '## Updated Content\n{description}');
+      
+      // Use fireEvent to avoid userEvent special character issues
+      fireEvent.change(textarea, { target: { value: '## Updated Content\n{description}' } });
 
       const saveButton = screen.getByText('💾 Save Template');
       fireEvent.click(saveButton);
 
       expect(mockHandlers.onSave).toHaveBeenCalledWith({
         functionName: 'planTask',
+        name: 'planTask',
         content: '## Updated Content\n{description}',
+        status: 'default',
+        source: 'built-in',
         mode: 'override'
       });
     });
@@ -222,37 +285,11 @@ describe('TemplateEditor Component', () => {
       expect(mockHandlers.onCancel).toHaveBeenCalled();
     });
 
-    it('calls onCancel when modal overlay is clicked', () => {
-      const { container } = render(
-        <TemplateEditor 
-          template={mockTemplate}
-          {...mockHandlers}
-        />
-      );
-
-      const overlay = container.querySelector('.modal-overlay');
-      fireEvent.click(overlay);
-
-      expect(mockHandlers.onCancel).toHaveBeenCalled();
-    });
-
-    it('does not call onCancel when modal content is clicked', () => {
-      const { container } = render(
-        <TemplateEditor 
-          template={mockTemplate}
-          {...mockHandlers}
-        />
-      );
-
-      const modalContent = container.querySelector('.modal-content');
-      fireEvent.click(modalContent);
-
-      expect(mockHandlers.onCancel).not.toHaveBeenCalled();
-    });
+    // Modal tests removed - component doesn't use modal pattern
   });
 
   describe('Preview Mode', () => {
-    it('switches to preview mode when preview button is clicked', async () => {
+    it('renders live preview alongside editor', () => {
       render(
         <TemplateEditor 
           template={mockTemplate}
@@ -260,19 +297,12 @@ describe('TemplateEditor Component', () => {
         />
       );
 
-      const previewButton = screen.getByText('👁️ Preview');
-      fireEvent.click(previewButton);
-
-      await waitFor(() => {
-        expect(screen.getByText('👁️ Preview')).toHaveClass('active');
-        expect(screen.getByText('✏️ Edit')).not.toHaveClass('active');
-      });
-
-      // Should show syntax highlighted content
-      expect(screen.getByText('## Task Analysis')).toBeInTheDocument();
+      // MDEditor shows both editor and preview side by side in "live" mode
+      expect(screen.getByTestId('md-editor-textarea')).toBeInTheDocument();
+      expect(screen.getByTestId('md-editor-preview')).toBeInTheDocument();
     });
 
-    it('switches back to edit mode when edit button is clicked', async () => {
+    it('updates preview when content changes', () => {
       render(
         <TemplateEditor 
           template={mockTemplate}
@@ -280,37 +310,13 @@ describe('TemplateEditor Component', () => {
         />
       );
 
-      const previewButton = screen.getByText('👁️ Preview');
-      fireEvent.click(previewButton);
-
-      const editButton = screen.getByText('✏️ Edit');
-      fireEvent.click(editButton);
-
-      await waitFor(() => {
-        expect(screen.getByText('✏️ Edit')).toHaveClass('active');
-        expect(screen.getByText('👁️ Preview')).not.toHaveClass('active');
-      });
-
-      // Should show textarea again
-      expect(screen.getByDisplayValue(/## Task Analysis/)).toBeInTheDocument();
-    });
-
-    it('renders markdown content with syntax highlighting in preview', async () => {
-      render(
-        <TemplateEditor 
-          template={mockTemplate}
-          {...mockHandlers}
-        />
-      );
-
-      const previewButton = screen.getByText('👁️ Preview');
-      fireEvent.click(previewButton);
-
-      await waitFor(() => {
-        // SyntaxHighlighter should render the content
-        const previewContent = document.querySelector('.token');
-        expect(previewContent).toBeInTheDocument();
-      });
+      const textarea = screen.getByTestId('md-editor-textarea');
+      const preview = screen.getByTestId('md-editor-preview');
+      
+      fireEvent.change(textarea, { target: { value: '# New Header' } });
+      
+      // Preview should show the new content
+      expect(preview).toHaveTextContent('# New Header');
     });
   });
 

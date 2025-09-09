@@ -1,6 +1,6 @@
 {
   "name": "mcp-shrimp-task-manager",
-  "version": "1.0.21",
+  "version": "3.1.0",
   "description": "Shrimp Task Manager is a task tool built for AI Agents, emphasizing chain-of-thought, reflection, and style consistency. It converts natural language into structured dev tasks with dependency tracking and iterative refinement, enabling agent-like developer behavior in reasoning AI systems",
   "main": "dist/index.js",
   "type": "module",

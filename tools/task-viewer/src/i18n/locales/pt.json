@@ -1,5 +1,11 @@
 {
   "appTitle": "🦐 Visualizador do Gerenciador de Tarefas Shrimp",
+  "unknown": "Desconhecido",
+  "unknownTask": "Tarefa Desconhecida",
+  "task.name": "Nome da Tarefa",
+  "task.status": "Status",
+  "task.dependencies": "Dependências",
+  "actions": "Ações",
   "header": {
     "appTitle": "🦐 Visualizador do Gerenciador de Tarefas Shrimp",
     "version": "Versão",
@@ -61,20 +67,20 @@
     "to": "até",
     "filteredFrom": "filtrados de"
   },
-  "profile": {
-    "management": "🔧 Gerenciamento de Perfis",
-    "managementDesc": "Gerencie perfis de arquivos de tarefas. Crie novos perfis ou edite os existentes.",
+  "project": {
+    "management": "🔧 Gerenciamento de Projetos",
+    "managementDesc": "Gerencie projetos de arquivos de tarefas. Crie novos projetos ou edite os existentes.",
     "taskFolderPath": "Caminho da Pasta de Tarefas",
     "taskFolderPathPlaceholder": "/caminho/para/pasta_dados_shrimp",
-    "profileName": "Nome do Projeto",
-    "profileNamePlaceholder": "ex., Tarefas da Equipe Alpha",
+    "projectName": "Nome do Projeto",
+    "projectNamePlaceholder": "ex., Tarefas da Equipe Alpha",
     "projectRootPath": "Caminho Raiz do Projeto",
     "projectRootPathPlaceholder": "ex., /home/usuario/meu-projeto",
-    "addProfile": "Adicionar Projeto",
-    "editProfile": "Editar Projeto",
-    "deleteProfile": "Remover Projeto",
-    "addNewProfile": "Adicionar Novo Projeto",
-    "profileNameTitle": "Digite um nome descritivo para este projeto",
+    "addProject": "Adicionar Projeto",
+    "editProject": "Editar Projeto",
+    "deleteProject": "Remover Projeto",
+    "addNewProject": "Adicionar Novo Projeto",
+    "projectNameTitle": "Digite um nome descritivo para este projeto",
     "taskFolderPathTitle": "Digite o caminho para sua pasta de dados shrimp contendo tasks.json",
     "tip": "Dica",
     "navigateToFolder": "Navegue até sua pasta de dados shrimp no terminal e",
@@ -84,10 +90,9 @@
     "projectRootHint": "Isso habilita links de arquivos clicáveis que abrem no VS Code",
     "optional": "opcional",
     "cancelAndCloseDialog": "Cancelar e fechar este diálogo",
-    "addProject": "Adicionar Projeto",
     "projectRoot": "Raiz do Projeto",
     "taskPath": "Caminho da Tarefa",
-    "editProfileNameTitle": "Editar o nome do projeto",
+    "editProjectNameTitle": "Editar o nome do projeto",
     "projectRootEditPlaceholder": "ex., /home/usuario/projetos/meu-projeto",
     "projectRootEditTitle": "Definir o caminho raiz do projeto para habilitar links de arquivos do VS Code",
     "projectRootEditHint": "Configure isso para habilitar links clicáveis do VS Code para arquivos de tarefas",
@@ -186,10 +191,10 @@
     "noTasksInHistory": "Este snapshot histórico não contém tarefas",
     "taskRowTitle": "Detalhes da tarefa do snapshot histórico",
     "editProjectSettings": "Editar Configurações do Projeto",
-    "chooseProfileTitle": "Escolha um projeto no menu suspenso acima",
-    "selectProfileToViewTasks": "Selecione um projeto para ver as tarefas",
-    "noProfilesAvailable": "Nenhum projeto disponível",
-    "noProfilesClickAddTab": "Nenhum projeto disponível. Clique em \"Adicionar Projeto\" para criar um.",
+    "chooseProjectTitle": "Escolha um projeto no menu suspenso acima",
+    "selectProjectToViewTasks": "Selecione um projeto para ver as tarefas",
+    "noProjectsAvailable": "Nenhum projeto disponível",
+    "noProjectsClickAddTab": "Nenhum projeto disponível. Clique em \"Adicionar Projeto\" para criar um.",
     "loadingTasksFromFile": "Carregando tarefas do arquivo",
     "loadingTasks": "Carregando tarefas... ⏳"
   },
@@ -204,14 +209,14 @@
     "claudeFolderPathPlaceholder": "ex., ~/.config/claude"
   },
   "notifications": {
-    "profileCreatedSuccess": "Perfil criado com sucesso",
-    "profileUpdatedSuccess": "Perfil atualizado com sucesso",
-    "profileDeletedSuccess": "Perfil removido com sucesso",
+    "projectCreatedSuccess": "Projeto criado com sucesso",
+    "projectUpdatedSuccess": "Projeto atualizado com sucesso",
+    "projectDeletedSuccess": "Projeto removido com sucesso",
     "taskUpdatedSuccess": "Tarefa atualizada com sucesso",
     "settingsSaved": "Configurações salvas com sucesso",
     "copiedToClipboard": "Copiado para a área de transferência",
-    "profileAddedSuccess": "Projeto \"{{name}}\" adicionado com sucesso!",
-    "profileRemovedSuccess": "Projeto \"{{name}}\" removido com sucesso!",
+    "projectAddedSuccess": "Projeto \"{{name}}\" adicionado com sucesso!",
+    "projectRemovedSuccess": "Projeto \"{{name}}\" removido com sucesso!",
     "templateSavedSuccess": "Template \"{{name}}\" salvo com sucesso!",
     "templateResetSuccess": "Template \"{{name}}\" redefinido para padrão!",
     "templateDuplicatedSuccess": "Template duplicado como \"{{name}}\"!",
@@ -219,7 +224,7 @@
   },
   "empty": {
     "noTasksFound": "Nenhuma tarefa encontrada",
-    "noProfilesFound": "Nenhum perfil encontrado",
+    "noProjectsFound": "Nenhum projeto encontrado",
     "noTemplatesFound": "Nenhum template encontrado",
     "noHistoryFound": "Nenhum histórico encontrado"
   },
@@ -257,10 +262,10 @@
     "refreshTemplateData": "Atualizar dados dos templates",
     "searchTasksPlaceholder": "🔍 Procurar tarefas...",
     "searchTasksTitle": "Pesquisar e filtrar tarefas por qualquer conteúdo de texto",
-    "refreshCurrentProfile": "Atualizar dados do projeto atual - recarregar tarefas do arquivo"
+    "refreshCurrentProject": "Atualizar dados do projeto atual - recarregar tarefas do arquivo"
   },
   "confirmation": {
-    "confirmRemoveProfile": "Tem certeza de que deseja remover este projeto? Esta ação não pode ser desfeita.",
+    "confirmRemoveProject": "Tem certeza de que deseja remover este projeto? Esta ação não pode ser desfeita.",
     "confirmResetTemplate": "Tem certeza de que deseja redefinir {{name}} para padrão? Isso removerá qualquer personalização."
   },
   "projects": "Projetos",
@@ -277,5 +282,11 @@
   "inProgress": "EM PROGRESSO",
   "pending": "PENDENTES",
   "autoRefresh": "Atualização Automática",
-  "searchTasksPlaceholder": "Procurar tarefas..."
+  "searchTasksPlaceholder": "Procurar tarefas...",
+  "task": "Tarefa",
+  "agent": "Agente",
+  "description": "Descrição",
+  "version": "Versão",
+  "created": "Criado",
+  "updated": "Atualizado"
 }

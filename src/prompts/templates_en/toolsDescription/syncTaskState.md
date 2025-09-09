@@ -1,0 +1,1 @@
+Synchronize task state with external systems or resolve conflicts. Ensures task data consistency across different storage locations.

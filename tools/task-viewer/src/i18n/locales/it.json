@@ -55,18 +55,19 @@
     "of": "di",
     "total": "totale"
   },
-  "profile": {
-    "management": "🔧 Gestione Profili",
-    "managementDesc": "Gestisci i profili dei file delle attività. Crea nuovi profili o modifica quelli esistenti.",
-    "taskFolderPath": "Percorso Cartella Attività",
+  "project": {
+    "management": "🔧 Gestione Progetti",
+    "managementDesc": "Gestisci i progetti dei file delle attività. Crea nuovi progetti o modifica quelli esistenti.",
+    "taskFolderPath": "Percorso Cartella Dati Shrimp",
     "taskFolderPathPlaceholder": "Inserisci il percorso della cartella contenente i file delle attività",
-    "profileName": "Nome Profilo",
-    "profileNamePlaceholder": "Inserisci il nome del profilo",
+    "projectName": "Nome Progetto",
+    "projectNamePlaceholder": "Inserisci il nome del progetto",
     "projectRootPath": "Percorso Radice Progetto",
     "projectRootPathPlaceholder": "Inserisci il percorso radice del progetto (opzionale)",
-    "addProfile": "Aggiungi Profilo",
-    "editProfile": "Modifica Profilo",
-    "deleteProfile": "Elimina Profilo"
+    "addProject": "Aggiungi Progetto",
+    "addNewProject": "Aggiungi Nuovo Progetto",
+    "editProject": "Modifica Progetto",
+    "deleteProject": "Elimina Progetto"
   },
   "task": {
     "number": "Numero Attività",
@@ -109,7 +110,7 @@
     "assignAgent": "Assegnazione Agente in Blocco",
     "delete": "Eliminazione in Blocco"
   },
-  "project": {
+  "projectHistory": {
     "history": "📊 Cronologia Progetto",
     "historyDesc": "Visualizza la cronologia delle attività del progetto e le statistiche.",
     "historyEntries": "Voci Cronologia",
@@ -161,16 +162,16 @@
     }
   },
   "notifications": {
-    "profileCreatedSuccess": "Profilo creato con successo",
-    "profileUpdatedSuccess": "Profilo aggiornato con successo",
-    "profileDeletedSuccess": "Profilo eliminato con successo",
+    "projectCreatedSuccess": "Progetto creato con successo",
+    "projectUpdatedSuccess": "Progetto aggiornato con successo",
+    "projectDeletedSuccess": "Progetto eliminato con successo",
     "taskUpdatedSuccess": "Attività aggiornata con successo",
     "settingsSaved": "Impostazioni salvate con successo",
     "copiedToClipboard": "Copiato negli appunti"
   },
   "empty": {
     "noTasksFound": "Nessuna attività trovata",
-    "noProfilesFound": "Nessun profilo trovato",
+    "noProjectsFound": "Nessun progetto trovato",
     "noTemplatesFound": "Nessun modello trovato",
     "noHistoryFound": "Nessuna cronologia trovata"
   },

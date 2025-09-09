@@ -4,18 +4,23 @@ import Captions from 'yet-another-react-lightbox/plugins/captions';
 import 'yet-another-react-lightbox/styles.css';
 import 'yet-another-react-lightbox/plugins/captions.css';
 
-function ImageLightbox({ isOpen, onClose, images, currentIndex = 0 }) {
+function ImageLightbox({ isOpen, onClose, images = [], currentIndex = 0 }) {
   const [index, setIndex] = useState(currentIndex);
 
   useEffect(() => {
     setIndex(currentIndex);
   }, [currentIndex]);
 
-  // Format images for lightbox
+  // Ensure images is always an array and not empty
+  if (!images || images.length === 0) {
+    return null;
+  }
+
+  // Format images for lightbox with safety checks
   const slides = images.map((img) => ({
-    src: typeof img === 'string' ? img : img.src,
-    title: typeof img === 'string' ? '' : img.title || '',
-    description: typeof img === 'string' ? '' : img.description || ''
+    src: typeof img === 'string' ? img : (img?.src || ''),
+    title: typeof img === 'string' ? '' : (img?.title || ''),
+    description: typeof img === 'string' ? '' : (img?.description || '')
   }));
 
   return (

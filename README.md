@@ -4,6 +4,31 @@
 
 > 🦐 **Intelligent task management for AI-powered development** - Break down complex projects into manageable tasks, maintain context across sessions, and accelerate your development workflow.
 
+## 📢 Latest Release - Version 4.1.0 (September 6, 2025)
+
+**🎯 Enhanced Task Completion & UI Improvements!**
+
+Version 4.1.0 introduces **structured task completion details** and **improved TaskTable UI** with summary preview functionality. Key highlights:
+
+- **📊 New Task Completion Details**: Structured data model for comprehensive task completion information
+- **🔍 Intelligent Summary Parser**: Advanced Markdown parser that extracts structured data from completion summaries
+- **📋 TaskTable Summary Preview**: Quick task overview with expandable summaries and optimized mobile design
+- **🎨 Enhanced Completion Display**: Rich visual presentation with organized sections and verification scores
+
+[📖 Full 4.1.0 Release Notes](tools/task-viewer/releases/v4.1.0.md)
+
+### Major Features from Version 4.0.0 (September 3, 2025)
+
+**🚀 Archive Management System** - Revolutionary task list archiving with complete context preservation
+
+**💡 Initial Request Display** - Permanently stores the original user request that initiated task planning
+
+**📚 Enhanced Release Notes** - Interactive experience with collapsible Table of Contents
+
+**🤖 7 New MCP Tools** - Complete programmatic access to archive and history functionality
+
+[📖 Full 4.0.0 Release Notes](tools/task-viewer/releases/v4.0.0.md)
+
 <div align="center">
   
 [![Shrimp Task Manager Demo](docs/yt.png)](https://www.youtube.com/watch?v=Arzu0lV09so)
@@ -143,6 +168,8 @@ Shrimp Task Manager is an MCP (Model Context Protocol) server that transforms ho
 - **🤖 Agent System**: Assign specialized AI agents to specific tasks ([Learn more](docs/agents.md))
 - **📏 Project Rules**: Define and maintain coding standards across your project
 - **💾 Task Memory**: Automatic backup and restoration of task history
+- **📚 Archive Management**: Store and restore complete task lists with full context preservation
+- **💡 Initial Request Tracking**: Permanently capture the original context behind task creation
 
 ### Web Interfaces
 
@@ -212,6 +239,24 @@ Agent: "plan task: migrate component to chosen framework"
 ```
 </details>
 
+<details>
+<summary><b>Archive Management</b></summary>
+
+```
+Agent: "plan task: implement user dashboard with analytics"
+# Agent creates comprehensive task list
+
+Agent: "create archive Dashboard_Implementation"
+# Archive tasks for later when priorities change
+
+Agent: "plan task: fix critical security vulnerability"
+# Work on urgent issue first
+
+Agent: "restore from archive Dashboard_Implementation"
+# Resume dashboard work with full context preserved
+```
+</details>
+
 ## 🛠️ Configuration
 
 ### Environment Variables
@@ -239,6 +284,10 @@ PROMPT_LANGUAGE=en      # Prompt language (en, zh, etc.)
 | `list tasks` | Show all tasks |
 | `research [topic]` | Enter research mode |
 | `reflect task [id]` | Review and improve task |
+| `create archive [name]` | Create backup archive of tasks |
+| `restore from archive [id]` | Restore tasks from archive |
+| `get deleted tasks` | View history of deleted tasks |
+| `recover task [id]` | Restore previously deleted task |
 
 ## 🤝 Contributing
 
@@ -251,6 +300,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🌟 Credits
 
 Created by [cjo4m06](https://github.com/cjo4m06) and maintained by the community.
+
+**Special Thanks:**
+- [Paul Pribisch](https://github.com/paulpreibisch) - Creator of the Shrimp Task Manager Viewer interface
 
 ---
 

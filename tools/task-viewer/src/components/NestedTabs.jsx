@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tab } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
 
@@ -19,7 +19,8 @@ const NestedTabs = ({
   handleDragOver,
   handleDragEnd,
   handleDrop,
-  claudeFolderPath
+  claudeFolderPath,
+  tasks = []
 }) => {
   const { t } = useTranslation();
   
@@ -84,9 +85,21 @@ const NestedTabs = ({
                     className={({ selected }) => 
                       `tab ${selected ? 'active' : ''} ${draggedTabIndex === index ? 'dragging' : ''} ${dragOverIndex === index ? 'drag-over' : ''}`
                     }
-                    draggable
+                    draggable="true"
                     onDragStart={(e) => handleDragStart && handleDragStart(e, index)}
                     onDragOver={(e) => handleDragOver && handleDragOver(e, index)}
+                    onDragEnter={(e) => handleDragOver && handleDragOver(e, index)}
+                    onDragLeave={(e) => {
+                      e.preventDefault();
+                      // Only clear drag-over if we're leaving the element completely
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const x = e.clientX;
+                      const y = e.clientY;
+                      if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+                        // Clear drag over state when actually leaving the element
+                        if (handleDragOver) handleDragOver(e, -1);
+                      }
+                    }}
                     onDragEnd={handleDragEnd}
                     onDrop={(e) => handleDrop && handleDrop(e, index)}
                   >
@@ -116,7 +129,7 @@ const NestedTabs = ({
                   className="add-tab-btn"
                   onClick={() => setShowAddProfile(true)}
                 >
-                  + {t('addProject')}
+                  + Add Project
                 </button>
               </Tab.List>
 
@@ -126,8 +139,8 @@ const NestedTabs = ({
                     <Tab.Panel key={profile.id}>
                       {/* Inner project tabs */}
                       <div className="inner-tabs-wrapper">
-                        <Tab.Group selectedIndex={projectInnerTab === 'tasks' ? 0 : projectInnerTab === 'history' ? 1 : projectInnerTab === 'agents' ? 2 : 3} 
-                                   onChange={(index) => setProjectInnerTab(['tasks', 'history', 'agents', 'settings'][index])}>
+                        <Tab.Group selectedIndex={projectInnerTab === 'tasks' ? 0 : projectInnerTab === 'history' ? 1 : projectInnerTab === 'agents' ? 2 : projectInnerTab === 'settings' ? 3 : 4} 
+                                   onChange={(index) => setProjectInnerTab(['tasks', 'history', 'agents', 'settings', 'archive'][index])}>
                           <Tab.List className="inner-tabs-list project-inner-tabs">
                           <Tab className={({ selected }) => `inner-tab ${selected ? 'active' : ''}`}
                                onClick={() => {
@@ -153,6 +166,9 @@ const NestedTabs = ({
                           <Tab className={({ selected }) => `inner-tab ${selected ? 'active' : ''}`}>
                             <span>⚙️ {t('settings')}</span>
                           </Tab>
+                          <Tab className={({ selected }) => `inner-tab ${selected ? 'active' : ''}`}>
+                            <span>📦 {t('archive')}</span>
+                          </Tab>
                         </Tab.List>
 
                         <Tab.Panels className="inner-tab-panels">
@@ -171,6 +187,10 @@ const NestedTabs = ({
                           <Tab.Panel>
                             {/* Settings content */}
                             {children.settings}
+                          </Tab.Panel>
+                          <Tab.Panel>
+                            {/* Archive content */}
+                            {children.archive}
                           </Tab.Panel>
                         </Tab.Panels>
                       </Tab.Group>

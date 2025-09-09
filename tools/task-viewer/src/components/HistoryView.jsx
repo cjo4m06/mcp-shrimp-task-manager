@@ -15,45 +15,29 @@ function HistoryView({
   error = '',
   onViewTasks,
   onBack,
+  onDeleteHistory,
+  onImportHistory,
   profileId
 }) {
   const { t } = useTranslation();
-  const [showNotesModal, setShowNotesModal] = useState(false);
-  const [editingEntry, setEditingEntry] = useState(null);
-  const [notesText, setNotesText] = useState('');
-  const [savedNotes, setSavedNotes] = useState({});
-  const [savingNote, setSavingNote] = useState(false);
-
-  // Load notes from localStorage on mount
-  React.useEffect(() => {
-    if (!profileId) return;
-    
-    const storageKey = `history-notes-${profileId}`;
-    const storedNotes = localStorage.getItem(storageKey);
-    if (storedNotes) {
-      try {
-        setSavedNotes(JSON.parse(storedNotes));
-      } catch (e) {
-        console.error('Failed to parse stored notes:', e);
-      }
-    }
-  }, [profileId]);
-
-  // Save notes to localStorage whenever they change
-  React.useEffect(() => {
-    if (!profileId) return;
-    
-    const storageKey = `history-notes-${profileId}`;
-    localStorage.setItem(storageKey, JSON.stringify(savedNotes));
-  }, [savedNotes, profileId]);
 
   const columns = useMemo(() => [
+    {
+      accessorKey: 'id',
+      header: 'ID',
+      cell: ({ getValue }) => {
+        const id = getValue();
+        // Show shortened ID (first 8 chars)
+        return id ? id.substring(0, 8) : '-';
+      },
+      size: 100,
+    },
     {
       accessorKey: 'timestamp',
       header: t('dateTime'),
       cell: ({ getValue }) => {
         const timestamp = getValue();
-        // Convert to local time using the user's timezone
+        if (!timestamp) return '-';
         const date = new Date(timestamp);
         return date.toLocaleString(undefined, {
           year: 'numeric',
@@ -61,95 +45,68 @@ function HistoryView({
           day: '2-digit',
           hour: '2-digit',
           minute: '2-digit',
-          second: '2-digit',
           hour12: true
         });
       },
-      size: 200,
+      size: 180,
     },
     {
-      accessorKey: 'notes',
-      header: t('notes'),
-      cell: ({ row }) => {
-        const noteKey = `${row.original.timestamp}`;
-        const noteText = savedNotes[noteKey];
-        const hasNote = !!noteText;
-        
+      accessorKey: 'initialRequest',
+      header: t('initialRequest'),
+      cell: ({ getValue }) => {
+        const request = getValue();
+        if (!request) return '-';
+        // Truncate to 100 characters to match ArchiveView
+        const truncated = request.length > 100 
+          ? request.substring(0, 100) + '...' 
+          : request;
         return (
           <div 
-            className="notes-cell"
-            onClick={(e) => {
-              e.stopPropagation();
-              setEditingEntry(row.original);
-              setNotesText(savedNotes[noteKey] || '');
-              setShowNotesModal(true);
+            title={request}
+            style={{
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: '300px'
             }}
-            style={{ cursor: 'pointer' }}
           >
-            {hasNote ? (
-              <div 
-                className="notes-preview"
-                title={noteText}
-              >
-                {noteText.slice(0, 150)}{noteText.length > 150 ? '...' : ''}
-              </div>
-            ) : (
-              <button
-                className="edit-notes-button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditingEntry(row.original);
-                  setNotesText('');
-                  setShowNotesModal(true);
-                }}
-                title={t('addNote')}
-              >
-                ✏️
-              </button>
-            )}
-          </div>
-        );
-      },
-      size: 200,
-    },
-    {
-      accessorKey: 'taskCount',
-      header: t('taskCount'),
-      cell: ({ getValue }) => (
-        <div className="task-count">{getValue()}</div>
-      ),
-      size: 100,
-    },
-    {
-      accessorKey: 'stats',
-      header: t('statusSummary'),  
-      cell: ({ getValue }) => {
-        const stats = getValue();
-        return (
-          <div className="status-summary">
-            <span className="status-item completed" title={t('completed')}>
-              <span className="status-count">{stats.completed}</span> {t('completed')}
-            </span>
-            <span className="status-divider">•</span>
-            <span className="status-item in-progress" title={t('inProgress')}>
-              <span className="status-count">{stats.inProgress}</span> {t('inProgress')}
-            </span>
-            <span className="status-divider">•</span>
-            <span className="status-item pending" title={t('pending')}>
-              <span className="status-count">{stats.pending}</span> {t('pending')}
-            </span>
+            {truncated}
           </div>
         );
       },
       size: 300,
     },
     {
+      accessorKey: 'stats',
+      header: t('statusSummary'),
+      cell: ({ getValue }) => {
+        const stats = getValue();
+        return (
+          <div style={{ 
+            display: 'flex', 
+            gap: '12px',
+            fontSize: '13px'
+          }}>
+            <span style={{ color: '#4ade80' }}>
+              {stats.completed} {t('completed')}
+            </span>
+            <span style={{ color: '#facc15' }}>
+              {stats.inProgress} {t('inProgress')}
+            </span>
+            <span style={{ color: '#94a3b8' }}>
+              {stats.pending} {t('pending')}
+            </span>
+          </div>
+        );
+      },
+      size: 250,
+    },
+    {
       accessorKey: 'actions',
       header: t('actions'),
       cell: ({ row }) => (
-        <div className="actions-cell">
+        <div className="actions-cell" style={{ display: 'flex', gap: '4px' }}>
           <button
-            className="action-button view-button"
             onClick={(e) => {
               e.stopPropagation();
               if (onViewTasks) {
@@ -158,14 +115,92 @@ function HistoryView({
             }}
             title={t('viewTasks')}
             disabled={row.original.taskCount === 0}
+            style={{
+              padding: '4px 8px',
+              backgroundColor: 'transparent',
+              border: '1px solid #555',
+              borderRadius: '4px',
+              color: row.original.taskCount === 0 ? '#555' : '#fff',
+              cursor: row.original.taskCount === 0 ? 'not-allowed' : 'pointer',
+              fontSize: '12px',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              if (row.original.taskCount > 0) {
+                e.target.style.borderColor = '#4fbdba';
+                e.target.style.backgroundColor = 'rgba(79, 189, 186, 0.1)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.borderColor = '#555';
+              e.target.style.backgroundColor = 'transparent';
+            }}
           >
             👁️
           </button>
+          {onDeleteHistory && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteHistory(row.original);
+              }}
+              title={t('delete')}
+              style={{
+                padding: '4px 8px',
+                backgroundColor: 'transparent',
+                border: '1px solid #555',
+                borderRadius: '4px',
+                color: '#fff',
+                cursor: 'pointer',
+                fontSize: '12px',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.borderColor = '#ef4444';
+                e.target.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.borderColor = '#555';
+                e.target.style.backgroundColor = 'transparent';
+              }}
+            >
+              🗑️
+            </button>
+          )}
+          {onImportHistory && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onImportHistory(row.original);
+              }}
+              title={t('import')}
+              style={{
+                padding: '4px 8px',
+                backgroundColor: 'transparent',
+                border: '1px solid #555',
+                borderRadius: '4px',
+                color: '#fff',
+                cursor: 'pointer',
+                fontSize: '12px',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.borderColor = '#8b5cf6';
+                e.target.style.backgroundColor = 'rgba(139, 92, 246, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.borderColor = '#555';
+                e.target.style.backgroundColor = 'transparent';
+              }}
+            >
+              📥
+            </button>
+          )}
         </div>
       ),
-      size: 100,
+      size: 150,
     },
-  ], [onViewTasks, t]);
+  ], [onViewTasks, onDeleteHistory, onImportHistory, t]);
 
   const table = useReactTable({
     data,
@@ -181,7 +216,11 @@ function HistoryView({
 
   if (loading) {
     return (
-      <div className="loading">
+      <div style={{ 
+        padding: '40px', 
+        textAlign: 'center',
+        color: '#7f8c8d'
+      }}>
         {t('loading')} ⏳
       </div>
     );
@@ -189,7 +228,11 @@ function HistoryView({
 
   if (error) {
     return (
-      <div className="error">
+      <div style={{ 
+        padding: '40px', 
+        textAlign: 'center',
+        color: '#e74c3c'
+      }}>
         {error}
       </div>
     );
@@ -197,20 +240,34 @@ function HistoryView({
 
   if (data.length === 0) {
     return (
-      <div className="loading">
+      <div style={{ 
+        padding: '40px', 
+        textAlign: 'center',
+        color: '#7f8c8d'
+      }}>
         {t('noHistoryFound')}
       </div>
     );
   }
 
   return (
-    <div className="history-view">
-      <div className="history-view-header">
-        <div className="header-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-          <h2>📚 {t('projectHistory')}</h2>
+    <div className="history-view" style={{ 
+      padding: '20px',
+      background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.05), rgba(233, 213, 255, 0.05))'
+    }}>
+      <div style={{ marginBottom: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <h2 style={{ 
+            margin: 0,
+            color: '#8b5cf6',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            📚 {t('projectHistory')}
+          </h2>
           {onBack && (
             <button 
-              className="back-button" 
               onClick={onBack} 
               title={t('backToTasks')}
               style={{ 
@@ -233,14 +290,33 @@ function HistoryView({
         </div>
       </div>
 
-      <table className="table">
+      <table 
+        role="table"
+        style={{
+          width: '100%',
+          borderCollapse: 'collapse',
+          backgroundColor: '#1a1a1a',
+          border: '1px solid #333'
+        }}
+      >
         <thead>
           {table.getHeaderGroups().map(headerGroup => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map(header => (
                 <th 
                   key={header.id}
-                  style={{ width: header.getSize() }}
+                  role="columnheader"
+                  style={{ 
+                    width: header.getSize(),
+                    padding: '12px',
+                    textAlign: 'left',
+                    backgroundColor: '#2a2a2a',
+                    borderBottom: '1px solid #444',
+                    color: '#8b5cf6',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    cursor: header.column.getCanSort() ? 'pointer' : 'default'
+                  }}
                   onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                   className={header.column.getCanSort() ? 'sortable' : ''}
                 >
@@ -259,17 +335,20 @@ function HistoryView({
           {table.getRowModel().rows.map(row => (
             <tr 
               key={row.id}
-              className="clickable-row history-row"
-              onClick={() => {
-                if (onViewTasks && row.original.taskCount > 0) {
-                  onViewTasks(row.original);
-                }
+              role="row"
+              style={{
+                borderBottom: '1px solid #333'
               }}
-              style={{ cursor: row.original.taskCount > 0 ? 'pointer' : 'default' }}
-              title={row.original.taskCount > 0 ? t('clickToViewTasks') : t('noTasksAvailable')}
             >
               {row.getVisibleCells().map(cell => (
-                <td key={cell.id}>
+                <td 
+                  key={cell.id}
+                  style={{
+                    padding: '12px',
+                    fontSize: '14px',
+                    color: '#b8c5d6'
+                  }}
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
@@ -278,8 +357,16 @@ function HistoryView({
         </tbody>
       </table>
 
-      <div className="pagination">
-        <div className="pagination-info">
+      <div style={{
+        marginTop: '20px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <div style={{
+          color: '#7f8c8d',
+          fontSize: '14px'
+        }}>
           {t('showing')} {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} {t('to')}{' '}
           {Math.min(
             (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
@@ -288,88 +375,74 @@ function HistoryView({
           {t('of')} {table.getFilteredRowModel().rows.length} {t('historyEntries')}
         </div>
         
-        <div className="pagination-controls">
+        <div style={{
+          display: 'flex',
+          gap: '8px',
+          alignItems: 'center'
+        }}>
           <button
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
+            style={{
+              padding: '4px 8px',
+              backgroundColor: '#2a2a2a',
+              border: '1px solid #444',
+              borderRadius: '4px',
+              color: table.getCanPreviousPage() ? '#fff' : '#555',
+              cursor: table.getCanPreviousPage() ? 'pointer' : 'not-allowed'
+            }}
           >
             {'<<'}
           </button>
           <button
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            style={{
+              padding: '4px 8px',
+              backgroundColor: '#2a2a2a',
+              border: '1px solid #444',
+              borderRadius: '4px',
+              color: table.getCanPreviousPage() ? '#fff' : '#555',
+              cursor: table.getCanPreviousPage() ? 'pointer' : 'not-allowed'
+            }}
           >
             {'<'}
           </button>
-          <span>
+          <span style={{ color: '#b8c5d6', fontSize: '14px' }}>
             {t('page')} {table.getState().pagination.pageIndex + 1} {t('of')}{' '}
             {table.getPageCount()}
           </span>
           <button
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            style={{
+              padding: '4px 8px',
+              backgroundColor: '#2a2a2a',
+              border: '1px solid #444',
+              borderRadius: '4px',
+              color: table.getCanNextPage() ? '#fff' : '#555',
+              cursor: table.getCanNextPage() ? 'pointer' : 'not-allowed'
+            }}
           >
             {'>'}
           </button>
           <button
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
+            style={{
+              padding: '4px 8px',
+              backgroundColor: '#2a2a2a',
+              border: '1px solid #444',
+              borderRadius: '4px',
+              color: table.getCanNextPage() ? '#fff' : '#555',
+              cursor: table.getCanNextPage() ? 'pointer' : 'not-allowed'
+            }}
           >
             {'>>'}
           </button>
         </div>
       </div>
 
-      {/* Notes Modal */}
-      {showNotesModal && (
-        <div className="modal-overlay" onClick={() => setShowNotesModal(false)}>
-          <div className="modal-content notes-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>{t('editNote')}</h3>
-            <p className="modal-subtitle">
-              {editingEntry && new Date(editingEntry.timestamp).toLocaleString(undefined, {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true
-              })}
-            </p>
-            <textarea
-              className="notes-textarea"
-              value={notesText}
-              onChange={(e) => setNotesText(e.target.value)}
-              placeholder={t('enterNoteHere')}
-              rows={6}
-              autoFocus
-            />
-            <div className="modal-actions">
-              <button
-                className="primary-btn"
-                onClick={() => {
-                  if (editingEntry) {
-                    const noteKey = `${editingEntry.timestamp}`;
-                    setSavedNotes(prev => ({
-                      ...prev,
-                      [noteKey]: notesText
-                    }));
-                  }
-                  setShowNotesModal(false);
-                }}
-              >
-                {t('save')}
-              </button>
-              <button
-                className="secondary-btn"
-                onClick={() => setShowNotesModal(false)}
-              >
-                {t('cancel')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

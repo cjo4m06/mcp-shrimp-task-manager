@@ -1,0 +1,1 @@
+Recover a previously deleted task by its ID. Restores the task to its state before deletion.
