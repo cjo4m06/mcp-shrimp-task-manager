@@ -897,13 +897,16 @@ export async function clearAllTasks(): Promise<{
       JSON.stringify({ tasks: completedTasks }, null, 2)
     );
 
-    // 清空任務文件
-    // Clear task file
-    await writeTasks([], `Clear all tasks (${allTasks.length} tasks removed)`);
+    // 保留未完成的任務，只移除已完成的任務
+    // Keep incomplete tasks, only remove completed tasks
+    const incompleteTasks = allTasks.filter(
+      (task) => task.status !== TaskStatus.COMPLETED
+    );
+    await writeTasks(incompleteTasks, `Archive completed tasks (${completedTasks.length} completed tasks moved to memory)`);
 
     return {
       success: true,
-      message: `已成功清除所有任務，共 ${allTasks.length} 個任務被刪除，已備份 ${completedTasks.length} 個已完成的任務至 memory 目錄`,
+      message: `已成功歸檔已完成的任務，共 ${completedTasks.length} 個已完成任務移至 memory 目錄，保留 ${incompleteTasks.length} 個未完成任務`,
       backupFile: backupFileName,
     };
   } catch (error) {
