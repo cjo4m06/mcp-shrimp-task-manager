@@ -52,14 +52,25 @@ export async function getDataDir(): Promise<string> {
           root.uri.startsWith("file://")
         );
         if (firstFileRoot) {
-          // 從 file:// URI 中提取實際路徑
-          // Extract actual path from file:// URI
+          // 從 file:// URI 中提取實際路徑並進行 URL 解碼
+          // Extract actual path from file:// URI and URL decode
           // Windows: file:///C:/path -> C:/path
           // Unix: file:///path -> /path
-          if (process.platform === 'win32') {
-            rootPath = firstFileRoot.uri.replace("file:///", "").replace(/\//g, "\\");
+          let rawPath: string;
+          if (process.platform === "win32") {
+            rawPath = firstFileRoot.uri
+              .replace("file:///", "")
+              .replace(/\//g, "\\");
           } else {
-            rootPath = firstFileRoot.uri.replace("file://", "");
+            rawPath = firstFileRoot.uri.replace("file://", "");
+          }
+
+          try {
+            // URL decode the path to handle %3A -> : conversion and other encoded characters
+            rootPath = decodeURIComponent(rawPath);
+          } catch (error) {
+            // If URL decoding fails, use the raw path as fallback
+            rootPath = rawPath;
           }
         }
       }

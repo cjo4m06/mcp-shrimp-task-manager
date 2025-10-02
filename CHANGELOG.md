@@ -2,6 +2,12 @@
 
 # Changelog
 
+## [1.0.22] - 2025-10-02
+
+### Fixed
+
+- Decode URL-encoded `file://` roots on Windows when resolving `DATA_DIR`, preventing paths like `e%3A` from being used and ensuring files are written to the correct drive.
+
 ## [1.0.21] - 2025-01-13
 
 ### Added
@@ -32,6 +38,7 @@
 - **Node.js HTTP Server**: RESTful API endpoints for task and profile management
 - **HTML5 Drag & Drop**: Native browser API for intuitive tab reordering
 - **CSS Grid & Flexbox**: Responsive layout system with mobile-first approach
+
 ### Changed
 
 - Updated documentation to reflect new configuration options (99baa0f, 8771a5b)
