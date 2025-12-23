@@ -94,6 +94,10 @@ async function main() {
               "toolsDescription/planTask.md"
             ),
             inputSchema: zodToJsonSchema(planTaskSchema),
+            annotations: {
+              title: "Plan Task",
+              readOnlyHint: true,
+            },
           },
           {
             name: "analyze_task",
@@ -101,6 +105,10 @@ async function main() {
               "toolsDescription/analyzeTask.md"
             ),
             inputSchema: zodToJsonSchema(analyzeTaskSchema),
+            annotations: {
+              title: "Analyze Task",
+              readOnlyHint: true,
+            },
           },
           {
             name: "reflect_task",
@@ -108,6 +116,10 @@ async function main() {
               "toolsDescription/reflectTask.md"
             ),
             inputSchema: zodToJsonSchema(reflectTaskSchema),
+            annotations: {
+              title: "Reflect Task",
+              readOnlyHint: true,
+            },
           },
           {
             name: "split_tasks",
@@ -115,6 +127,10 @@ async function main() {
               "toolsDescription/splitTasks.md"
             ),
             inputSchema: zodToJsonSchema(splitTasksRawSchema),
+            annotations: {
+              title: "Split Tasks",
+              destructiveHint: true,
+            },
           },
           {
             name: "list_tasks",
@@ -122,6 +138,10 @@ async function main() {
               "toolsDescription/listTasks.md"
             ),
             inputSchema: zodToJsonSchema(listTasksSchema),
+            annotations: {
+              title: "List Tasks",
+              readOnlyHint: true,
+            },
           },
           {
             name: "execute_task",
@@ -129,6 +149,10 @@ async function main() {
               "toolsDescription/executeTask.md"
             ),
             inputSchema: zodToJsonSchema(executeTaskSchema),
+            annotations: {
+              title: "Execute Task",
+              destructiveHint: true,
+            },
           },
           {
             name: "verify_task",
@@ -136,6 +160,10 @@ async function main() {
               "toolsDescription/verifyTask.md"
             ),
             inputSchema: zodToJsonSchema(verifyTaskSchema),
+            annotations: {
+              title: "Verify Task",
+              readOnlyHint: true,
+            },
           },
           {
             name: "delete_task",
@@ -143,6 +171,10 @@ async function main() {
               "toolsDescription/deleteTask.md"
             ),
             inputSchema: zodToJsonSchema(deleteTaskSchema),
+            annotations: {
+              title: "Delete Task",
+              destructiveHint: true,
+            },
           },
           {
             name: "clear_all_tasks",
@@ -150,6 +182,10 @@ async function main() {
               "toolsDescription/clearAllTasks.md"
             ),
             inputSchema: zodToJsonSchema(clearAllTasksSchema),
+            annotations: {
+              title: "Clear All Tasks",
+              destructiveHint: true,
+            },
           },
           {
             name: "update_task",
@@ -157,6 +193,10 @@ async function main() {
               "toolsDescription/updateTask.md"
             ),
             inputSchema: zodToJsonSchema(updateTaskContentSchema),
+            annotations: {
+              title: "Update Task",
+              destructiveHint: true,
+            },
           },
           {
             name: "query_task",
@@ -164,6 +204,10 @@ async function main() {
               "toolsDescription/queryTask.md"
             ),
             inputSchema: zodToJsonSchema(queryTaskSchema),
+            annotations: {
+              title: "Query Task",
+              readOnlyHint: true,
+            },
           },
           {
             name: "get_task_detail",
@@ -171,6 +215,10 @@ async function main() {
               "toolsDescription/getTaskDetail.md"
             ),
             inputSchema: zodToJsonSchema(getTaskDetailSchema),
+            annotations: {
+              title: "Get Task Detail",
+              readOnlyHint: true,
+            },
           },
           {
             name: "process_thought",
@@ -178,6 +226,10 @@ async function main() {
               "toolsDescription/processThought.md"
             ),
             inputSchema: zodToJsonSchema(processThoughtSchema),
+            annotations: {
+              title: "Process Thought",
+              readOnlyHint: true,
+            },
           },
           {
             name: "init_project_rules",
@@ -185,6 +237,10 @@ async function main() {
               "toolsDescription/initProjectRules.md"
             ),
             inputSchema: zodToJsonSchema(initProjectRulesSchema),
+            annotations: {
+              title: "Init Project Rules",
+              readOnlyHint: true,
+            },
           },
           {
             name: "research_mode",
@@ -192,6 +248,10 @@ async function main() {
               "toolsDescription/researchMode.md"
             ),
             inputSchema: zodToJsonSchema(researchModeSchema),
+            annotations: {
+              title: "Research Mode",
+              readOnlyHint: true,
+            },
           },
         ],
       };
