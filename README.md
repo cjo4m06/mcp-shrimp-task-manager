@@ -259,3 +259,8 @@ Created by [cjo4m06](https://github.com/cjo4m06) and maintained by the community
   <a href="https://github.com/cjo4m06/mcp-shrimp-task-manager/issues">Issues</a> •
   <a href="https://github.com/cjo4m06/mcp-shrimp-task-manager/discussions">Discussions</a>
 </p>
+
+## Hosted deployment
+
+A hosted deployment is available on [Fronteir AI](https://fronteir.ai/mcp/cjo4m06-mcp-shrimp-task-manager).
+
