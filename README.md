@@ -10,7 +10,7 @@
 
 **[Watch Demo Video](https://www.youtube.com/watch?v=Arzu0lV09so)** • **[Quick Start](#-quick-start)** • **[Documentation](#-documentation)**
 
-[![smithery badge](https://smithery.ai/badge/@cjo4m06/mcp-shrimp-task-manager)](https://smithery.ai/server/@cjo4m06/mcp-shrimp-task-manager)
+[![Listed on Skillselion](https://skillselion.com/badge/mcp/tool/io.github.cjo4m06/mcp-shrimp-task-manager.svg)](https://skillselion.com/mcp/tool/io.github.cjo4m06/mcp-shrimp-task-manager)
 <a href="https://glama.ai/mcp/servers/@cjo4m06/mcp-shrimp-task-manager"><img width="380" height="200" src="https://glama.ai/mcp/servers/@cjo4m06/mcp-shrimp-task-manager/badge" alt="Shrimp Task Manager MCP server" /></a>
 
 </div>
