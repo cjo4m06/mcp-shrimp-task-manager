@@ -2,6 +2,17 @@
 
 # Changelog
 
+## [1.1.0] - 2026-10-20
+
+### Added
+
+- Task Viewer 4.0.0 chat now uses Parallel Search MCP for web search and page fetching, with source URLs, no Parallel key required, per-project search preferences, a server-wide disable control, and a new-chat action.
+- Bounded tool execution, cancellation on disconnect, and per-conversation search sessions.
+
+### Changed
+
+- **Breaking (Task Viewer 4.0.0)**: Task Viewer requires Node.js 18 or newer for the MCP HTTP client. The root MCP server already requires Node.js 18.
+
 ## [1.0.21] - 2025-01-13
 
 ### Added

@@ -161,6 +161,18 @@ npm run start:all
 
 <kbd><img src="tools/task-viewer/task-viewer-interface.png" alt="Task Viewer Interface" width="600"/></kbd>
 
+##### Web search in Task Viewer chat
+
+Task Viewer chat can search the web and fetch documentation pages with
+[Parallel Search MCP](https://docs.parallel.ai/integrations/mcp/search-mcp).
+Search uses Fast mode and needs no Parallel account or API key. Open a project,
+open chat, and ask a current technical question or provide a page URL. The existing
+OpenAI key is still required for chat. Web search is enabled by default; uncheck
+**Web search (Parallel)** to save a project-specific preference, or set
+`SHRIMP_WEB_SEARCH=false` before starting the viewer to disable it server-wide.
+Model-selected search tool arguments, including queries and page URLs, are sent to Parallel. Choose
+**New chat** to clear the conversation and start a fresh search session.
+
 #### 🌐 Web GUI
 Optional lightweight web interface for quick task overview.
 

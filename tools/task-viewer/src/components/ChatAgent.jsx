@@ -24,6 +24,9 @@ function ChatAgent({
   const [isLoading, setIsLoading] = useState(false);
   const [agentsLoading, setAgentsLoading] = useState(false);
   const [openAIKey, setOpenAIKey] = useState('');
+  const [searchEnabled, setSearchEnabled] = useState(true);
+  const conversationId = useRef(null);
+  const activeRequest = useRef(null);
   const [agentsExpanded, setAgentsExpanded] = useState(() => {
     // Load expanded state from localStorage
     const saved = localStorage.getItem('chatAgentsExpanded');
@@ -66,7 +69,11 @@ function ChatAgent({
       
       // Clear messages when switching projects to avoid confusion
       setMessages([]);
+      conversationId.current = crypto.randomUUID();
+      setSearchEnabled(localStorage.getItem(`chatWebSearch_${profileId}`) !== 'false');
+      setIsLoading(false);
     }
+    return () => activeRequest.current?.abort();
   }, [profileId]);
 
   // Auto-scroll to bottom when new messages arrive
@@ -284,6 +291,8 @@ function ChatAgent({
     setInputMessage('');
     setIsLoading(true);
 
+    const controller = new AbortController();
+    activeRequest.current = controller;
     try {
       const selectedAgentsList = Object.entries(selectedAgents)
         .filter(([_, selected]) => selected)
@@ -298,6 +307,7 @@ function ChatAgent({
 
       const response = await fetch('/api/chat', {
         method: 'POST',
+        signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -307,15 +317,17 @@ function ChatAgent({
           context: contextData,
           profileId,
           openAIKey,
-          availableAgents: availableAgents
+          availableAgents: availableAgents,
+          conversationId: conversationId.current,
+          searchEnabled
         })
       });
 
-      if (!response.ok) {
-        throw new Error(t('chat.responseError'));
-      }
-
       const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.details || data.error || t('chat.responseError'));
+      }
+      if (controller.signal.aborted) return;
       
       const assistantMessage = {
         id: Date.now() + 1,
@@ -347,10 +359,11 @@ function ChatAgent({
       }
 
     } catch (err) {
+      if (controller.signal.aborted) return;
       console.error('Error sending message:', err);
       showToast(err.message || t('chat.sendError'), 'error');
     } finally {
-      setIsLoading(false);
+      if (activeRequest.current === controller) setIsLoading(false);
     }
   };
 
@@ -461,6 +474,19 @@ function ChatAgent({
         <div className="chat-agent-controls">
           <button
             className="chat-control-btn"
+            title={t('chat.newChat', 'New chat')}
+            onClick={() => {
+              activeRequest.current?.abort();
+              activeRequest.current = null;
+              conversationId.current = crypto.randomUUID();
+              setMessages([]);
+              setIsLoading(false);
+            }}
+          >
+            ↻
+          </button>
+          <button
+            className="chat-control-btn"
             onClick={() => handleModeChange(chatMode === 'normal' ? 'expanded' : 'normal')}
             title={chatMode === 'normal' ? t('chat.controls.expandWidth') : t('chat.controls.normalWidth')}
           >
@@ -493,6 +519,18 @@ function ChatAgent({
       {!isMinimized && (
         <>
           <div className="chat-agent-agents">
+            <label className="agent-checkbox" title={t('chat.webSearchNotice', 'Search tool arguments, including queries and page URLs, are sent to Parallel.')}>
+              <input
+                type="checkbox"
+                checked={searchEnabled}
+                disabled={isLoading}
+                onChange={event => {
+                  setSearchEnabled(event.target.checked);
+                  localStorage.setItem(`chatWebSearch_${profileId}`, String(event.target.checked));
+                }}
+              />
+              <span>{t('chat.webSearch', 'Web search (Parallel)')}</span>
+            </label>
             <div className="agents-selection-header">
               <div className="agents-header-row" onClick={toggleAgentsExpanded}>
                 <span className="agents-label">

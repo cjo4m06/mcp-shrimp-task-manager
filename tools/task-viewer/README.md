@@ -2,6 +2,25 @@
 
 A modern, React-based web interface for viewing and managing [Shrimp Task Manager](https://github.com/cjo4m06/mcp-shrimp-task-manager) tasks created through the MCP (Model Context Protocol) tool. This visual interface allows you to see detailed task information, track progress across multiple projects, and easily copy task UUIDs for AI agent interactions.
 
+## Web search in chat
+
+Task Viewer 4.0.0 requires Node.js 18+ (previous viewer releases supported Node.js 14+). Install this viewer's dependencies with `npm install`, then
+use the existing OpenAI chat setup. Chat now offers free web search and page
+fetching through [Parallel Search MCP](https://docs.parallel.ai/integrations/mcp/search-mcp),
+with Fast mode for search and no Parallel account or API key.
+
+Search is enabled for a project until you uncheck **Web search (Parallel)**. The
+choice is saved separately from agent selections. Set `SHRIMP_WEB_SEARCH=false`
+before starting the server to prevent all search calls, including calls requested
+by older clients. Model-selected search tool arguments, including queries and page URLs, are sent to
+Parallel; task context is used by OpenAI as before. Search and fetch can fail or
+reach service limits; failures are reported and do not switch providers.
+
+**New chat** clears displayed messages and starts a fresh search session. Switching
+projects also starts a fresh session and cancels an in-flight turn. Closing and
+reopening the chat panel preserves the current session. The existing OpenAI key,
+model and task modification confirmation remain in use.
+
 ## Why Use Shrimp Task Viewer?
 
 When using Shrimp Task Manager as an MCP server with AI agents like Claude, this viewer provides essential visibility into your task ecosystem:

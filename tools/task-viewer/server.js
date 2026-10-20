@@ -7,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import os from 'os';
 import dotenv from 'dotenv';
+import { runChat } from './chat.js';
 
 // Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -16,7 +17,7 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Version information
-const VERSION = '2.0.0';
+const VERSION = '4.0.0';
 const PORT = process.env.SHRIMP_VIEWER_PORT || 9998;
 const SETTINGS_FILE = path.join(os.homedir(), '.shrimp-task-viewer-settings.json');
 const GLOBAL_SETTINGS_FILE = path.join(os.homedir(), '.shrimp-task-viewer-global-settings.json');
@@ -1754,7 +1755,7 @@ async function startServer() {
             req.on('data', chunk => body += chunk.toString());
             req.on('end', async () => {
                 try {
-                    const { message, agents, context, profileId, openAIKey, availableAgents } = JSON.parse(body);
+                    const { message, agents, context, profileId, openAIKey, availableAgents, conversationId, searchEnabled } = JSON.parse(body);
                     console.log('Chat request:', { message, agents, context: context?.currentPage });
                     
                     // Validate OpenAI key
@@ -1868,52 +1869,22 @@ async function startServer() {
                     systemPrompt += '- Use emojis (📋 📝 ⚠️ 🔧 💡 🎯) to add visual context\n';
                     systemPrompt += '- Use headers (##) for section organization\n';
 
-                    // Call OpenAI API
-                    const openAIData = JSON.stringify({
-                        model: 'gpt-4-turbo-preview',
-                        messages: [
-                            { role: 'system', content: systemPrompt },
-                            { role: 'user', content: message }
-                        ],
-                        temperature: 0.7,
-                        max_tokens: 1000
-                    });
-                    
-                    const openAIResponse = await new Promise((resolve, reject) => {
-                        const options = {
-                            hostname: 'api.openai.com',
-                            path: '/v1/chat/completions',
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': 'Bearer ' + apiKey,
-                                'Content-Length': Buffer.byteLength(openAIData)
-                            }
-                        };
-                        
-                        const req = https.request(options, (res) => {
-                            let data = '';
-                            res.on('data', chunk => data += chunk);
-                            res.on('end', () => {
-                                if (res.statusCode === 200) {
-                                    try {
-                                        resolve(JSON.parse(data));
-                                    } catch (err) {
-                                        reject(new Error('Invalid JSON from OpenAI'));
-                                    }
-                                } else {
-                                    reject(new Error('OpenAI API error: ' + res.statusCode + ' - ' + data));
-                                }
-                            });
+                    // Stop remote work if the browser disconnects or cancels this turn.
+                    const controller = new AbortController();
+                    const cancel = () => {
+                        if (!res.writableEnded) controller.abort();
+                    };
+                    res.on('close', cancel);
+                    let aiResponse;
+                    try {
+                        aiResponse = await runChat({
+                            apiKey, systemPrompt, message, conversationId, searchEnabled,
+                            signal: controller.signal,
                         });
-                        
-                        req.on('error', reject);
-                        req.write(openAIData);
-                        req.end();
-                    });
-                    
-                    let aiResponse = openAIResponse.choices[0].message.content;
-                    
+                    } finally {
+                        res.off('close', cancel);
+                    }
+
                     // Check if response suggests task modification
                     let taskModification = null;
                     if (context.currentTask && aiResponse.includes('TASK_MODIFICATION:')) {
@@ -1987,10 +1958,12 @@ async function startServer() {
     return server;
 }
 
-// Start the server
-startServer().catch(err => {
-    console.error('Failed to start server:', err);
-    process.exit(1);
-});
+// Importing the server for tests must not start a second listener.
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+    startServer().catch(err => {
+        console.error('Failed to start server:', err);
+        process.exit(1);
+    });
+}
 
 export { startServer };
