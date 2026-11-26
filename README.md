@@ -2,6 +2,8 @@
 
 # MCP Shrimp Task Manager
 
+[![Protodex Verified](https://img.shields.io/badge/Protodex-Verified_MCP-2DD9E0?style=flat-square&logo=github)](https://protodex.io/servers/cjo4m06-mcp-shrimp-task-manager.html)
+
 > 🦐 **Intelligent task management for AI-powered development** - Break down complex projects into manageable tasks, maintain context across sessions, and accelerate your development workflow.
 
 <div align="center">
